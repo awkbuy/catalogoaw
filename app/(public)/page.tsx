@@ -1,0 +1,85 @@
+import { prisma } from "@/lib/prisma";
+import HomeClient from "./HomeClient";
+import JsonLd from "@/components/JsonLd";
+import { parsearHorarios } from "@/lib/horarios";
+import { parseTaxConfig } from "@/lib/tax";
+import type { PublicPaymentMethod } from "@/lib/payment-methods";
+import {
+  getSeoSettings,
+  collectionPageJsonLd,
+  faqJsonLd,
+} from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { categoria, q } = await searchParams;
+  const initialCategoria =
+    typeof categoria === "string" ? categoria : undefined;
+  const initialQuery = typeof q === "string" ? q : undefined;
+
+  const [games, categories, paymentMethods, settings] = await Promise.all([
+    prisma.game.findMany({
+      include: { categoria: { select: { nombre: true, icono: true, color: true } } },
+      orderBy: { orden: "asc" },
+    }),
+    prisma.category.findMany({
+      include: { _count: { select: { games: true } } },
+      orderBy: { orden: "asc" },
+    }),
+    prisma.paymentMethod.findMany({
+      where: { activo: true },
+      orderBy: { orden: "asc" },
+    }),
+    getSeoSettings(),
+  ]);
+
+  const settingsRows = await prisma.setting.findMany();
+  const rawSettings: Record<string, string> = {};
+  for (const s of settingsRows) {
+    rawSettings[s.key] = s.value;
+  }
+
+  const whatsappNumber = rawSettings.whatsapp || rawSettings.telefono || "";
+  const businessName = rawSettings.nombreNegocio || "Wolfie Room";
+  const logoUrl = rawSettings.logoUrl || null;
+  const taxConfig = parseTaxConfig(rawSettings);
+
+  const publicPaymentMethods: PublicPaymentMethod[] = paymentMethods.map((pm) => ({
+    id: pm.id,
+    titulo: pm.titulo,
+    descripcion: pm.descripcion,
+    icono: pm.icono,
+    promocional: pm.promocional,
+  }));
+
+  const faq = faqJsonLd(settings.faq);
+
+  return (
+    <>
+      <JsonLd
+        data={collectionPageJsonLd(
+          settings,
+          games.map((g) => ({ nombre: g.nombre, slug: g.slug }))
+        )}
+      />
+      {faq ? <JsonLd data={faq} /> : null}
+      <HomeClient
+        games={games}
+        categories={categories}
+        whatsappNumber={whatsappNumber}
+        businessName={businessName}
+        logoUrl={logoUrl}
+        horarios={parsearHorarios(rawSettings.horarios_semana)}
+        taxConfig={taxConfig}
+        paymentMethods={publicPaymentMethods}
+        initialCategoria={initialCategoria}
+        initialQuery={initialQuery}
+      />
+    </>
+  );
+}

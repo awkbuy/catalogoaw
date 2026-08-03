@@ -1,0 +1,8 @@
+{
+  "name": "wolfie-room-tools",
+  "private": true,
+  "description": "CLI de Prisma aislado en el server, usado solo para aplicar migraciones futuras.",
+  "dependencies": {
+    "prisma": "^7.9.0"
+  }
+}

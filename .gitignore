@@ -1,0 +1,42 @@
+# Dependencias
+node_modules
+
+# Build
+.next
+out
+next-env.d.ts
+
+# Entorno
+.env
+.env.local
+.env.production
+.env*.local
+
+# Base de datos y datos locales (se copian al server por separado)
+*.db
+*.db-journal
+prisma/dev.db
+data/
+
+# Archivos subidos por el admin (se copian al server por separado)
+public/uploads/
+
+# Prisma client generado
+/app/generated/prisma
+node_modules/.prisma
+
+# Logs
+*.log
+dev-server.log
+
+# Windows reserved device names (created accidentally by some tools)
+nul
+NUL
+Nul
+
+# Pruebas / reportes
+playwright-report
+test-results
+
+# Archivos con credenciales sueltas
+token git.txt

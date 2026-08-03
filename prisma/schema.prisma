@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  nombre       String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id        String  @id @default(cuid())
+  nombre    String  @unique
+  icono     String  @default("🎲")
+  color     String  @default("#31D3A9")
+  tags      String  @default("")
+  orden     Int     @default(0)
+  games     Game[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Game {
+  id                 String   @id @default(cuid())
+  nombre             String
+  slug               String   @unique
+  descripcion        String   @default("")
+  categoriaId        String
+  categoria          Category @relation(fields: [categoriaId], references: [id])
+  jugadoresMin       Int      @default(2)
+  jugadoresMax       Int      @default(6)
+  duracion           String   @default("60 min")
+  edad               String   @default("8+")
+  dificultad         String   @default("Normal")
+  precioFinalVenta   String   @default("")
+  descuento          Int      @default(0)
+  precioReservaMesa  String   @default("")
+  imagen             String   @default("")
+  integrarVideo      Boolean  @default(false)
+  videoUrl           String   @default("")
+  seoTitle           String   @default("")
+  seoDescription     String   @default("")
+  seoKeywords        String   @default("")
+  canonical          String   @default("")
+  imagenAlt          String   @default("")
+  descripcionAccesible String @default("")
+  resumenIA          String   @default("")
+  estado             String   @default("Disponible")
+  destacado          Boolean  @default(false)
+  nuevo              Boolean  @default(false)
+  disponibleVenta    Boolean  @default(false)
+  disponibleMesa     Boolean  @default(true)
+  orden              Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([slug])
+  @@index([categoriaId])
+  @@index([orden])
+}
+
+model Setting {
+  id             String @id @default(cuid())
+  key            String @unique
+  value          String @default("")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  codigo      String    @unique
+  tipo        String    @default("porcentaje")
+  valor       Int       @default(0)
+  minimo      Int       @default(0)
+  maximo      Int       @default(0)
+  activo      Boolean   @default(true)
+  vencimiento DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([codigo])
+}
+
+model PaymentMethod {
+  id          String   @id @default(cuid())
+  titulo      String   @default("")
+  descripcion String   @default("")
+  icono       String   @default("credit_card")
+  activo      Boolean  @default(true)
+  orden       Int      @default(0)
+  promocional Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([orden])
+}

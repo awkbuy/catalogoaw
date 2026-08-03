@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: #31D3A9;
+  --color-secondary: #FF7BAC;
+  --color-background: #FAFAFA;
+  --color-card: #FFFFFF;
+  --color-text: #1F2937;
+  --color-text-secondary: #6B7280;
+  --color-border: #E5E7EB;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+::selection {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* Sileo toasts: keep centered and inside the viewport on small screens */
+@media (max-width: 640px) {
+  [data-sileo-viewport][data-position$="center"] {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: calc(100vw - 1rem);
+    padding: 0.75rem;
+    box-sizing: border-box;
+  }
+
+  [data-sileo-toast] {
+    --sileo-width: 100%;
+    max-width: calc(100vw - 2.5rem);
+  }
+}
