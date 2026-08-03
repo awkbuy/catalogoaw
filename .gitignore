@@ -41,3 +41,4 @@ test-results
 
 # Archivos con credenciales sueltas
 token git.txt
+*Clave root*.txt
