@@ -52,6 +52,7 @@ jobs:
           du -sh dist/app
 
       - name: Prepare SSH key
+        if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.VPS_SSH_KEY != '' }}
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
@@ -60,24 +61,28 @@ jobs:
           cat ~/.ssh/known_hosts | tail -1
 
       - name: Deploy app bundle (rsync, preserva uploads)
+        if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.VPS_SSH_KEY != '' }}
         run: |
           rsync -avz --delete --exclude='public/uploads/' \
             -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
             dist/app/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/wolfie-room/app/"
 
       - name: Deploy prisma (schema + migraciones)
+        if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.VPS_SSH_KEY != '' }}
         run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
             prisma/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/wolfie-room/prisma/"
 
       - name: Deploy config (ecosystem, nginx, env example)
+        if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.VPS_SSH_KEY != '' }}
         run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
             deploy/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/wolfie-room/deploy/"
 
       - name: Restart app
+        if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.VPS_SSH_KEY != '' }}
         run: |
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
             "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" '
