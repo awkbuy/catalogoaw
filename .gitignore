@@ -42,3 +42,7 @@ test-results
 # Archivos con credenciales sueltas
 token git.txt
 *Clave root*.txt
+
+# Backups locales descargados a la PC (off-site)
+backups-local/
+deploy/backup-local.env
