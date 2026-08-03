@@ -79,8 +79,10 @@ log "Habilitando Nginx..."
 systemctl enable nginx
 systemctl start nginx
 
-log "Instalando PM2 para el usuario ${APP_USER}..."
-su - "$APP_USER" -c "npm i -g pm2 && pm2 install pm2-logrotate && pm2 set pm2-logrotate:max_size 10M && pm2 set pm2-logrotate:retain 7 && pm2 set pm2-logrotate:compress true && pm2 set pm2-logrotate:rotateInterval '0 0 * * *' && pm2 startup systemd -u $APP_USER --hp /home/$APP_USER"
+log "Instalando PM2 (global como root; el daemon corre como ${APP_USER})..."
+npm i -g pm2 >/dev/null
+su - "$APP_USER" -c "pm2 install pm2-logrotate && pm2 set pm2-logrotate:max_size 10M && pm2 set pm2-logrotate:retain 7 && pm2 set pm2-logrotate:compress true && pm2 set pm2-logrotate:rotateInterval '0 0 * * *'"
+pm2 startup systemd -u "$APP_USER" --hp "/home/$APP_USER"
 
 log "Instalando CLI de Prisma (aislado en tools/, solo migraciones)..."
 cat > "$APP_DIR/tools/package.json" <<'EOF'
