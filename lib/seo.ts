@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { parsePrice } from "@/lib/format";
 
-export const DEFAULT_SITE_URL = "https://wolfieroom.com.ar";
+export const DEFAULT_SITE_URL = "https://wolfiesroom.com";
 export const DEFAULT_SITE_NAME = "Wolfie Room";
 
 export interface SeoFaqItem {

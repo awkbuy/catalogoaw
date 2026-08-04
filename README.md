@@ -2,7 +2,7 @@
 
 > El lugar para descubrir los mejores juegos de mesa en Mendoza.
 
-[Sitio en vivo](https://wolfieroom.com.ar)
+[Sitio en vivo](https://wolfiesroom.com)
 
 ---
 

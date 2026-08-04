@@ -126,7 +126,7 @@ El PAT usado hasta ahora **no tiene permiso** para: pasar el repo a privado, pro
    **Variables** (Settings → Variables → Actions):
    | Variable | Valor |
    |---|---|
-   | `NEXT_PUBLIC_SITE_URL` | `https://tu-dominio.com.ar` |
+   | `NEXT_PUBLIC_SITE_URL` | `https://wolfiesroom.com` |
 
 > Generar la clave del CI en tu PC y agregar la **pública** a `/home/wolfie/.ssh/authorized_keys`:
 > ```bash
@@ -227,13 +227,13 @@ Ejecutar con Git Bash/WSL: `bash deploy/backup-local.sh`. Para automatizarlo en 
 
 ## 9. DNS y HTTPS
 
-- Dominio `wolfieroom.com.ar` → registro **A** de `wolfieroom.com.ar` y `www` → `149.50.155.111`.
+- Dominio `wolfiesroom.com` → registro **A** de `wolfiesroom.com` y `www` → `149.50.155.111`.
 - Habilitar el site de Nginx y emitir certificado (una vez, como root):
 
 ```bash
 ln -s /etc/nginx/sites-available/wolfie-room /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
-certbot --nginx -d wolfieroom.com.ar -d www.wolfieroom.com.ar
+certbot --nginx -d wolfiesroom.com -d www.wolfiesroom.com
 ```
 
 - Editar `NEXT_PUBLIC_SITE_URL` en `/var/www/wolfie-room/.env` con la URL definitiva (y en las variables de GitHub).
@@ -257,9 +257,9 @@ certbot --nginx -d wolfieroom.com.ar -d www.wolfieroom.com.ar
 ## 11. Verificación
 
 ```bash
-curl -I https://wolfieroom.com.ar/
-curl -I https://wolfieroom.com.ar/sitemap.xml
-curl -I https://wolfieroom.com.ar/robots.txt
+curl -I https://wolfiesroom.com/
+curl -I https://wolfiesroom.com/sitemap.xml
+curl -I https://wolfiesroom.com/robots.txt
 ssh -p5293 wolfie@149.50.155.111 'pm2 status; pm2 logs wolfie-room --lines 30'
 ssh -p5293 wolfie@149.50.155.111 'ls -1 /var/www/wolfie-room/releases; readlink /var/www/wolfie-room/app'
 ```

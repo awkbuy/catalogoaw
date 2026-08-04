@@ -253,14 +253,14 @@ export default function SeoPage() {
                 label="URL del sitio"
                 value={settings.seoUrl || ""}
                 onChange={(v) => handleChange("seoUrl", v)}
-                placeholder="https://wolfieroom.com.ar"
+                placeholder="https://wolfiesroom.com"
                 hint="Usada para canónicas, sitemap y robots."
               />
               <TextField
                 label="URL canónica por defecto"
                 value={settings.seoCanonical || ""}
                 onChange={(v) => handleChange("seoCanonical", v)}
-                placeholder="https://wolfieroom.com.ar"
+                placeholder="https://wolfiesroom.com"
                 hint="Si la dejás vacía, se usa la URL del sitio."
               />
               <TextField
