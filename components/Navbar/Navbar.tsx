@@ -146,7 +146,7 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
                 width={2252}
                 height={1373}
                 sizes="96px"
-                priority
+                loading="eager"
                 className="h-9 w-auto md:h-11"
               />
             </motion.a>

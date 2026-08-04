@@ -88,7 +88,8 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
               width={2252}
               height={1373}
               sizes="160px"
-              priority
+              loading="eager"
+              fetchPriority="high"
               className="mb-4 inline-block h-12 w-auto object-contain"
             />
           ) : (
