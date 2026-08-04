@@ -96,6 +96,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
               <h2 className="text-lg font-bold text-[#1F2937]">Detalle del producto</h2>
               <button
                 onClick={onClose}
+                aria-label="Cerrar"
                 className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#E5E7EB] transition-colors"
               >
                 <X size={18} className="text-[#6B7280]" />
@@ -212,6 +213,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setCantidad(Math.max(1, cantidad - 1))}
+                      aria-label="Disminuir cantidad"
                       className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center hover:bg-[#FAFAFA] transition-colors"
                     >
                       <Minus size={14} className="text-[#6B7280]" />
@@ -219,6 +221,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
                     <span className="w-8 text-center text-sm font-semibold text-[#1F2937]">{cantidad}</span>
                     <button
                       onClick={() => setCantidad(cantidad + 1)}
+                      aria-label="Aumentar cantidad"
                       className="w-8 h-8 rounded-lg border border-[#E5E7EB] flex items-center justify-center hover:bg-[#FAFAFA] transition-colors"
                     >
                       <Plus size={14} className="text-[#6B7280]" />
@@ -231,7 +234,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
             <div className="border-t border-[#E5E7EB] p-5">
               <button
                 onClick={handleAdd}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#31D3A9] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#31D3A9]/20 hover:bg-[#2bc49b] hover:shadow-xl hover:shadow-[#31D3A9]/30 active:scale-[0.98] transition-all"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#31D3A9] px-5 py-3 text-sm font-semibold text-[#0B3B30] shadow-lg shadow-[#31D3A9]/20 hover:bg-[#2bc49b] hover:shadow-xl hover:shadow-[#31D3A9]/30 active:scale-[0.98] transition-all"
               >
                 <ShoppingCart size={16} />
                 Agregar al carrito {cantidad > 1 && `(${cantidad} unidades)`}

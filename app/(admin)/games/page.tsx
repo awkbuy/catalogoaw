@@ -125,7 +125,7 @@ export default function GamesPage() {
         </div>
         <Link
           href="/games/new"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#31D3A9] text-white text-sm font-medium hover:bg-[#2bc49b] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#31D3A9] text-[#0B3B30] text-sm font-medium hover:bg-[#2bc49b] transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nuevo juego

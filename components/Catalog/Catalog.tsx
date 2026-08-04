@@ -153,7 +153,7 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
                 href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola, estoy buscando un juego en particular.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30"
+                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-[#0B3B30] shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30"
               >
                 Consultar por WhatsApp
               </a>

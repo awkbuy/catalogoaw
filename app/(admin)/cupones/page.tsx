@@ -193,7 +193,7 @@ export default function CuponesPage() {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#31D3A9] text-white text-sm font-medium hover:bg-[#2bc49b] transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#31D3A9] text-[#0B3B30] text-sm font-medium hover:bg-[#2bc49b] transition-colors"
         >
           <Plus className="w-4 h-4" />
           Nuevo cupón
@@ -381,7 +381,7 @@ export default function CuponesPage() {
                         }
                         className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                           form.tipo === opt.value
-                            ? "bg-[#31D3A9] text-white"
+                            ? "bg-[#31D3A9] text-[#0B3B30]"
                             : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
                         }`}
                       >
@@ -476,7 +476,7 @@ export default function CuponesPage() {
                 <button
                   onClick={handleSave}
                   disabled={saving || !form.codigo.trim()}
-                  className="flex-1 py-2.5 rounded-xl bg-[#31D3A9] text-white text-sm font-medium hover:bg-[#2bc49b] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 rounded-xl bg-[#31D3A9] text-[#0B3B30] text-sm font-medium hover:bg-[#2bc49b] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                 >
                   {saving ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

@@ -296,7 +296,7 @@ export default function GameDetailView({
                 </div>
                 <button
                   onClick={handleAdd}
-                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] sm:flex-none"
+                  className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-[#0B3B30] shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] sm:flex-none"
                 >
                   <ShoppingCart size={16} />
                   Agregar al carrito
