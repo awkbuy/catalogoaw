@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import crypto from "crypto";
 import { prisma } from "./prisma";
 
-const SESSION_SECRET = (() => {
+const COOKIE_NAME = "session_token";
+const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+
+function getSessionSecret(): string {
   const raw = process.env.SESSION_SECRET;
   if (!raw) {
     if (process.env.NODE_ENV === "production") {
@@ -18,14 +21,11 @@ const SESSION_SECRET = (() => {
       .digest("hex");
   }
   return crypto.createHash("sha256").update(raw).digest("hex");
-})();
-
-const COOKIE_NAME = "session_token";
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+}
 
 function sign(payload: string): string {
   const signature = crypto
-    .createHmac("sha256", SESSION_SECRET)
+    .createHmac("sha256", getSessionSecret())
     .update(payload)
     .digest("hex");
   return `${payload}.${signature}`;
@@ -39,7 +39,7 @@ function verify(token: string): string | null {
   const receivedSig = token.slice(lastDot + 1);
 
   const expectedSig = crypto
-    .createHmac("sha256", SESSION_SECRET)
+    .createHmac("sha256", getSessionSecret())
     .update(payload)
     .digest("hex");
 
