@@ -2,6 +2,16 @@
 
 > Documento vivo. Describe cómo se construye, despliega y opera la aplicación en producción, con el nuevo sistema de deploys versionados, rollback automático, migraciones manuales y backups off-site.
 
+## Estado actual — PRIMERA VERSIÓN EN PRODUCCIÓN (3-ago-2026)
+
+- **URL**: `https://wolfiesroom.com` (+ `www`) con **HTTPS** (Let's Encrypt, renovación automática).
+- **Release activo**: `releases/20010ef` (primer deploy vía GitHub Actions). PM2 app `wolfie-room` online, 1 instancia.
+- **Verificado**: `/` y `/login` = 200, robots.txt y sitemap.xml OK, uploads sirviendo (`image/webp`).
+- **DNS**: A `wolfiesroom.com` y `www` → `149.50.155.111` (propagado).
+- **SSH endurecido**: solo clave, sin contraseña, `AllowUsers wolfie`; UFW solo 5293/80/443; Fail2ban activo.
+- **Backups**: diario 02:30 en el server + **off-site semanal automatizado** en la PC (tarea de Windows `WolfieRoom Backup`, domingos 03:00).
+- **Repo GitHub**: **privado**, secrets/vars de Actions configurados, CI verde en PR.
+
 ---
 
 ## 1. Arquitectura
@@ -107,6 +117,8 @@ scp -P5293 -r public/uploads/* wolfie@149.50.155.111:/var/www/wolfie-room/upload
 
 ## 5. Configurar GitHub (una sola vez, manual en la web)
 
+> **Estado: HECHO (3-ago-2026).** Repo privado, secrets/vars de Actions creados. Queda pendiente solo la **branch protection** (paso 2) — se documenta igualmente por si hay que recrearlo.
+
 El PAT usado hasta ahora **no tiene permiso** para: pasar el repo a privado, proteger ramas ni crear secrets/vars de Actions (da 403). Hacerlo a mano:
 
 1. **Pasar el repo a privado**: Settings → General → Danger Zone → *Change repository visibility* → **Make private**.
@@ -207,7 +219,7 @@ ssh -p5293 wolfie@149.50.155.111 '
 |---|---|---|---|
 | Diario automático (`backup-wolfie.sh` vía cron) | 02:30 | `backups/` en el server | 7 días |
 | Pre-deploy y pre-migración | cada deploy / migración | `backups/` en el server | 7 días |
-| **Off-site** (`backup-local.sh`) | semanal (manual/tarea) | PC local (`backups-local/`) | 4 semanas |
+| **Off-site** (`backup-local.sh`) | **semanal automático** | PC local (`backups-local/`) | 4 semanas |
 
 `backup-wolfie.sh`: `sqlite3 .backup` (consistente en caliente) + tar de `uploads/`.
 
@@ -221,23 +233,37 @@ VPS_KEY="C:/Users/tu-usuario/.ssh/wolfie_ci_ed25519"
 LOCAL_DIR="C:/Users/tu-usuario/Documentos/Wolfie Room/backups-local"
 ```
 
-Ejecutar con Git Bash/WSL: `bash deploy/backup-local.sh`. Para automatizarlo en Windows:
-**Programador de tareas** → crear tarea semanal → acción: `C:\Program Files\Git\bin\bash.exe -lc "/ruta/al/repo/deploy/backup-local.sh"`.
+Ejecutar con Git Bash/WSL: `bash deploy/backup-local.sh`.
+
+**Automatización (HECHO en esta PC):** tarea de Windows **`WolfieRoom Backup`** (Programador de tareas → `schtasks`) corre el wrapper `backup-local.cmd` (en `C:\Users\luisc\OneDrive\Documentos\Wolfie Room\`) que invoca el script con Git Bash, **domingos 03:00**. Nota: está creada como *Solo interactivo*; si la PC está apagada a esa hora no corre (el backup diario del server retiene 7 días, así que se puede correr a mano: `schtasks /Run /TN "WolfieRoom Backup"`).
+
+Para recrearla:
+```
+schtasks /Create /TN "WolfieRoom Backup" /TR "\"C:\...\backup-local.cmd\"" /SC WEEKLY /D SUN /ST 03:00 /F
+```
 
 ---
 
 ## 9. DNS y HTTPS
 
+> **Estado: HECHO (3-ago-2026).** DNS propagado, Nginx activo y certificado emitido para `wolfiesroom.com` y `www`.
+
 - Dominio `wolfiesroom.com` → registro **A** de `wolfiesroom.com` y `www` → `149.50.155.111`.
-- Habilitar el site de Nginx y emitir certificado (una vez, como root):
+- Habilitar el site de Nginx y emitir certificado (una vez, como root o con `sudo`):
 
 ```bash
-ln -s /etc/nginx/sites-available/wolfie-room /etc/nginx/sites-enabled/
-nginx -t && systemctl reload nginx
-certbot --nginx -d wolfiesroom.com -d www.wolfiesroom.com
+sudo cp /var/www/wolfie-room/deploy/nginx-wolfie-room.conf /etc/nginx/sites-available/wolfie-room
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo ln -sf /etc/nginx/sites-available/wolfie-room /etc/nginx/sites-enabled/wolfie-room
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d wolfiesroom.com -d www.wolfiesroom.com --redirect
 ```
 
 - Editar `NEXT_PUBLIC_SITE_URL` en `/var/www/wolfie-room/.env` con la URL definitiva (y en las variables de GitHub).
+
+> **Gotcha DonWeb:** `/etc/ssh/sshd_config.d/custom.conf` (de DonWeb) fija `PermitRootLogin yes` y, por el `Include` que se procesa antes que el archivo principal, **pisa** el valor del main. Al endurecer SSH hay que corregir ahí (ver §10). También `/etc/ssh/sshd_config.d/80-step.conf` y `custom.conf` configuran `TrustedUserCAKeys` y `UseDNS no`.
+
+> **Nginx + Certbot:** el conf en el server quedó modificado por `certbot --nginx` (agrega los bloques 443 y el redirect 80→443). El archivo en el repo es la **plantilla base**; el del server es el autoritativo.
 
 ---
 
@@ -247,11 +273,11 @@ certbot --nginx -d wolfiesroom.com -d www.wolfiesroom.com
 |---|---|
 | **UFW** | Deny por defecto; permite `5293/tcp`, 80 y 443 |
 | **Fail2ban** | Jail `sshd`: 5 intentos / 10 min → ban 1 h |
-| **SSH endurecido** | Solo clave pública, `PasswordAuthentication no`, `PermitRootLogin prohibit-password`, `AllowUsers wolfie` |
+| **SSH endurecido** | Solo clave pública, `PasswordAuthentication no`, `PermitRootLogin prohibit-password`, `AllowUsers wolfie`. **Ojo:** en DonWeb hay que corregir también `/etc/ssh/sshd_config.d/custom.conf` (pone `PermitRootLogin yes` y el `Include` tiene prioridad). Estado: HECHO |
 | **CI key** | Clave ed25519 dedicada solo para el deploy (nunca la de DonWeb) |
-| **Repo privado** | GitHub (pendiente, manual) |
+| **Repo privado** | GitHub: **PRIVADO** (hecho) |
 | **Logrotate** | `pm2-logrotate` (10 MB, retención 7 días, comprimido) + Nginx (default) |
-| **Backups** | Diario en server (7 días) + semanal off-site en la PC (4 semanas) |
+| **Backups** | Diario en server (7 días) + **semanal off-site automático** en la PC (4 semanas) |
 
 ---
 
@@ -269,9 +295,11 @@ ssh -p5293 wolfie@149.50.155.111 'ls -1 /var/www/wolfie-room/releases; readlink 
 
 ## 12. Notas / pendientes
 
-- **Repo aún PÚBLICO**: pasarlo a privado y activar branch protection (ver §5).
-- **Rotar credenciales expuestas en el chat**: contraseña root de DonWeb y PAT de GitHub (`token git.txt`).
+- **PENDIENTE — Branch protection en `main`** (requerir PR + checks): repo → Settings → Branches → *Add rule* → `main` → Require PR + status checks (`build`). Ver §5.
+- **PENDIENTE — Rotar credenciales expuestas en el chat**: contraseña root de DonWeb (panel DonWeb) y PAT de GitHub (`token git.txt`). La de root ya no sirve por SSH (harden), pero rotarla igual.
 - **Lint local**: hay un error pre-existente en `components/motion-primitives/animated-group.tsx` (`react-hooks/static-components`) que no bloquea el build. Se excluyó lint del CI para no romper el pipeline; se puede arreglar luego y sumar `npm run lint` al CI.
 - **Instalación local de dependencias (Windows)**: `npm ci` plano falla porque `better-sqlite3@13` intenta `node-gyp rebuild` (necesita VS Build Tools). Usar:
   `npm ci --ignore-scripts && npx prisma generate` y, si hace falta el binario del nested better-sqlite3, descargarlo con `node node_modules/prebuild-install/bin.js` dentro de `node_modules/@prisma/adapter-better-sqlite3/node_modules/better-sqlite3`. En CI (Linux) `npm ci` normal funciona.
 - El plan DonWeb (1 vCPU / 1 GB RAM) alcanza holgado para el runtime (~200-400 MB). El upgrade natural es más RAM/vCPU.
+- **Clave de CI local**: `~/.ssh/wolfie_ci_ed25519` (privada, se guarda en el secret `VPS_SSH_KEY` y se usa para SSH local); su clave pública está en `/home/wolfie/.ssh/authorized_keys`. No borrar.
+- **Restauración de la BD** (si hiciera falta): copiar un backup `backups/dev-*.db` a `/var/www/wolfie-room/data/dev.db` y reiniciar la app (`pm2 restart wolfie-room`). Hacerlo con la app detenida o aceptando una pérdida de segundos.
