@@ -5,12 +5,14 @@
 ## Estado actual — PRIMERA VERSIÓN EN PRODUCCIÓN (3-ago-2026)
 
 - **URL**: `https://wolfiesroom.com` (+ `www`) con **HTTPS** (Let's Encrypt, renovación automática).
-- **Release activo**: `releases/20010ef` (primer deploy vía GitHub Actions). PM2 app `wolfie-room` online, 1 instancia.
+- **Release activo**: `releases/c4eaad3` (último deploy vía GitHub Actions; el primer deploy fue `20010ef`). PM2 app `wolfie-room` online, 1 instancia.
 - **Verificado**: `/` y `/login` = 200, robots.txt y sitemap.xml OK, uploads sirviendo (`image/webp`).
 - **DNS**: A `wolfiesroom.com` y `www` → `149.50.155.111` (propagado).
 - **SSH endurecido**: solo clave, sin contraseña, `AllowUsers wolfie`; UFW solo 5293/80/443; Fail2ban activo.
 - **Backups**: diario 02:30 en el server + **off-site semanal automatizado** en la PC (tarea de Windows `WolfieRoom Backup`, domingos 03:00).
 - **Repo GitHub**: **privado**, secrets/vars de Actions configurados, CI verde en PR.
+
+> ⚠️ **Dirección de los datos (importante).** La copia inicial fue local → server (una sola vez, §4). Desde entonces, **la BD de producción es la fuente de verdad**: los cambios se hacen desde el panel admin (`https://wolfiesroom.com/login`) y viven en `/var/www/wolfie-room/data/dev.db`. **Nunca volver a copiar `dev.db` local hacia el server** (revertiría los cambios de producción, p.ej. imágenes corregidas). Para desarrollo, bajar del server hacia local: `scp -P5293 wolfie@149.50.155.111:/var/www/wolfie-room/data/dev.db dev.db` y `scp -P5293 -r wolfie@149.50.155.111:/var/www/wolfie-room/uploads/ public/uploads/`. Los uploads nuevos del admin se guardan en `/var/www/wolfie-room/uploads/` (estable) y se incluyen en los backups.
 
 ---
 
