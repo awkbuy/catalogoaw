@@ -50,17 +50,7 @@ jobs:
           DATABASE_URL: "file:./ci.db"
 
       - name: Assemble standalone bundle
-        run: |
-          set -euo pipefail
-          mkdir -p dist/app
-          cp -r .next/standalone/. dist/app/
-          cp -r .next/static dist/app/.next/static
-          cp -r public/. dist/app/public/
-          # better-sqlite3 resuelve su binario nativo desde prebuilds/ en runtime.
-          # Next no lo incluye en el traceado del standalone: hay que copiarlo.
-          mkdir -p dist/app/node_modules/better-sqlite3
-          cp -r node_modules/better-sqlite3/prebuilds dist/app/node_modules/better-sqlite3/prebuilds
-          du -sh dist/app
+        run: bash deploy/assemble.sh
 
       - name: Prepare SSH key
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}

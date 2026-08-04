@@ -33,14 +33,23 @@ mv -Tf "$APP_DIR/app.new" "$APP_DIR/app"
 echo "==> Reiniciando wolfie-room"
 pm2 startOrRestart "$APP_DIR/deploy/ecosystem.config.js" >/dev/null || true
 pm2 save >/dev/null 2>&1 || true
-sleep 3
 
 smoke() {
   curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$1" || echo 000
 }
 
-HOME_CODE="$(smoke http://127.0.0.1:3000/)"
-LOGIN_CODE="$(smoke http://127.0.0.1:3000/login)"
+# El VPS puede tardar en arrancar el server (1 GB, standalone): reintenta hasta ~30s.
+echo "==> Smoke test (reintentos) /, /login"
+HOME_CODE="000"
+LOGIN_CODE="000"
+for i in $(seq 1 10); do
+  HOME_CODE="$(smoke http://127.0.0.1:3000/)"
+  LOGIN_CODE="$(smoke http://127.0.0.1:3000/login)"
+  if [ "$HOME_CODE" = "200" ] && [ "$LOGIN_CODE" = "200" ]; then
+    break
+  fi
+  sleep 3
+done
 echo "smoke test: /=$HOME_CODE /login=$LOGIN_CODE"
 
 if [ "$HOME_CODE" != "200" ] || [ "$LOGIN_CODE" != "200" ]; then

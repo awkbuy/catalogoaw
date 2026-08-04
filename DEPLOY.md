@@ -40,13 +40,14 @@ DonWeb VPS Cloud (1 vCPU / 1 GB RAM / 10 GB SSD):
 
 ## 2. Repositorio
 
-- `.github/workflows/ci.yml` — **build checks** en PR y push a `main` (`npm ci` → `prisma generate` → `prisma migrate deploy` contra `ci.db` → `next build`).
+- `.github/workflows/ci.yml` — **build checks** en PR y push a `main` (`npm ci` → `prisma generate` → `prisma migrate deploy` contra `ci.db` → `next build` → `assemble.sh` → **smoke test del standalone**).
 - `.github/workflows/deploy.yml` — **build + deploy** solo en push a `main` (o dispatch manual). Incluye backup previo, release versionado, smoke test y rollback automático.
 - `.github/workflows/migrate.yml` — **aplicar migraciones** (disparo manual).
 - `deploy/`:
   - `install-server.sh` — provisiona el VPS (una sola vez).
   - `harden-ssh.sh` — endurece SSH (solo clave, sin root, `AllowUsers wolfie`).
-  - `remote-deploy.sh` — se ejecuta EN el VPS: backup, swap de symlink, restart, smoke test, rollback, limpieza.
+  - `assemble.sh` — ensambla el standalone: descarga/copia los `prebuilds/` de `better-sqlite3` (el top-level no los trae en CI) y falla si falta el binario nativo.
+  - `remote-deploy.sh` — se ejecuta EN el VPS: backup, swap de symlink, restart, smoke test con reintentos, rollback, limpieza.
   - `ecosystem.config.js` — config de PM2.
   - `nginx-wolfie-room.conf` — proxy reverso.
   - `.env.production.example` — plantilla del entorno.
