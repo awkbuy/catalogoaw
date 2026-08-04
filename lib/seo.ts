@@ -219,10 +219,6 @@ export function buildSiteMetadata(settings: SeoSettings): Metadata {
         ? { "msvalidate.01": settings.bingVerification }
         : undefined,
     },
-    icons: {
-      icon: settings.favicon,
-      apple: settings.favicon,
-    },
   };
 }
 
