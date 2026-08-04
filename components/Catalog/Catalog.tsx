@@ -8,6 +8,19 @@ import ProductDetailModal from "@/components/ProductDetailModal";
 import type { TaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
 
+function getTextOnColor(hex: string) {
+  const clean = hex.replace("#", "");
+  const num = parseInt(clean, 16);
+  const r = ((num >> 16) & 255) / 255;
+  const g = ((num >> 8) & 255) / 255;
+  const b = (num & 255) / 255;
+  const [lr, lg, lb] = [r, g, b].map((v) =>
+    v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+  );
+  const luminance = 0.2126 * lr + 0.7152 * lg + 0.0722 * lb;
+  return luminance > 0.2 ? "text-[#0B3B30]" : "text-white";
+}
+
 export interface PublicGame {
   id: string;
   nombre: string;
@@ -126,7 +139,7 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
                   onClick={() => setActiveCategory(cat.nombre)}
                   className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
                     active
-                      ? "text-white shadow-md"
+                      ? `${getTextOnColor(cat.color)} shadow-md`
                       : "border border-border bg-card text-text-secondary hover:border-primary/30 hover:text-text"
                   }`}
                   style={active ? { backgroundColor: cat.color } : undefined}

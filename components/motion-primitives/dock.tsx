@@ -41,6 +41,7 @@ export type DockItemProps = {
   className?: string;
   children: React.ReactNode;
   onClick?: () => void;
+  label?: string;
 };
 
 export type DockLabelProps = {
@@ -172,7 +173,7 @@ function Dock({
   );
 }
 
-function DockItem({ children, className, onClick }: DockItemProps) {
+function DockItem({ children, className, onClick, label }: DockItemProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const { distance, magnification, mouseX, spring } = useDock();
@@ -207,6 +208,7 @@ function DockItem({ children, className, onClick }: DockItemProps) {
       tabIndex={0}
       role='button'
       aria-haspopup='true'
+      aria-label={label}
       onClick={onClick}
     >
       {Children.map(children, (child) =>

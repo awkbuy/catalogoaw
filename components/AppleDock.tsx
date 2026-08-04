@@ -64,6 +64,7 @@ export default function AppleDock({ tabs, activeTab, hideOn = "md:hidden", force
             <DockItem
               key={tab.id}
               onClick={tab.onClick}
+              label={tab.label}
               className={isActive ? "text-[#31D3A9]" : "text-[#9CA3AF]"}
             >
               <DockIcon>

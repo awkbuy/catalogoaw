@@ -131,6 +131,8 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
                     src={cat.icono!}
                     alt={cat.nombre}
                     fill
+                    priority
+                    fetchPriority="high"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                   />
