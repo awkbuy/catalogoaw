@@ -2,6 +2,7 @@
 # Endurece SSH: deshabilita login por contraseña y login root.
 # IMPORTANTE: ejecutar SOLO después de copiar tu clave pública a wolfie
 # y de verificar en otra terminal que podés entrar como wolfie.
+# Nota: el SSH de DonWeb ya escucha en el puerto 5293; esto NO lo cambia.
 # Uso (como root o sudo): bash harden-ssh.sh
 set -euo pipefail
 

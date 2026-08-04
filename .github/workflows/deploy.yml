@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -13,6 +17,7 @@ jobs:
       VPS_HOST: ${{ secrets.VPS_HOST }}
       VPS_USER: ${{ secrets.VPS_USER }}
       VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_SSH_PORT: ${{ secrets.VPS_SSH_PORT }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,57 +50,62 @@ jobs:
           DATABASE_URL: "file:./ci.db"
 
       - name: Assemble standalone bundle
-        run: |
-          set -euo pipefail
-          mkdir -p dist/app
-          cp -r .next/standalone/. dist/app/
-          cp -r .next/static dist/app/.next/static
-          cp -r public/. dist/app/public/
-          # better-sqlite3 resuelve su binario nativo desde prebuilds/ en runtime.
-          # Next no lo incluye en el traceado del standalone: hay que copiarlo.
-          mkdir -p dist/app/node_modules/better-sqlite3
-          cp -r node_modules/better-sqlite3/prebuilds dist/app/node_modules/better-sqlite3/prebuilds
-          du -sh dist/app
+        run: bash deploy/assemble.sh
 
       - name: Prepare SSH key
-        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' }}
+        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
-          cat ~/.ssh/known_hosts | tail -1
+          ssh-keyscan -p "$VPS_SSH_PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Deploy app bundle (rsync, preserva uploads)
-        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' }}
+      - name: Pre-deploy backup (en el VPS)
+        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
+          ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
+            "$VPS_USER@$VPS_HOST" 'bash /usr/local/bin/backup-wolfie.sh'
+
+      - name: Sync config de deploy (scripts, ecosystem, nginx, env example)
+        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
+        run: |
+          rsync -avz \
+            -e "ssh -i ~/.ssh/id_ed25519 -p $VPS_SSH_PORT -o StrictHostKeyChecking=no" \
+            deploy/ "$VPS_USER@$VPS_HOST:/var/www/wolfie-room/deploy/"
+
+      - name: Sync prisma (schema + migraciones)
+        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
+        run: |
+          rsync -avz \
+            -e "ssh -i ~/.ssh/id_ed25519 -p $VPS_SSH_PORT -o StrictHostKeyChecking=no" \
+            prisma/ "$VPS_USER@$VPS_HOST:/var/www/wolfie-room/prisma/"
+
+      - name: Deploy release versionado (rsync a releases/<sha>)
+        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
+        run: |
+          set -euo pipefail
+          SHA="$(git rev-parse --short HEAD)"
+          ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
+            "$VPS_USER@$VPS_HOST" "mkdir -p /var/www/wolfie-room/releases/$SHA"
           rsync -avz --delete --exclude='public/uploads/' \
-            -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
-            dist/app/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/wolfie-room/app/"
+            -e "ssh -i ~/.ssh/id_ed25519 -p $VPS_SSH_PORT -o StrictHostKeyChecking=no" \
+            dist/app/ "$VPS_USER@$VPS_HOST:/var/www/wolfie-room/releases/$SHA/"
 
-      - name: Deploy prisma (schema + migraciones)
-        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' }}
+      - name: Swap symlink, restart, smoke test (rollback automático)
+        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
-          rsync -avz \
-            -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
-            prisma/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/wolfie-room/prisma/"
+          set -euo pipefail
+          SHA="$(git rev-parse --short HEAD)"
+          ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
+            "$VPS_USER@$VPS_HOST" "bash /var/www/wolfie-room/deploy/remote-deploy.sh $SHA"
 
-      - name: Deploy config (ecosystem, nginx, env example)
-        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' }}
+      - name: Verify (estado final)
+        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
-          rsync -avz \
-            -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
-            deploy/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/wolfie-room/deploy/"
-
-      - name: Restart app
-        if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' }}
-        run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" '
-            set -e
-            mkdir -p /var/www/wolfie-room/app/public/uploads
+          ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
+            "$VPS_USER@$VPS_HOST" '
             cd /var/www/wolfie-room
-            pm2 startOrReload deploy/ecosystem.config.js
-            pm2 save
+            echo "app -> $(readlink app)"
             pm2 status wolfie-room
+            echo "releases:"; ls -1 releases
           '

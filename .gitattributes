@@ -1,0 +1,7 @@
+# Normaliza finales de línea. CRLF en scripts .sh rompe bash en el server.
+* text=auto
+
+*.sh text eol=lf
+*.bash text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf

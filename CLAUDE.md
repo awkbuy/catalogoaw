@@ -171,7 +171,7 @@ prisma/
 - OpenGraph y Twitter cards
 - Sitemap XML dinámico (`app/sitemap.ts`)
 - Robots.txt (`app/robots.ts`)
-- Canonical URL: `https://wolfieroom.com.ar`
+- Canonical URL: `https://wolfiesroom.com`
 - Idioma: `es_AR`
 
 ## Variables de entorno
