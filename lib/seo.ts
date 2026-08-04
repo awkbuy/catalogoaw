@@ -117,7 +117,16 @@ export const getSeoSettings = cache(async (): Promise<SeoSettings> => {
 });
 
 export function getSiteUrl(settings: SeoSettings): string {
-  return (settings.url || DEFAULT_SITE_URL).replace(/\/+$/, "");
+  const candidate = (settings.url || DEFAULT_SITE_URL).trim();
+  try {
+    const u = new URL(candidate);
+    if (u.protocol === "http:" || u.protocol === "https:") {
+      return u.toString().replace(/\/+$/, "");
+    }
+  } catch {
+    // valor inválido (p.ej. un link en formato Markdown): usar el default
+  }
+  return DEFAULT_SITE_URL;
 }
 
 export function resolveUrl(settings: SeoSettings, path: string): string {
@@ -134,7 +143,14 @@ export function resolveImage(settings: SeoSettings, src: string): string {
 export function buildSiteMetadata(settings: SeoSettings): Metadata {
   const siteUrl = getSiteUrl(settings);
   const siteName = settings.nombreSitio;
-  const canonicalUrl = settings.canonical || siteUrl;
+  let canonicalUrl: string;
+  try {
+    const u = new URL(settings.canonical || "", siteUrl);
+    if (u.protocol !== "http:" && u.protocol !== "https:") canonicalUrl = siteUrl;
+    else canonicalUrl = u.toString().replace(/\/+$/, "");
+  } catch {
+    canonicalUrl = siteUrl;
+  }
   const ogTitle = settings.ogTitle || settings.tituloDefault;
   const ogDescription = settings.ogDescription || settings.descripcion;
   const ogImage = resolveImage(settings, settings.ogImage);
