@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeError } from "@/lib/errors";
 
 export async function GET(
   req: NextRequest,
@@ -64,7 +65,7 @@ export async function PUT(
     });
     return NextResponse.json(juego);
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Error updating game" }, { status: 500 });
+    return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }
 
@@ -81,6 +82,6 @@ export async function DELETE(
     await prisma.game.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Error deleting game" }, { status: 500 });
+    return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }

@@ -2,6 +2,37 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const ALLOWED_SETTINGS_KEYS = [
+  "businessName",
+  "businessSlogan",
+  "whatsappNumber",
+  "email",
+  "address",
+  "city",
+  "province",
+  "postalCode",
+  "facebook",
+  "instagram",
+  "tiktok",
+  "youtube",
+  "heroTitle",
+  "heroSubtitle",
+  "heroButtonText",
+  "heroButtonLink",
+  "categoriesHeroTitle",
+  "categoriesHeroSubtitle",
+  "featuredProductsTitle",
+  "featuredProductsSubtitle",
+  "featuredCategoryId",
+  "catalogTitle",
+  "catalogSubtitle",
+  "catalogHeroImage",
+  "ga4MeasurementId",
+  "paymentLink",
+  "bankTransferAlias",
+  "bankTransferCbu",
+];
+
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,6 +51,16 @@ export async function PUT(req: NextRequest) {
 
   const data: Record<string, string> = await req.json();
 
+  const invalidKeys = Object.keys(data).filter(
+    (key) => !ALLOWED_SETTINGS_KEYS.includes(key)
+  );
+  if (invalidKeys.length > 0) {
+    return NextResponse.json(
+      { error: "Invalid settings keys" },
+      { status: 400 }
+    );
+  }
+
   try {
     for (const [key, value] of Object.entries(data)) {
       await prisma.setting.upsert({
@@ -29,7 +70,10 @@ export async function PUT(req: NextRequest) {
       });
     }
     return NextResponse.json({ ok: true });
-  } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Error saving settings" }, { status: 500 });
+  } catch {
+    return NextResponse.json(
+      { error: "Error saving settings" },
+      { status: 500 }
+    );
   }
 }

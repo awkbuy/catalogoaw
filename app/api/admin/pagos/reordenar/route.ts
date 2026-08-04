@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeError } from "@/lib/errors";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error reordenando medios de pago" },
+      { error: sanitizeError(error) },
       { status: 500 }
     );
   }

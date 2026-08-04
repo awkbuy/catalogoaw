@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeError } from "@/lib/errors";
 
 export async function PUT(
   req: NextRequest,
@@ -25,7 +26,7 @@ export async function PUT(
     });
     return NextResponse.json(categoria);
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Error updating category" }, { status: 500 });
+    return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }
 
@@ -50,6 +51,6 @@ export async function DELETE(
     await prisma.category.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Error deleting category" }, { status: 500 });
+    return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }

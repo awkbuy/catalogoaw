@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeError } from "@/lib/errors";
 
 export async function PUT(
   req: NextRequest,
@@ -36,7 +37,7 @@ export async function PUT(
     return NextResponse.json(item);
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error actualizando medio de pago" },
+      { error: sanitizeError(error) },
       { status: 500 }
     );
   }
@@ -56,7 +57,7 @@ export async function DELETE(
     return NextResponse.json({ ok: true });
   } catch (error) {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error eliminando medio de pago" },
+      { error: sanitizeError(error) },
       { status: 500 }
     );
   }

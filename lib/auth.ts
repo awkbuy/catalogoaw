@@ -3,9 +3,22 @@ import { redirect } from "next/navigation";
 import crypto from "crypto";
 import { prisma } from "./prisma";
 
-const SESSION_SECRET = process.env.SESSION_SECRET
-  ? crypto.createHash("sha256").update(process.env.SESSION_SECRET).digest("hex")
-  : crypto.createHash("sha256").update("wolfie-room-dev-secret-key-2024").digest("hex");
+const SESSION_SECRET = (() => {
+  const raw = process.env.SESSION_SECRET;
+  if (!raw) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("SESSION_SECRET is required in production");
+    }
+    console.warn(
+      "[SECURITY] SESSION_SECRET not set. Using dev fallback. Do NOT use in production."
+    );
+    return crypto
+      .createHash("sha256")
+      .update("wolfie-room-dev-fallback-not-for-prod")
+      .digest("hex");
+  }
+  return crypto.createHash("sha256").update(raw).digest("hex");
+})();
 
 const COOKIE_NAME = "session_token";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
@@ -30,7 +43,11 @@ function verify(token: string): string | null {
     .update(payload)
     .digest("hex");
 
-  if (receivedSig !== expectedSig) return null;
+  if (
+    receivedSig.length !== expectedSig.length ||
+    !crypto.timingSafeEqual(Buffer.from(receivedSig), Buffer.from(expectedSig))
+  )
+    return null;
 
   return payload;
 }
@@ -40,7 +57,7 @@ export async function createSession(userId: string) {
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_MAX_AGE,

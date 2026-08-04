@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeError } from "@/lib/errors";
 
 export async function GET() {
   const session = await getSession();
@@ -32,6 +33,6 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json(categoria);
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Error creating category" }, { status: 500 });
+    return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }

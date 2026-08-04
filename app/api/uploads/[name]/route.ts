@@ -24,7 +24,8 @@ export async function GET(
     name.includes("/") ||
     name.includes("\\") ||
     name.includes("..") ||
-    name.includes("%")
+    name.includes("%") ||
+    name.includes("\0")
   ) {
     return new NextResponse("Not found", { status: 404 });
   }

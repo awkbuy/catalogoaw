@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sanitizeError } from "@/lib/errors";
 
 export async function PUT(
   req: NextRequest,
@@ -34,13 +35,7 @@ export async function PUT(
     });
     return NextResponse.json(cupon);
   } catch (error) {
-    const message =
-      error instanceof Error && error.message.includes("Unique")
-        ? "Ya existe un cupón con ese código"
-        : error instanceof Error
-          ? error.message
-          : "Error actualizando cupón";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }
 
@@ -57,9 +52,6 @@ export async function DELETE(
     await prisma.coupon.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Error eliminando cupón" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }

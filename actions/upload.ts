@@ -3,6 +3,7 @@
 import { requireAuth } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import sharp from "sharp";
 
 export async function uploadImage(formData: FormData) {
   await requireAuth();
@@ -20,14 +21,21 @@ export async function uploadImage(formData: FormData) {
     throw new Error("El archivo excede el tamaño máximo de 5MB");
   }
 
-  const ext = file.name.split(".").pop() || "webp";
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
 
+  if (buffer.includes(0)) {
+    throw new Error("Contenido de archivo inválido");
+  }
+
+  const filename = `${crypto.randomUUID()}.webp`;
   const uploadsDir = path.join(process.cwd(), "public", "uploads");
   await mkdir(uploadsDir, { recursive: true });
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(uploadsDir, filename), buffer);
+  const processed = await sharp(buffer)
+    .webp({ quality: 85 })
+    .toBuffer();
+
+  await writeFile(path.join(uploadsDir, filename), processed);
 
   return { path: `/uploads/${filename}` };
 }

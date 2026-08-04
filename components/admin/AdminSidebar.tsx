@@ -16,6 +16,7 @@ import {
   Search,
   LogOut,
   ChevronLeft,
+  User,
 } from "lucide-react";
 import Image from "next/image";
 import AppleDock from "@/components/AppleDock";
@@ -107,6 +108,13 @@ function SidebarContent({
       </nav>
 
       <div className="p-3 border-t border-[#E5E7EB]">
+        <Link
+          href="/account"
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#6B7280] hover:bg-[#E5E7EB]/50 hover:text-[#1F2937] transition-all ${collapsed ? "justify-center" : ""}`}
+        >
+          <User className="w-5 h-5 flex-shrink-0" />
+          {!collapsed && <span>Mi Cuenta</span>}
+        </Link>
         <button
           onClick={async () => { await logoutAction(); }}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#6B7280] hover:bg-red-50 hover:text-red-600 transition-all w-full ${collapsed ? "justify-center" : ""}`}

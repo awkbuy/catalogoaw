@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
 export async function getSettings(): Promise<Record<string, string>> {
+  await requireAuth();
+  
   const settings = await prisma.setting.findMany();
   const result: Record<string, string> = {};
   for (const setting of settings) {
