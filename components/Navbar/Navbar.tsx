@@ -145,6 +145,7 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
                 alt={businessName}
                 width={2252}
                 height={1373}
+                sizes="96px"
                 priority
                 className="h-9 w-auto md:h-11"
               />
@@ -178,6 +179,7 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
               </button>
               <button
                 onClick={onCartClick}
+                aria-label="Abrir carrito"
                 className="relative ml-1 flex items-center justify-center w-10 h-10 rounded-xl border border-border bg-white text-text-secondary hover:border-primary/30 hover:text-text transition-all"
               >
                 <ShoppingCart size={18} />
@@ -195,6 +197,7 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
               </button>
               <button
                 onClick={onCartClick}
+                aria-label="Abrir carrito"
                 className="relative ml-2 flex items-center justify-center w-10 h-10 rounded-xl border border-border bg-white text-text-secondary hover:border-primary/30 hover:text-text transition-all"
               >
                 <ShoppingCart size={18} />

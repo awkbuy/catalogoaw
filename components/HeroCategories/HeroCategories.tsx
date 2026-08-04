@@ -87,6 +87,8 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
               alt="Wolfie Room"
               width={2252}
               height={1373}
+              sizes="160px"
+              priority
               className="mb-4 inline-block h-12 w-auto object-contain"
             />
           ) : (

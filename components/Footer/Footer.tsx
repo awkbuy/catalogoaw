@@ -50,6 +50,7 @@ export default function Footer({ whatsappNumber, instagramUrl, businessName, dir
                 alt={businessName}
                 width={2252}
                 height={1373}
+                sizes="96px"
                 className="h-9 w-auto rounded-xl"
               />
               <span className="text-lg font-bold text-text">

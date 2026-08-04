@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
       >
         <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#31D3A9] flex items-center justify-center text-white font-bold text-2xl mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#31D3A9] flex items-center justify-center text-[#0B3B30] font-bold text-2xl mb-4">
               W
             </div>
             <h1 className="text-2xl font-bold text-[#1F2937]">Admin Panel</h1>
@@ -79,6 +79,7 @@ export default function AdminLoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7280] hover:text-[#1F2937] transition-colors"
                 >
                   {showPassword ? (
@@ -93,7 +94,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={pending}
-              className="w-full py-2.5 rounded-xl bg-[#31D3A9] text-white font-medium text-sm hover:bg-[#2bc49b] disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl bg-[#31D3A9] text-[#0B3B30] font-medium text-sm hover:bg-[#2bc49b] disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
               {pending ? (
                 <>

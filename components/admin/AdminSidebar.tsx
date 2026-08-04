@@ -66,6 +66,7 @@ function SidebarContent({
             alt={settings?.nombre || "Wolfie Room"}
             width={2252}
             height={1373}
+            sizes="96px"
             className="h-9 w-auto rounded-xl flex-shrink-0"
           />
           {!collapsed && (
@@ -168,6 +169,7 @@ export default function AdminSidebar({
             alt={settings?.nombre || "Wolfie Room"}
             width={2252}
             height={1373}
+            sizes="64px"
             className="h-8 w-auto rounded-lg"
           />
           <span className="font-bold text-[#1F2937]">

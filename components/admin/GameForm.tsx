@@ -395,7 +395,7 @@ export default function GameForm({
                     onClick={() => setTieneDescuento(false)}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                       !tieneDescuento
-                        ? "bg-[#31D3A9] text-white"
+                        ? "bg-[#31D3A9] text-[#0B3B30]"
                         : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
                     }`}
                   >
@@ -406,7 +406,7 @@ export default function GameForm({
                     onClick={() => setTieneDescuento(true)}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                       tieneDescuento
-                        ? "bg-[#31D3A9] text-white"
+                        ? "bg-[#31D3A9] text-[#0B3B30]"
                         : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
                     }`}
                   >
@@ -620,7 +620,7 @@ export default function GameForm({
                 onClick={() => setForm((prev) => ({ ...prev, integrarVideo: false }))}
                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                   !form.integrarVideo
-                    ? "bg-[#31D3A9] text-white"
+                    ? "bg-[#31D3A9] text-[#0B3B30]"
                     : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
                 }`}
               >
@@ -631,7 +631,7 @@ export default function GameForm({
                 onClick={() => setForm((prev) => ({ ...prev, integrarVideo: true }))}
                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                   form.integrarVideo
-                    ? "bg-[#31D3A9] text-white"
+                    ? "bg-[#31D3A9] text-[#0B3B30]"
                     : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
                 }`}
               >
@@ -697,7 +697,7 @@ export default function GameForm({
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-2.5 rounded-xl bg-[#31D3A9] text-white text-sm font-medium hover:bg-[#2bc49b] disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 rounded-xl bg-[#31D3A9] text-[#0B3B30] text-sm font-medium hover:bg-[#2bc49b] disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

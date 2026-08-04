@@ -89,6 +89,7 @@ export default function InfoModal({
                 </h2>
                 <button
                   onClick={onClose}
+                  aria-label="Cerrar"
                   className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[#E5E7EB]"
                 >
                   <X size={18} className="text-[#6B7280]" />

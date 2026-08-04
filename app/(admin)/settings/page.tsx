@@ -103,7 +103,7 @@ export default function SettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#31D3A9] text-white text-sm font-medium hover:bg-[#2bc49b] disabled:opacity-60 transition-all"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#31D3A9] text-[#0B3B30] text-sm font-medium hover:bg-[#2bc49b] disabled:opacity-60 transition-all"
         >
           {saving ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -189,7 +189,7 @@ export default function SettingsPage() {
                     onClick={() => handleChange("activoCalculoAutomatico", "true")}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                       settings.activoCalculoAutomatico !== "false"
-                        ? "bg-[#31D3A9] text-white"
+                        ? "bg-[#31D3A9] text-[#0B3B30]"
                         : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
                     }`}
                   >
@@ -200,7 +200,7 @@ export default function SettingsPage() {
                     onClick={() => handleChange("activoCalculoAutomatico", "false")}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                       settings.activoCalculoAutomatico === "false"
-                        ? "bg-[#31D3A9] text-white"
+                        ? "bg-[#31D3A9] text-[#0B3B30]"
                         : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
                     }`}
                   >
@@ -218,7 +218,7 @@ export default function SettingsPage() {
                     onClick={() => handleChange("mostrarPrecioSinImpuestos", "true")}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                       settings.mostrarPrecioSinImpuestos !== "false"
-                        ? "bg-[#31D3A9] text-white"
+                        ? "bg-[#31D3A9] text-[#0B3B30]"
                         : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
                     }`}
                   >
@@ -229,7 +229,7 @@ export default function SettingsPage() {
                     onClick={() => handleChange("mostrarPrecioSinImpuestos", "false")}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                       settings.mostrarPrecioSinImpuestos === "false"
-                        ? "bg-[#31D3A9] text-white"
+                        ? "bg-[#31D3A9] text-[#0B3B30]"
                         : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
                     }`}
                   >

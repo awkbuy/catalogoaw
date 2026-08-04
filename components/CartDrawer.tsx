@@ -208,6 +208,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
               </div>
               <button
                 onClick={onClose}
+                aria-label="Cerrar carrito"
                 className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[#E5E7EB] transition-colors"
               >
                 <X size={18} className="text-[#6B7280]" />
@@ -242,7 +243,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <h4 className="text-sm font-semibold text-[#1F2937] truncate">{item.nombre}</h4>
-                        <button onClick={() => removeItem(item.gameId)} className="shrink-0">
+                        <button onClick={() => removeItem(item.gameId)} aria-label={`Quitar ${item.nombre} del carrito`} className="shrink-0">
                           <Trash2 size={14} className="text-[#9CA3AF] hover:text-red-500 transition-colors" />
                         </button>
                       </div>
@@ -251,6 +252,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => updateCantidad(item.gameId, -1)}
+                            aria-label="Disminuir cantidad"
                             className="w-6 h-6 rounded border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors"
                           >
                             <Minus size={10} className="text-[#6B7280]" />
@@ -258,6 +260,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                           <span className="text-sm font-semibold text-[#1F2937] w-5 text-center">{item.cantidad}</span>
                           <button
                             onClick={() => updateCantidad(item.gameId, 1)}
+                            aria-label="Aumentar cantidad"
                             className="w-6 h-6 rounded border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors"
                           >
                             <Plus size={10} className="text-[#6B7280]" />
@@ -501,6 +504,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                         </div>
                         <button
                           onClick={clearCoupon}
+                          aria-label="Quitar cupón"
                           className="text-[#6B7280] hover:text-red-500 transition-colors flex-shrink-0"
                           title="Quitar cupón"
                         >
@@ -584,7 +588,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                   </div>
                   <button
                     onClick={handleWhatsApp}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#31D3A9] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#31D3A9]/20 hover:bg-[#2bc49b] hover:shadow-xl hover:shadow-[#31D3A9]/30 active:scale-[0.98] transition-all"
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#31D3A9] px-5 py-3 text-sm font-semibold text-[#0B3B30] shadow-lg shadow-[#31D3A9]/20 hover:bg-[#2bc49b] hover:shadow-xl hover:shadow-[#31D3A9]/30 active:scale-[0.98] transition-all"
                   >
                     <WhatsAppIcon size={16} />
                     Pedir por WhatsApp
