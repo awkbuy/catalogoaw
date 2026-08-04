@@ -46,3 +46,6 @@ token git.txt
 # Backups locales descargados a la PC (off-site)
 backups-local/
 deploy/backup-local.env
+
+# Artefacto de descarga de RealFaviconGenerator (el pack ya está extraído)
+public/images/favicon/*.ico.zip

@@ -109,7 +109,7 @@ export const getSeoSettings = cache(async (): Promise<SeoSettings> => {
     bingVerification: s.bingVerification || "",
     faq,
     logoUrl: s.logoUrl || "/images/logo.png",
-    favicon: s.favicon || "/images/ico.png",
+    favicon: s.favicon || "/images/favicon/favicon-32x32.png",
     instagram: s.instagram || "",
     facebook: s.facebook || "",
     horariosSemana: s.horarios_semana || "",
