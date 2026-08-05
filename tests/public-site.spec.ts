@@ -4,21 +4,17 @@ test.describe("Sitio público", () => {
   test("homepage carga correctamente con secciones principales", async ({ page }) => {
     await page.goto("/");
 
-    // Navbar
-    await expect(page.getByText(/Wolfie Room/i).first()).toBeVisible();
+    // Navbar: la marca es una imagen con aria-label = nombre del negocio
+    await expect(page.getByRole("link", { name: /Wolfie Room/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /Inicio/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /Catálogo/i }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /Reservar mesa/i }).first()).toBeVisible();
 
-    // Catalog section
-    await expect(page.getByRole("heading", { name: /Nuestro Catálogo/i })).toBeVisible();
-    await expect(page.getByText(/Explorá nuestra colección/i)).toBeVisible();
+    // Hero de categorías
+    await expect(page.getByRole("heading", { name: /Explorá por categoría/i })).toBeVisible();
+    await expect(page.getByText(/Encontrá el juego perfecto para cada ocasión/i)).toBeVisible();
 
-    // Footer
-    await expect(page.getByText(/Wolfie Room/i).last()).toBeVisible();
-
-    // WhatsApp button
-    await expect(page.locator('a[href*="wa.me"]').first()).toBeVisible();
+    // Catálogo
+    await expect(page.getByRole("heading", { name: /Catálogo de juegos/i })).toBeVisible();
   });
 
   test("juegos se renderizan en el catálogo", async ({ page }) => {

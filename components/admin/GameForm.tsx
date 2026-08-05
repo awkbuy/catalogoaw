@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Loader2, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { sileo } from "sileo";
+import { uploadImage } from "@/lib/upload-image";
 
 interface Categoria {
   id: string;
@@ -127,19 +128,16 @@ export default function GameForm({
     if (!file) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Error uploading");
-      const data = await res.json();
-      setForm((prev) => ({ ...prev, imagen: data.url }));
-    } catch {
-      sileo.error({ title: "Error al subir la imagen" });
+      const result = await uploadImage(file);
+      if ("url" in result) {
+        setForm((prev) => ({ ...prev, imagen: result.url }));
+      } else {
+        sileo.error({
+          title: "Error al subir la imagen",
+          description: result.error,
+        });
+      }
     } finally {
       setUploading(false);
     }

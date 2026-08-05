@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { sileo } from "sileo";
+import { uploadImage } from "@/lib/upload-image";
 
 interface Categoria {
   id: string;
@@ -40,18 +41,16 @@ export default function CategoriesPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingIcono(true);
-    const formData = new FormData();
-    formData.append("file", file);
     try {
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Error");
-      const data = await res.json();
-      setForm((prev) => ({ ...prev, icono: data.url }));
-    } catch {
-      sileo.error({ title: "Error al subir imagen" });
+      const result = await uploadImage(file);
+      if ("url" in result) {
+        setForm((prev) => ({ ...prev, icono: result.url }));
+      } else {
+        sileo.error({
+          title: "Error al subir imagen",
+          description: result.error,
+        });
+      }
     } finally {
       setUploadingIcono(false);
     }

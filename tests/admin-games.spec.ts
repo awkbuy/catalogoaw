@@ -1,10 +1,12 @@
 import { test, expect } from "@playwright/test";
+import { spoofIp } from "./helpers";
 
 test.describe("Admin - Gestión de juegos", () => {
   test.beforeEach(async ({ page }) => {
+    await spoofIp(page);
     await page.goto("/login");
     await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
-    await page.getByLabel(/Contraseña/i).fill("admin123");
+    await page.locator('input[name="password"]').fill("admin123");
     await page.getByRole("button", { name: /Iniciar sesión/i }).click();
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
   });

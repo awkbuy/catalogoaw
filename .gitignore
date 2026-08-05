@@ -40,6 +40,12 @@ Nul
 playwright-report
 test-results
 
+# Estado de sesión y artefactos de la suite de seguridad
+.security-state/
+
+# Planes/estado interno del agente (no son código de la app)
+.opencode/
+
 # Archivos con credenciales sueltas
 token git.txt
 *Clave root*.txt

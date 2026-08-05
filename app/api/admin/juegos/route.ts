@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sanitizeError } from "@/lib/errors";
+import { parseJsonBody, sanitizeError } from "@/lib/errors";
 
 export async function GET() {
   const session = await getSession();
@@ -19,38 +19,39 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const data = await req.json();
+  const data = await parseJsonBody(req);
+  if (!data) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
 
   try {
     const juego = await prisma.game.create({
       data: {
-        nombre: data.nombre,
-        slug: data.slug,
-        descripcion: data.descripcion || "",
-        categoriaId: data.categoriaId,
-        jugadoresMin: data.jugadoresMin,
-        jugadoresMax: data.jugadoresMax,
-        duracion: data.duracion || "",
-        edad: data.edad || "",
-        dificultad: data.dificultad || "",
-        precioFinalVenta: data.precioFinalVenta || "",
-        descuento: data.descuento || 0,
-        imagen: data.imagen || "",
+        nombre: String(data.nombre || ""),
+        slug: String(data.slug || ""),
+        descripcion: String(data.descripcion || ""),
+        categoriaId: String(data.categoriaId || ""),
+        jugadoresMin: Math.max(1, Number(data.jugadoresMin) || 2),
+        jugadoresMax: Math.max(1, Number(data.jugadoresMax) || 6),
+        duracion: String(data.duracion || ""),
+        edad: String(data.edad || ""),
+        dificultad: String(data.dificultad || ""),
+        precioFinalVenta: String(data.precioFinalVenta || ""),
+        descuento: Math.max(0, Number(data.descuento) || 0),
+        imagen: String(data.imagen || ""),
         integrarVideo: data.integrarVideo === true,
-        videoUrl: data.videoUrl || "",
-        estado: data.estado || "Disponible",
-        destacado: data.destacado || false,
-        nuevo: data.nuevo || false,
-        disponibleVenta: data.disponibleVenta || false,
-        disponibleMesa: data.disponibleMesa || false,
-        orden: data.orden || 0,
-        seoTitle: data.seoTitle || "",
-        seoDescription: data.seoDescription || "",
-        seoKeywords: data.seoKeywords || "",
-        canonical: data.canonical || "",
-        imagenAlt: data.imagenAlt || "",
-        descripcionAccesible: data.descripcionAccesible || "",
-        resumenIA: data.resumenIA || "",
+        videoUrl: String(data.videoUrl || ""),
+        estado: String(data.estado || "Disponible"),
+        destacado: data.destacado === true,
+        nuevo: data.nuevo === true,
+        disponibleVenta: data.disponibleVenta === true,
+        disponibleMesa: data.disponibleMesa === true,
+        orden: Math.max(0, Number(data.orden) || 0),
+        seoTitle: String(data.seoTitle || ""),
+        seoDescription: String(data.seoDescription || ""),
+        seoKeywords: String(data.seoKeywords || ""),
+        canonical: String(data.canonical || ""),
+        imagenAlt: String(data.imagenAlt || ""),
+        descripcionAccesible: String(data.descripcionAccesible || ""),
+        resumenIA: String(data.resumenIA || ""),
       },
     });
     return NextResponse.json(juego);

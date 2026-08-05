@@ -12,7 +12,7 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     env:
       VPS_HOST: ${{ secrets.VPS_HOST }}
       VPS_USER: ${{ secrets.VPS_USER }}
@@ -51,6 +51,31 @@ jobs:
 
       - name: Assemble standalone bundle
         run: bash deploy/assemble.sh
+
+      # ─────────────────────────────────────────────────────────────
+      # GATE DE PRUEBAS: no se despliega si falla la suite funcional
+      # o la suite de seguridad. Ambos gates abortan el job (fail-fast)
+      # antes de cualquier paso de SSH/rsync hacia producción.
+      # ─────────────────────────────────────────────────────────────
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Seed CI database (datos de prueba para la suite funcional)
+        run: npx prisma db seed
+        env:
+          DATABASE_URL: "file:./ci.db"
+          ADMIN_PASSWORD: "admin123"
+
+      - name: Gate funcional (Playwright E2E contra dev server)
+        run: npx playwright test
+        env:
+          DATABASE_URL: "file:./ci.db"
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+
+      - name: Gate de seguridad (batería E2E de ataque, 69 tests)
+        run: npx playwright test --config=playwright.security.config.ts
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
 
       - name: Prepare SSH key
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}

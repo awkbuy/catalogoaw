@@ -31,9 +31,12 @@ export async function uploadImage(formData: FormData) {
   const uploadsDir = path.join(process.cwd(), "public", "uploads");
   await mkdir(uploadsDir, { recursive: true });
 
-  const processed = await sharp(buffer)
-    .webp({ quality: 85 })
-    .toBuffer();
+  let processed: Buffer;
+  try {
+    processed = await sharp(buffer).webp({ quality: 85 }).toBuffer();
+  } catch {
+    throw new Error("Contenido de archivo inválido");
+  }
 
   await writeFile(path.join(uploadsDir, filename), processed);
 

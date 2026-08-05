@@ -1,20 +1,72 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { parseJsonBody } from "@/lib/errors";
 
 const ALLOWED_SETTINGS_KEYS = [
+  // Página Configuración (/settings)
+  "nombre",
+  "descripcion",
+  "telefono",
+  "email",
+  "direccion",
+  "ciudad",
+  "horario",
+  "horarios",
+  "instagram",
+  "facebook",
+  "tiktok",
+  "youtube",
+  "whatsapp",
+  "iva",
+  "otrosImpuestosNacionales",
+  "activoCalculoAutomatico",
+  "mostrarPrecioSinImpuestos",
+  "logoUrl",
+  "favicon",
+  "nombreNegocio",
+  "descripcionHero",
+  "tituloHero",
+  "textoCTA",
+  "urlMaps",
+  // Página SEO (/seo)
+  "seoNombreSitio",
+  "seoTitulo",
+  "seoDescripcion",
+  "seoKeywords",
+  "seoUrl",
+  "seoCanonical",
+  "seoIdioma",
+  "seoPais",
+  "seoIndex",
+  "seoFollow",
+  "seoOgTitle",
+  "seoOgDescription",
+  "seoOgImage",
+  "seoTwitterCard",
+  "seoTwitterTitle",
+  "seoTwitterDescription",
+  "seoTwitterImage",
+  "seoFaq",
+  "orgNombre",
+  "orgLogo",
+  "orgDireccion",
+  "orgCiudad",
+  "orgProvincia",
+  "orgPais",
+  "orgCodigoPostal",
+  "orgTelefono",
+  "orgEmail",
+  "googleVerification",
+  "bingVerification",
+  // Claves históricas / migración de diseño anterior
   "businessName",
   "businessSlogan",
   "whatsappNumber",
-  "email",
   "address",
   "city",
   "province",
   "postalCode",
-  "facebook",
-  "instagram",
-  "tiktok",
-  "youtube",
   "heroTitle",
   "heroSubtitle",
   "heroButtonText",
@@ -49,7 +101,8 @@ export async function PUT(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const data: Record<string, string> = await req.json();
+  const data = await parseJsonBody(req);
+  if (!data) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
 
   const invalidKeys = Object.keys(data).filter(
     (key) => !ALLOWED_SETTINGS_KEYS.includes(key)
@@ -65,8 +118,8 @@ export async function PUT(req: NextRequest) {
     for (const [key, value] of Object.entries(data)) {
       await prisma.setting.upsert({
         where: { key },
-        update: { value },
-        create: { key, value },
+        update: { value: String(value ?? "") },
+        create: { key, value: String(value ?? "") },
       });
     }
     return NextResponse.json({ ok: true });

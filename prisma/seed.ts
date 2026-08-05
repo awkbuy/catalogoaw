@@ -4,8 +4,11 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { hashSync } from "bcryptjs";
 
-const dbPath = path.resolve("dev.db");
-const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` });
+const dbUrl = (process.env.DATABASE_URL || `file:${path.resolve("dev.db")}`).replace(
+  /^"|"$/g,
+  ""
+);
+const adapter = new PrismaBetterSqlite3({ url: dbUrl });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {

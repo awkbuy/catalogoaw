@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sanitizeError } from "@/lib/errors";
+import { parseJsonBody, sanitizeError, isPrismaNotFound } from "@/lib/errors";
 
 export async function PUT(
   req: NextRequest,
@@ -11,7 +11,9 @@ export async function PUT(
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const data = await req.json();
+  const data = await parseJsonBody(req);
+  if (!data) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
+
   const codigo = String(data.codigo || "").trim().toUpperCase();
 
   if (!codigo) {
@@ -30,11 +32,14 @@ export async function PUT(
         minimo: Math.max(0, Number(data.minimo) || 0),
         maximo: Math.max(0, Number(data.maximo) || 0),
         activo: data.activo !== false,
-        vencimiento: data.vencimiento ? new Date(data.vencimiento) : null,
+        vencimiento: data.vencimiento ? new Date(String(data.vencimiento)) : null,
       },
     });
     return NextResponse.json(cupon);
   } catch (error) {
+    if (isPrismaNotFound(error)) {
+      return NextResponse.json({ error: "El registro no fue encontrado" }, { status: 404 });
+    }
     return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }
@@ -52,6 +57,9 @@ export async function DELETE(
     await prisma.coupon.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch (error) {
+    if (isPrismaNotFound(error)) {
+      return NextResponse.json({ error: "El registro no fue encontrado" }, { status: 404 });
+    }
     return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }

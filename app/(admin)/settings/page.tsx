@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Loader2, Upload, X, Check } from "lucide-react";
 import Image from "next/image";
 import { sileo } from "sileo";
+import { uploadImage } from "@/lib/upload-image";
 
 interface Settings {
   [key: string]: string;
@@ -35,19 +36,16 @@ export default function SettingsPage() {
     if (!file) return;
 
     setUploadingLogo(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Error");
-      const data = await res.json();
-      setSettings((prev) => ({ ...prev, logoUrl: data.url }));
-    } catch {
-      sileo.error({ title: "Error al subir el logo" });
+      const result = await uploadImage(file);
+      if ("url" in result) {
+        setSettings((prev) => ({ ...prev, logoUrl: result.url }));
+      } else {
+        sileo.error({
+          title: "Error al subir el logo",
+          description: result.error,
+        });
+      }
     } finally {
       setUploadingLogo(false);
     }

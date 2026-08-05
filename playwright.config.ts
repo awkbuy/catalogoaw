@@ -2,6 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
+  // La suite de seguridad vive en tests/security y corre con su propia config
+  // (playwright.security.config.ts) y su propio servidor/BD aislados.
+  testIgnore: "tests/security/**",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

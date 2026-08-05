@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sanitizeError } from "@/lib/errors";
+import { parseJsonBody, sanitizeError } from "@/lib/errors";
 
 export async function GET() {
   const session = await getSession();
@@ -19,16 +19,17 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const data = await req.json();
+  const data = await parseJsonBody(req);
+  if (!data) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
 
   try {
     const categoria = await prisma.category.create({
       data: {
-        nombre: data.nombre,
-        icono: data.icono || null,
-        color: data.color || "#31D3A9",
-        tags: data.tags || "",
-        orden: data.orden || 0,
+        nombre: String(data.nombre || ""),
+        icono: data.icono ? String(data.icono) : undefined,
+        color: data.color ? String(data.color) : "#31D3A9",
+        tags: data.tags ? String(data.tags) : "",
+        orden: Math.max(0, Number(data.orden) || 0),
       },
     });
     return NextResponse.json(categoria);

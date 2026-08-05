@@ -28,23 +28,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid file type" }, { status: 400 });
   }
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
+  const buffer = Buffer.from(await file.arrayBuffer());
 
-  if (buffer.includes(0)) {
-    return NextResponse.json({ error: "Invalid file content" }, { status: 400 });
+  // La validación real del contenido la hace sharp: si no es una imagen
+  // decodificable (archivo corrupto, ejecutable disfrazado, texto, etc.)
+  // sharp lanza un error y lo rechazamos con 400. NO hay que buscar bytes
+  // nulos a mano: casi toda imagen real (JPG/PNG/WebP/GIF) contiene ceros
+  // en sus cabeceras y datos, así que ese check rechazaba imágenes válidas.
+  let processed: Buffer;
+  try {
+    processed = await sharp(buffer).webp({ quality: 85 }).toBuffer();
+  } catch {
+    return NextResponse.json({ error: "Invalid image" }, { status: 400 });
   }
 
   const filename = `${crypto.randomUUID()}.webp`;
   const uploadDir = join(process.cwd(), "public", "uploads");
 
-  await mkdir(uploadDir, { recursive: true });
-
-  const processed = await sharp(buffer)
-    .webp({ quality: 85 })
-    .toBuffer();
-
-  await writeFile(join(uploadDir, filename), processed);
+  try {
+    await mkdir(uploadDir, { recursive: true });
+    await writeFile(join(uploadDir, filename), processed);
+  } catch {
+    return NextResponse.json({ error: "Save failed" }, { status: 500 });
+  }
 
   return NextResponse.json({ url: `/uploads/${filename}` });
 }

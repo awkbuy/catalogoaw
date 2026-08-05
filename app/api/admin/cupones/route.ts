@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sanitizeError } from "@/lib/errors";
+import { parseJsonBody, sanitizeError } from "@/lib/errors";
 
 export async function GET() {
   const session = await getSession();
@@ -15,7 +15,9 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const data = await req.json();
+  const data = await parseJsonBody(req);
+  if (!data) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
+
   const codigo = String(data.codigo || "").trim().toUpperCase();
 
   if (!codigo) {
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
         minimo: Math.max(0, Number(data.minimo) || 0),
         maximo: Math.max(0, Number(data.maximo) || 0),
         activo: data.activo !== false,
-        vencimiento: data.vencimiento ? new Date(data.vencimiento) : null,
+        vencimiento: data.vencimiento ? new Date(String(data.vencimiento)) : null,
       },
     });
     return NextResponse.json(cupon);
