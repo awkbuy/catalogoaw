@@ -21,15 +21,24 @@ test.describe("08 · Headers HTTP — cabeceras de seguridad presentes", () => {
     }
   });
 
-  test("CSP: frame-ancestors 'none', sin http:// en script-src, connect-src 'self'", async ({ publicApi }) => {
+  test("CSP: frame-ancestors 'none', solo orígenes externos de Google/YouTube", async ({ publicApi }) => {
     const res = await publicApi.get("/");
     const csp = res.headers()["content-security-policy"] ?? "";
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("connect-src 'self'");
     expect(csp).toContain("form-action 'self'");
-    // no debe permitir conexiones a orígenes externos arbitrarios
+    // no debe permitir conexiones ni scripts de orígenes externos arbitrarios
     expect(csp).not.toContain("connect-src *");
-    expect(csp).not.toMatch(/connect-src\s+[^;]*https?:\/\//);
+    expect(csp).not.toContain("script-src *");
+    expect(csp).not.toMatch(/connect-src[^;]*\*;/);
+    // script-src: solo orígenes propios + Google Tag Manager (GA4)
+    expect(csp).toContain(
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com"
+    );
+    // connect-src: solo endpoints de Google Analytics / GA4
+    expect(csp).toContain(
+      "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://stats.g.doubleclick.net https://www.google.com"
+    );
     // frame-src solo permite el embed de YouTube (privacy-enhanced)
     expect(csp).toContain("frame-src https://www.youtube-nocookie.com");
   });
