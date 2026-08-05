@@ -11,15 +11,19 @@ export async function POST(
 
   const { id } = await params;
 
-  const original = await prisma.game.findUnique({ where: { id } });
+  const original = await prisma.game.findUnique({
+    where: { id },
+    include: { categorias: { select: { id: true } } },
+  });
   if (!original) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const { id: _, createdAt: __, updatedAt: ___, ...rest } = original;
+  const { id: _, createdAt: __, updatedAt: ___, categorias, ...rest } = original;
   void _; void __; void ___;
 
   const duplicate = await prisma.game.create({
     data: {
       ...rest,
+      categorias: { connect: categorias.map((c) => ({ id: c.id })) },
       nombre: `${rest.nombre} (copia)`,
       slug: `${rest.slug}-copia-${Date.now()}`,
     },

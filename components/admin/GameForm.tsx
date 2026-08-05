@@ -4,9 +4,10 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Loader2, Upload, X } from "lucide-react";
-import Image from "next/image";
+import ImageWithProgress from "@/components/ImageWithProgress";
 import { sileo } from "sileo";
 import { uploadImage } from "@/lib/upload-image";
+import { useProgress } from "@/lib/progress-context";
 
 interface Categoria {
   id: string;
@@ -19,6 +20,7 @@ interface GameData {
   slug: string;
   descripcion: string;
   categoriaId: string;
+  categoriaIds?: string[];
   jugadoresMin: string;
   jugadoresMax: string;
   duracion: string;
@@ -64,6 +66,7 @@ const defaultData: GameData = {
   slug: "",
   descripcion: "",
   categoriaId: "",
+  categoriaIds: [],
   jugadoresMin: "",
   jugadoresMax: "",
   duracion: "",
@@ -95,8 +98,21 @@ export default function GameForm({
   mode,
 }: GameFormProps) {
   const router = useRouter();
+  const { start, done } = useProgress();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState<GameData>(initialData || defaultData);
+  const [form, setForm] = useState<GameData>(() =>
+    initialData
+      ? {
+          ...initialData,
+          categoriaIds:
+            initialData.categoriaIds && initialData.categoriaIds.length > 0
+              ? initialData.categoriaIds
+              : initialData.categoriaId
+                ? [initialData.categoriaId]
+                : [],
+        }
+      : defaultData
+  );
   const [autoSlug, setAutoSlug] = useState(!initialData);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -123,11 +139,31 @@ export default function GameForm({
     });
   };
 
+  const toggleCategoria = (id: string) => {
+    setForm((prev) => {
+      const current = prev.categoriaIds ?? [];
+      const next = current.includes(id)
+        ? current.filter((c) => c !== id)
+        : [...current, id];
+      return { ...prev, categoriaIds: next };
+    });
+  };
+
+  const handleCategoriaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setForm((prev) => {
+      const current = prev.categoriaIds ?? [];
+      const next = value && !current.includes(value) ? [...current, value] : current;
+      return { ...prev, categoriaId: value, categoriaIds: next };
+    });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
+    start();
     try {
       const result = await uploadImage(file);
       if ("url" in result) {
@@ -140,12 +176,14 @@ export default function GameForm({
       }
     } finally {
       setUploading(false);
+      done();
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    start();
 
     try {
       const url =
@@ -156,6 +194,7 @@ export default function GameForm({
 
       const payload = {
         ...form,
+        categoriaIds: form.categoriaIds ?? [],
         jugadoresMin: Number(form.jugadoresMin) || 1,
         jugadoresMax: Number(form.jugadoresMax) || 1,
         descuento: tieneDescuento ? Number(form.descuento) || 0 : 0,
@@ -179,6 +218,7 @@ export default function GameForm({
       sileo.error({ title: err instanceof Error ? err.message : "Error al guardar el juego" });
     } finally {
       setSaving(false);
+      done();
     }
   };
 
@@ -249,12 +289,12 @@ export default function GameForm({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
-                  Categoría *
+                  Categoría principal *
                 </label>
                 <select
                   name="categoriaId"
                   value={form.categoriaId}
-                  onChange={handleChange}
+                  onChange={handleCategoriaChange}
                   required
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
                 >
@@ -265,6 +305,34 @@ export default function GameForm({
                     </option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Categorías adicionales
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {categorias.map((c) => {
+                    const selected = (form.categoriaIds ?? []).includes(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => toggleCategoria(c.id)}
+                        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
+                          selected
+                            ? "border-[#31D3A9] bg-[#31D3A9]/10 text-[#31D3A9]"
+                            : "border-[#E5E7EB] bg-[#FAFAFA] text-[#6B7280] hover:border-[#31D3A9]/30 hover:text-[#1F2937]"
+                        }`}
+                      >
+                        {c.nombre}
+                        {selected && <span className="text-[#31D3A9]">✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-1.5 text-[11px] text-[#9CA3AF]">
+                  Un juego puede pertenecer a más de una categoría.
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -564,15 +632,14 @@ export default function GameForm({
 
             {form.imagen ? (
               <div className="relative">
-                <div className="w-full aspect-square rounded-xl overflow-hidden bg-[#E5E7EB]">
-                  <Image
-                    src={form.imagen}
-                    alt="Preview"
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                <ImageWithProgress
+                  src={form.imagen}
+                  alt="Preview"
+                  width={300}
+                  height={300}
+                  className="w-full aspect-square rounded-xl overflow-hidden bg-[#E5E7EB]"
+                  imgClassName="w-full h-full object-cover"
+                />
                 <button
                   type="button"
                   onClick={() => setForm((prev) => ({ ...prev, imagen: "" }))}

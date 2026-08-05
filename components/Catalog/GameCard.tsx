@@ -2,6 +2,7 @@
 
 import { Users, Clock, Baby, Eye, ShoppingCart, BadgePercent } from "lucide-react";
 import Image from "next/image";
+import ImageWithProgress from "@/components/ImageWithProgress";
 import type { PublicGame } from "./Catalog";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
@@ -97,12 +98,13 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
         {game.imagen ? (
-          <Image
+          <ImageWithProgress
             src={game.imagen}
             alt={game.nombre}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover"
+            className="absolute inset-0"
+            imgClassName="object-cover"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -157,6 +159,29 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
             {game.descripcion}
           </p>
         )}
+
+        {(() => {
+          const extra =
+            game.categorias && game.categorias.length > 0
+              ? game.categorias.filter((c) => c.nombre !== game.categoria.nombre)
+              : [];
+          if (extra.length === 0) return null;
+          return (
+            <div className="mb-4 flex flex-wrap gap-1.5">
+              {extra.map((c) => (
+                <span
+                  key={c.nombre}
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-text-secondary"
+                >
+                  {c.icono && !c.icono.startsWith("/") && !c.icono.startsWith("http")
+                    ? `${c.icono} `
+                    : ""}
+                  {c.nombre}
+                </span>
+              ))}
+            </div>
+          );
+        })()}
 
         {tags.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-1.5">

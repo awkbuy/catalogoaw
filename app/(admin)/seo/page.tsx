@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { sileo } from "sileo";
+import { useProgress } from "@/lib/progress-context";
 
 interface Settings {
   [key: string]: string;
@@ -159,6 +160,7 @@ function Section({
 }
 
 export default function SeoPage() {
+  const { start, done } = useProgress();
   const [settings, setSettings] = useState<Settings>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -191,6 +193,7 @@ export default function SeoPage() {
 
   const handleSave = async () => {
     setSaving(true);
+    start();
     try {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
@@ -205,6 +208,7 @@ export default function SeoPage() {
     } catch {
       sileo.error({ title: "Error al guardar" });
     } finally {
+      done();
       setSaving(false);
     }
   };

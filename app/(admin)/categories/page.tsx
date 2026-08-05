@@ -14,6 +14,7 @@ import {
 import Image from "next/image";
 import { sileo } from "sileo";
 import { uploadImage } from "@/lib/upload-image";
+import { useProgress } from "@/lib/progress-context";
 
 interface Categoria {
   id: string;
@@ -26,6 +27,7 @@ interface Categoria {
 }
 
 export default function CategoriesPage() {
+  const { start, done } = useProgress();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -41,6 +43,7 @@ export default function CategoriesPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploadingIcono(true);
+    start();
     try {
       const result = await uploadImage(file);
       if ("url" in result) {
@@ -52,6 +55,7 @@ export default function CategoriesPage() {
         });
       }
     } finally {
+      done();
       setUploadingIcono(false);
     }
   };
@@ -99,6 +103,7 @@ export default function CategoriesPage() {
 
   const handleSave = async () => {
     setSaving(true);
+    start();
     try {
       const url = editingId
         ? `/api/admin/categorias/${editingId}`
@@ -137,6 +142,7 @@ export default function CategoriesPage() {
     } catch {
       sileo.error({ title: "Error al guardar" });
     } finally {
+      done();
       setSaving(false);
     }
   };
@@ -144,6 +150,7 @@ export default function CategoriesPage() {
   const handleDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
+    start();
     try {
       const res = await fetch(`/api/admin/categorias/${deleteId}`, {
         method: "DELETE",
@@ -159,6 +166,7 @@ export default function CategoriesPage() {
     } catch {
       sileo.error({ title: "Error al eliminar" });
     } finally {
+      done();
       setDeleting(false);
     }
   };

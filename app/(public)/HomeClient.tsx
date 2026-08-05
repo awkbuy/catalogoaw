@@ -18,6 +18,7 @@ interface PublicGame {
   slug: string;
   descripcion: string;
   categoria: { nombre: string; icono: string; color: string };
+  categorias: { nombre: string; icono: string; color: string }[];
   jugadoresMin: number;
   jugadoresMax: number;
   duracion: string;

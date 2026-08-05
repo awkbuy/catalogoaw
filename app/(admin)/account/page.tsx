@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { changePassword } from "@/actions/account";
+import { useProgress } from "@/lib/progress-context";
 
 export default function AccountPage() {
+  const { start, done } = useProgress();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -27,7 +29,9 @@ export default function AccountPage() {
     }
 
     setLoading(true);
+    start();
     const result = await changePassword(currentPassword, newPassword);
+    done();
     setLoading(false);
 
     if (result.error) {

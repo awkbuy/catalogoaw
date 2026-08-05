@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, ShoppingCart, Users, Clock, Baby, MessageCircle } from "lucide-react";
-import Image from "next/image";
+import ImageWithProgress from "@/components/ImageWithProgress";
 import { useCart } from "@/lib/cart-context";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
@@ -26,6 +26,7 @@ interface GameDetail {
   precioFinalVenta: string;
   descuento: number;
   categoria: { nombre: string; icono: string; color: string };
+  categorias?: { nombre: string; icono: string; color: string }[];
   jugadoresMin: number;
   jugadoresMax: number;
   duracion: string;
@@ -121,21 +122,34 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
                   />
                   {game.categoria.nombre}
                 </span>
-                <span
-                  className="h-1.5 w-24 rounded-full"
-                  style={{ backgroundColor: game.categoria.color }}
-                />
+                <div className="flex items-center gap-2">
+                  {(game.categorias ?? [])
+                    .filter((c) => c.nombre !== game.categoria.nombre)
+                    .map((c) => (
+                      <span
+                        key={c.nombre}
+                        className="inline-flex items-center gap-1 rounded-full bg-white/70 px-2 py-0.5 text-[11px] font-medium text-[#6B7280]"
+                      >
+                        {c.nombre}
+                      </span>
+                    ))}
+                  <span
+                    className="h-1.5 w-24 rounded-full"
+                    style={{ backgroundColor: game.categoria.color }}
+                  />
+                </div>
               </div>
 
               <div className="p-5 space-y-5">
                 {game.imagen && (
                   <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#E5E7EB]">
-                    <Image
+                    <ImageWithProgress
                       src={game.imagen}
                       alt={game.nombre}
                       fill
                       sizes="(max-width: 512px) 100vw, 512px"
-                      className="object-cover"
+                      className="absolute inset-0"
+                      imgClassName="object-cover"
                     />
                   </div>
                 )}

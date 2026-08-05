@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ShoppingCart, Home, Info } from "lucide-react";
-import Image from "next/image";
+import ImageWithProgress from "@/components/ImageWithProgress";
 import { useCart } from "@/lib/cart-context";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
@@ -130,8 +130,8 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
             ? isLite
-              ? "bg-white/95"
-              : "bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
+              ? "bg-white/95 border-b border-border"
+              : "bg-white/80 backdrop-blur-xl border-b border-border shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
             : "bg-transparent"
         }`}
       >
@@ -144,14 +144,14 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="flex items-center"
             >
-              <Image
+              <ImageWithProgress
                 src={logoUrl || "/images/logo.png"}
                 alt={businessName}
                 width={2252}
                 height={1373}
                 sizes="96px"
                 loading="eager"
-                className="h-9 w-auto md:h-11"
+                imgClassName="h-9 w-auto md:h-11"
               />
             </Motion.a>
 

@@ -29,6 +29,7 @@ export interface PublicGame {
   slug: string;
   descripcion: string;
   categoria: { nombre: string; icono: string; color: string };
+  categorias?: { nombre: string; icono: string; color: string }[];
   jugadoresMin: number;
   jugadoresMax: number;
   duracion: string;
@@ -75,8 +76,13 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
   const categories = useMemo(() => {
     const map = new Map<string, { nombre: string; color: string; icono: string }>();
     for (const game of games) {
-      if (!map.has(game.categoria.nombre)) {
-        map.set(game.categoria.nombre, game.categoria);
+      const cats = game.categorias && game.categorias.length > 0
+        ? game.categorias
+        : [game.categoria];
+      for (const c of cats) {
+        if (!map.has(c.nombre)) {
+          map.set(c.nombre, c);
+        }
       }
     }
     return [{ nombre: "Todos", color: "#31D3A9", icono: "🎲" }, ...map.values()];
@@ -85,8 +91,13 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
   const filteredGames = useMemo(() => {
     const q = query.trim().toLowerCase();
     return games.filter((game) => {
+      const gameCats =
+        game.categorias && game.categorias.length > 0
+          ? game.categorias
+          : [game.categoria];
       const matchesCategory =
-        activeCategory === "Todos" || game.categoria.nombre === activeCategory;
+        activeCategory === "Todos" ||
+        gameCats.some((c) => c.nombre === activeCategory);
       const matchesQuery =
         !q ||
         game.nombre.toLowerCase().includes(q) ||

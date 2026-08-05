@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ToasterProvider from "@/components/ToasterProvider";
+import ProgressBar from "@/components/ProgressBar";
+import { ProgressProvider } from "@/lib/progress-context";
 import { AdaptiveProvider } from "@/lib/adaptive-context";
 import { getSeoSettings, buildSiteMetadata } from "@/lib/seo";
 
@@ -39,7 +41,10 @@ export default async function RootLayout({
       <head />
       <body className="min-h-screen antialiased">
         <AdaptiveProvider>
-          {children}
+          <ProgressProvider>
+            <ProgressBar />
+            {children}
+          </ProgressProvider>
         </AdaptiveProvider>
         <ToasterProvider />
       </body>

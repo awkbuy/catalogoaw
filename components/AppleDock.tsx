@@ -61,7 +61,7 @@ export default function AppleDock({ tabs, activeTab, hideOn = "md:hidden", force
         <div
           role="toolbar"
           aria-label="Application dock"
-          className="flex items-center gap-1 rounded-2xl bg-white/95 px-3 py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.08)]"
+          className="flex items-center gap-1 rounded-2xl border border-[#E5E7EB] bg-white/95 px-3 py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.08)]"
         >
           {tabs.map((tab) => {
             const isActive = tab.id === activeTab;
@@ -100,7 +100,7 @@ export default function AppleDock({ tabs, activeTab, hideOn = "md:hidden", force
       className={cn("fixed left-0 right-0 flex justify-center", hideOn, forceVisible ? "z-[60]" : "z-50")}
       style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
     >
-      <Dock magnification={80} distance={150} className="bg-white/80 backdrop-blur-xl shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
+      <Dock magnification={80} distance={150} className="border border-[#E5E7EB] bg-white/80 backdrop-blur-xl shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
           return (

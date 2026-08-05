@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash2, ShoppingBag, Tag, Check, Loader2, Wallet } from "lucide-react";
-import Image from "next/image";
+import ImageWithProgress from "@/components/ImageWithProgress";
 import { useCart } from "@/lib/cart-context";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
@@ -11,6 +11,7 @@ import { formatPrice } from "@/lib/format";
 import { sileo } from "sileo";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import PaymentMethodIcon from "@/components/PaymentMethodIcon";
+import { useProgress } from "@/lib/progress-context";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
 
 interface CartDrawerProps {
@@ -32,6 +33,7 @@ const paymentOptions = [
 ];
 
 export default function CartDrawer({ open, onClose, whatsappNumber, paymentMethods }: CartDrawerProps) {
+  const { start, done } = useProgress();
   const { isLite } = useAdaptive();
   const {
     items,
@@ -72,6 +74,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
     const code = cupon.trim();
     if (!code) return;
     setAplicandoCupon(true);
+    start();
     try {
       const res = await fetch("/api/cupones/validar", {
         method: "POST",
@@ -95,6 +98,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
     } catch {
       sileo.error({ title: "Error al aplicar el cupón" });
     } finally {
+      done();
       setAplicandoCupon(false);
     }
   };
@@ -230,12 +234,13 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                   <div key={item.gameId} className="flex gap-3 bg-[#FAFAFA] rounded-xl p-3">
                     <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-[#F3F4F6] flex items-center justify-center">
                       {item.imagen ? (
-                        <Image
+                        <ImageWithProgress
                           src={item.imagen}
                           alt={item.nombre}
                           width={64}
                           height={64}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full"
+                          imgClassName="object-cover"
                         />
                       ) : (
                         <span className="text-primary font-bold text-lg">

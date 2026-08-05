@@ -24,6 +24,7 @@ const getGameBySlug = cache(async (slug: string) => {
     where: { slug },
     include: {
       categoria: { select: { nombre: true, icono: true, color: true } },
+      categorias: { select: { nombre: true, icono: true, color: true } },
     },
   });
 });
@@ -132,6 +133,11 @@ export default async function GamePage({
             icono: game.categoria.icono,
             color: game.categoria.color,
           },
+          categorias: game.categorias.map((c) => ({
+            nombre: c.nombre,
+            icono: c.icono,
+            color: c.color,
+          })),
           jugadoresMin: game.jugadoresMin,
           jugadoresMax: game.jugadoresMax,
           duracion: game.duracion,

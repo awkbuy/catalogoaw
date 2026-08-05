@@ -24,7 +24,10 @@ export default async function Home({
 
   const [games, categories, paymentMethods, settings] = await Promise.all([
     prisma.game.findMany({
-      include: { categoria: { select: { nombre: true, icono: true, color: true } } },
+      include: {
+        categoria: { select: { nombre: true, icono: true, color: true } },
+        categorias: { select: { nombre: true, icono: true, color: true } },
+      },
       orderBy: { orden: "asc" },
     }),
     prisma.category.findMany({

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { sileo } from "sileo";
+import { useProgress } from "@/lib/progress-context";
 
 interface Juego {
   id: string;
@@ -27,6 +28,7 @@ interface Juego {
   jugadoresMin: number;
   jugadoresMax: number;
   categoria: { nombre: string; color: string };
+  categorias?: { id: string; nombre: string; color: string }[];
 }
 
 interface Categoria {
@@ -36,6 +38,7 @@ interface Categoria {
 
 export default function GamesPage() {
   const router = useRouter();
+  const { start, done } = useProgress();
   const [juegos, setJuegos] = useState<Juego[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [search, setSearch] = useState("");
@@ -60,9 +63,13 @@ export default function GamesPage() {
     .filter((j) => {
       const matchSearch =
         j.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        j.categoria.nombre.toLowerCase().includes(search.toLowerCase());
+        j.categoria.nombre.toLowerCase().includes(search.toLowerCase()) ||
+        (j.categorias ?? []).some((c) =>
+          c.nombre.toLowerCase().includes(search.toLowerCase())
+        );
       const matchCat = filterCategoria
-        ? j.categoria.nombre === filterCategoria
+        ? j.categoria.nombre === filterCategoria ||
+          (j.categorias ?? []).some((c) => c.nombre === filterCategoria)
         : true;
       return matchSearch && matchCat;
     })
@@ -73,9 +80,13 @@ export default function GamesPage() {
       return 0;
     });
 
+  const categoriasAdicionales = (j: Juego) =>
+    (j.categorias ?? []).filter((c) => c.nombre !== j.categoria.nombre);
+
   const handleDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
+    start();
     try {
       const res = await fetch(`/api/admin/juegos/${deleteId}`, { method: "DELETE" });
       if (!res.ok) {
@@ -87,11 +98,13 @@ export default function GamesPage() {
     } catch {
       sileo.error({ title: "Error al eliminar" });
     } finally {
+      done();
       setDeleting(false);
     }
   };
 
   const handleDuplicate = async (id: string) => {
+    start();
     try {
       const res = await fetch(`/api/admin/juegos/${id}/duplicate`, {
         method: "POST",
@@ -103,6 +116,8 @@ export default function GamesPage() {
       }
     } catch {
       sileo.error({ title: "Error al duplicar" });
+    } finally {
+      done();
     }
   };
 
@@ -231,15 +246,29 @@ export default function GamesPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className="inline-flex items-center gap-1.5 text-sm text-[#1F2937]"
-                    >
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <span
-                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: juego.categoria.color }}
-                      />
-                      {juego.categoria.nombre}
-                    </span>
+                        className="inline-flex items-center gap-1.5 text-sm text-[#1F2937]"
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: juego.categoria.color }}
+                        />
+                        {juego.categoria.nombre}
+                      </span>
+                      {categoriasAdicionales(juego).map((c) => (
+                        <span
+                          key={c.id}
+                          className="inline-flex items-center gap-1 rounded-md bg-[#F3F4F6] px-1.5 py-0.5 text-[11px] font-medium text-[#6B7280]"
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: c.color }}
+                          />
+                          {c.nombre}
+                        </span>
+                      ))}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-sm text-[#6B7280]">
                     {juego.jugadoresMin}-{juego.jugadoresMax}
@@ -309,7 +338,13 @@ export default function GamesPage() {
                     {juego.nombre}
                   </p>
                   <p className="text-xs text-[#6B7280]">
-                    {juego.categoria.nombre} · {juego.jugadoresMin}-{juego.jugadoresMax} jugadores
+                    {juego.categoria.nombre}
+                    {categoriasAdicionales(juego).length > 0
+                      ? ` + ${categoriasAdicionales(juego)
+                          .map((c) => c.nombre)
+                          .join(", ")}`
+                      : ""}{" "}
+                    · {juego.jugadoresMin}-{juego.jugadoresMax} jugadores
                   </p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span

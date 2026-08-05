@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { sileo } from "sileo";
 import PaymentMethodIcon, { PAYMENT_ICONS, BRAND_ICON_KEYS } from "@/components/PaymentMethodIcon";
+import { useProgress } from "@/lib/progress-context";
 
 interface MedioPago {
   id: string;
@@ -55,6 +56,7 @@ function Toggle({
 }
 
 export default function PagosPage() {
+  const { start, done } = useProgress();
   const [medios, setMedios] = useState<MedioPago[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -116,6 +118,7 @@ export default function PagosPage() {
       return;
     }
     setSaving(true);
+    start();
     try {
       const url = editingId ? `/api/admin/pagos/${editingId}` : "/api/admin/pagos";
       const method = editingId ? "PUT" : "POST";
@@ -149,6 +152,7 @@ export default function PagosPage() {
     } catch {
       sileo.error({ title: "Error al guardar" });
     } finally {
+      done();
       setSaving(false);
     }
   };
@@ -156,6 +160,7 @@ export default function PagosPage() {
   const handleDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
+    start();
     try {
       const res = await fetch(`/api/admin/pagos/${deleteId}`, { method: "DELETE" });
       if (res.ok) {
@@ -169,11 +174,13 @@ export default function PagosPage() {
     } catch {
       sileo.error({ title: "Error al eliminar" });
     } finally {
+      done();
       setDeleting(false);
     }
   };
 
   const handleToggleActive = async (m: MedioPago) => {
+    start();
     try {
       const res = await fetch(`/api/admin/pagos/${m.id}`, {
         method: "PUT",
@@ -188,6 +195,8 @@ export default function PagosPage() {
       }
     } catch {
       sileo.error({ title: "Error al actualizar" });
+    } finally {
+      done();
     }
   };
 
@@ -195,6 +204,7 @@ export default function PagosPage() {
     const target = index + direction;
     if (target < 0 || target >= sorted.length || reordering) return;
     setReordering(true);
+    start();
     try {
       const ids = sorted.map((m) => m.id);
       [ids[index], ids[target]] = [ids[target], ids[index]];
@@ -211,6 +221,7 @@ export default function PagosPage() {
     } catch {
       sileo.error({ title: "Error al reordenar" });
     } finally {
+      done();
       setReordering(false);
     }
   };

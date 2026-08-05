@@ -13,7 +13,10 @@ export async function GET(
   const { id } = await params;
   const juego = await prisma.game.findUnique({
     where: { id },
-    include: { categoria: { select: { nombre: true, color: true } } },
+    include: {
+      categoria: { select: { nombre: true, color: true } },
+      categorias: { select: { id: true, nombre: true, color: true } },
+    },
   });
 
   if (!juego) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -32,6 +35,7 @@ export async function PUT(
   if (!data) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
 
   try {
+    const categoriaIds = parseCategoriaIds(data);
     const juego = await prisma.game.update({
       where: { id },
       data: {
@@ -39,6 +43,7 @@ export async function PUT(
         slug: String(data.slug || ""),
         descripcion: String(data.descripcion || ""),
         categoriaId: String(data.categoriaId || ""),
+        categorias: { set: categoriaIds.map((id) => ({ id })) },
         jugadoresMin: Math.max(1, Number(data.jugadoresMin) || 2),
         jugadoresMax: Math.max(1, Number(data.jugadoresMax) || 6),
         duracion: String(data.duracion || ""),
@@ -71,6 +76,18 @@ export async function PUT(
     }
     return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
+}
+
+function parseCategoriaIds(data: Record<string, unknown>): string[] {
+  const raw = data.categoriaIds;
+  const ids = Array.isArray(raw)
+    ? raw.filter((v): v is string => typeof v === "string" && v.length > 0)
+    : [];
+  const primary = String(data.categoriaId || "");
+  const all = new Set<string>();
+  if (primary) all.add(primary);
+  for (const id of ids) all.add(id);
+  return [...all];
 }
 
 export async function DELETE(

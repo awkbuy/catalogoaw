@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2, Save } from "lucide-react";
 import { sileo } from "sileo";
+import { useProgress } from "@/lib/progress-context";
 import {
   DIAS_NOMBRES,
   CLAVE_SETTING,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/horarios";
 
 export default function HorariosPage() {
+  const { start, done } = useProgress();
   const [horarios, setHorarios] = useState<DiaHorario[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -34,6 +36,7 @@ export default function HorariosPage() {
 
   const handleSave = async () => {
     setSaving(true);
+    start();
     try {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
@@ -48,6 +51,7 @@ export default function HorariosPage() {
     } catch {
       sileo.error({ title: "Error al guardar los horarios" });
     } finally {
+      done();
       setSaving(false);
     }
   };

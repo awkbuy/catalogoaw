@@ -4,14 +4,24 @@ import { useState, useEffect } from "react";
 import { useActionState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+import ImageWithProgress from "@/components/ImageWithProgress";
 import { sileo } from "sileo";
 import { loginAction } from "@/actions/auth";
+import { getPublicBrand } from "@/actions/settings";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [state, formAction, pending] = useActionState(loginAction, null);
+  const [brand, setBrand] = useState<{ nombreNegocio: string; logoUrl: string | null }>({
+    nombreNegocio: "Wolfie Room",
+    logoUrl: null,
+  });
+
+  useEffect(() => {
+    getPublicBrand().then(setBrand).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (state?.error) {
@@ -29,8 +39,22 @@ export default function AdminLoginPage() {
       >
         <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-8">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-[#31D3A9] flex items-center justify-center text-[#0B3B30] font-bold text-2xl mb-4">
-              W
+            <div className="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-[#31D3A9]">
+              {brand.logoUrl ? (
+                <ImageWithProgress
+                  src={brand.logoUrl}
+                  alt={brand.nombreNegocio}
+                  width={2252}
+                  height={1373}
+                  sizes="64px"
+                  className="h-full w-full"
+                  imgClassName="object-contain p-1.5"
+                />
+              ) : (
+                <span className="text-[#0B3B30] font-bold text-2xl">
+                  {brand.nombreNegocio.charAt(0) || "W"}
+                </span>
+              )}
             </div>
             <h1 className="text-2xl font-bold text-[#1F2937]">Admin Panel</h1>
             <p className="text-[#6B7280] text-sm mt-1">
@@ -109,7 +133,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p className="text-center text-[#6B7280] text-xs mt-6">
-          Wolfie Room &copy; {new Date().getFullYear()}
+          {brand.nombreNegocio} &copy; {new Date().getFullYear()}
         </p>
       </motion.div>
     </div>

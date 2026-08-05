@@ -64,7 +64,9 @@ async function main() {
     ];
 
     for (const game of games) {
-      await prisma.game.create({ data: game });
+      await prisma.game.create({
+        data: { ...game, categorias: { connect: { id: game.categoriaId } } },
+      });
     }
     console.log("✅ Categories and games seeded");
   } else {

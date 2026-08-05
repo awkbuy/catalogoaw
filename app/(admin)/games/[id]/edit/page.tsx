@@ -12,7 +12,10 @@ export default async function EditGamePage({
   const { id } = await params;
 
   const [juego, categorias] = await Promise.all([
-    prisma.game.findUnique({ where: { id } }),
+    prisma.game.findUnique({
+      where: { id },
+      include: { categorias: { select: { id: true } } },
+    }),
     prisma.category.findMany({
       orderBy: { orden: "asc" },
       select: { id: true, nombre: true },
@@ -27,6 +30,7 @@ export default async function EditGamePage({
     slug: juego.slug,
     descripcion: juego.descripcion || "",
     categoriaId: juego.categoriaId,
+    categoriaIds: juego.categorias.map((c) => c.id),
     jugadoresMin: String(juego.jugadoresMin),
     jugadoresMax: String(juego.jugadoresMax),
     duracion: juego.duracion || "",

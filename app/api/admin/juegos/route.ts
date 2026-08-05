@@ -8,7 +8,10 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const juegos = await prisma.game.findMany({
-    include: { categoria: { select: { nombre: true, color: true } } },
+    include: {
+      categoria: { select: { nombre: true, color: true } },
+      categorias: { select: { id: true, nombre: true, color: true } },
+    },
     orderBy: { nombre: "asc" },
   });
 
@@ -23,12 +26,14 @@ export async function POST(req: NextRequest) {
   if (!data) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
 
   try {
+    const categoriaIds = parseCategoriaIds(data);
     const juego = await prisma.game.create({
       data: {
         nombre: String(data.nombre || ""),
         slug: String(data.slug || ""),
         descripcion: String(data.descripcion || ""),
         categoriaId: String(data.categoriaId || ""),
+        categorias: { connect: categoriaIds.map((id) => ({ id })) },
         jugadoresMin: Math.max(1, Number(data.jugadoresMin) || 2),
         jugadoresMax: Math.max(1, Number(data.jugadoresMax) || 6),
         duracion: String(data.duracion || ""),
@@ -58,4 +63,16 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
+}
+
+function parseCategoriaIds(data: Record<string, unknown>): string[] {
+  const raw = data.categoriaIds;
+  const ids = Array.isArray(raw)
+    ? raw.filter((v): v is string => typeof v === "string" && v.length > 0)
+    : [];
+  const primary = String(data.categoriaId || "");
+  const all = new Set<string>();
+  if (primary) all.add(primary);
+  for (const id of ids) all.add(id);
+  return [...all];
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import ImageWithProgress from "@/components/ImageWithProgress";
 import {
   Users,
   Clock,
@@ -33,6 +33,7 @@ export interface PublicGameDetail {
   slug: string;
   descripcion: string;
   categoria: { nombre: string; icono: string; color: string };
+  categorias?: { nombre: string; icono: string; color: string }[];
   jugadoresMin: number;
   jugadoresMax: number;
   duracion: string;
@@ -147,13 +148,14 @@ export default function GameDetailView({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#E5E7EB]">
             {game.imagen ? (
-              <Image
+              <ImageWithProgress
                 src={game.imagen}
                 alt={alt}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+                className="absolute inset-0"
+                imgClassName="object-cover"
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-6xl">
@@ -163,19 +165,36 @@ export default function GameDetailView({
           </div>
 
           <div>
-            <span
-              className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
-              style={{
-                backgroundColor: `${game.categoria.color}14`,
-                color: game.categoria.color,
-              }}
-            >
+            <div className="flex flex-wrap items-center gap-2">
               <span
-                className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: game.categoria.color }}
-              />
-              {game.categoria.nombre}
-            </span>
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+                style={{
+                  backgroundColor: `${game.categoria.color}14`,
+                  color: game.categoria.color,
+                }}
+              >
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: game.categoria.color }}
+                />
+                {game.categoria.nombre}
+              </span>
+              {(game.categorias ?? [])
+                .filter((c) => c.nombre !== game.categoria.nombre)
+                .map((c) => (
+                  <span
+                    key={c.nombre}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-text-secondary"
+                  >
+                    {c.icono &&
+                    !c.icono.startsWith("/") &&
+                    !c.icono.startsWith("http")
+                      ? `${c.icono} `
+                      : ""}
+                    {c.nombre}
+                  </span>
+                ))}
+            </div>
 
             <h1 className="mt-3 text-3xl font-bold tracking-tight text-text sm:text-4xl">
               {game.nombre}

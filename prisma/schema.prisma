@@ -22,7 +22,8 @@ model Category {
   color     String  @default("#31D3A9")
   tags      String  @default("")
   orden     Int     @default(0)
-  games     Game[]
+  games     Game[]  @relation("GameCategories")
+  mainGames Game[]  @relation("GameMainCategory")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -33,7 +34,8 @@ model Game {
   slug               String   @unique
   descripcion        String   @default("")
   categoriaId        String
-  categoria          Category @relation(fields: [categoriaId], references: [id])
+  categoria          Category @relation("GameMainCategory", fields: [categoriaId], references: [id])
+  categorias         Category[] @relation("GameCategories")
   jugadoresMin       Int      @default(2)
   jugadoresMax       Int      @default(6)
   duracion           String   @default("60 min")

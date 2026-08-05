@@ -3,15 +3,19 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Loader2, Upload, X, Check } from "lucide-react";
-import Image from "next/image";
+import ImageWithProgress from "@/components/ImageWithProgress";
+import { useRouter } from "next/navigation";
 import { sileo } from "sileo";
 import { uploadImage } from "@/lib/upload-image";
+import { useProgress } from "@/lib/progress-context";
 
 interface Settings {
   [key: string]: string;
 }
 
 export default function SettingsPage() {
+  const router = useRouter();
+  const { start, done } = useProgress();
   const [settings, setSettings] = useState<Settings>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,6 +40,7 @@ export default function SettingsPage() {
     if (!file) return;
 
     setUploadingLogo(true);
+    start();
     try {
       const result = await uploadImage(file);
       if ("url" in result) {
@@ -48,11 +53,13 @@ export default function SettingsPage() {
       }
     } finally {
       setUploadingLogo(false);
+      done();
     }
   };
 
   const handleSave = async () => {
     setSaving(true);
+    start();
     try {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
@@ -61,11 +68,19 @@ export default function SettingsPage() {
       });
       if (res.ok) {
         sileo.success({ title: "Configuración guardada correctamente" });
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => null);
+        sileo.error({
+          title: "Error al guardar",
+          description: data?.error || "Ocurrió un error al guardar la configuración.",
+        });
       }
     } catch {
       sileo.error({ title: "Error al guardar" });
     } finally {
       setSaving(false);
+      done();
     }
   };
 
@@ -253,12 +268,12 @@ export default function SettingsPage() {
             {settings.logoUrl ? (
               <div className="relative">
                 <div className="w-full aspect-square rounded-xl overflow-hidden bg-[#E5E7EB] flex items-center justify-center p-4">
-                  <Image
+                  <ImageWithProgress
                     src={settings.logoUrl}
                     alt="Logo"
                     width={2252}
                     height={1373}
-                    className="max-w-full max-h-full w-auto h-auto object-contain"
+                    imgClassName="max-w-full max-h-full w-auto h-auto object-contain"
                   />
                 </div>
                 <div className="flex gap-2 mt-3">

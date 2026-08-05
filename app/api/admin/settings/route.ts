@@ -13,6 +13,7 @@ const ALLOWED_SETTINGS_KEYS = [
   "ciudad",
   "horario",
   "horarios",
+  "horarios_semana",
   "instagram",
   "facebook",
   "tiktok",

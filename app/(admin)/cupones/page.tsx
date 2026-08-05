@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Pencil, Trash2, X, Loader2, Tag } from "lucide-react";
 import { sileo } from "sileo";
 import { formatPrice } from "@/lib/format";
+import { useProgress } from "@/lib/progress-context";
 
 interface Cupon {
   id: string;
@@ -36,6 +37,7 @@ function toDateInput(value: string | null): string {
 }
 
 export default function CuponesPage() {
+  const { start, done } = useProgress();
   const [cupones, setCupones] = useState<Cupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -97,6 +99,7 @@ export default function CuponesPage() {
       return;
     }
     setSaving(true);
+    start();
     try {
       const url = editingId ? `/api/admin/cupones/${editingId}` : "/api/admin/cupones";
       const method = editingId ? "PUT" : "POST";
@@ -130,6 +133,7 @@ export default function CuponesPage() {
     } catch {
       sileo.error({ title: "Error al guardar" });
     } finally {
+      done();
       setSaving(false);
     }
   };
@@ -137,6 +141,7 @@ export default function CuponesPage() {
   const handleDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
+    start();
     try {
       const res = await fetch(`/api/admin/cupones/${deleteId}`, {
         method: "DELETE",
@@ -152,6 +157,7 @@ export default function CuponesPage() {
     } catch {
       sileo.error({ title: "Error al eliminar" });
     } finally {
+      done();
       setDeleting(false);
     }
   };
