@@ -29,7 +29,9 @@ test.describe("08 · Headers HTTP — cabeceras de seguridad presentes", () => {
     expect(csp).toContain("form-action 'self'");
     // no debe permitir conexiones a orígenes externos arbitrarios
     expect(csp).not.toContain("connect-src *");
-    expect(csp).not.toContain("https://");
+    expect(csp).not.toMatch(/connect-src\s+[^;]*https?:\/\//);
+    // frame-src solo permite el embed de YouTube (privacy-enhanced)
+    expect(csp).toContain("frame-src https://www.youtube-nocookie.com");
   });
 
   test("las respuestas de API también llevan cabeceras", async ({ publicApi }) => {
