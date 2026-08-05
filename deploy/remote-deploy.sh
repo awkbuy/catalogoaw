@@ -27,6 +27,10 @@ set -a
 source "$APP_DIR/.env"
 set +a
 cd "$APP_DIR/tools"
+# Baseline: la BD de producción se sembró manualmente sin historial de
+# migraciones, así que la inicial debe marcarse como aplicada (idempotente;
+# si ya está registrada, el error se ignora) para que migrate deploy siga.
+npx --no-install prisma migrate resolve --applied 20260803000000_init || true
 npx --no-install prisma migrate deploy
 cd "$APP_DIR"
 
