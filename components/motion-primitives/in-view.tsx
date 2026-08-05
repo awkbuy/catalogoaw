@@ -7,6 +7,7 @@ import {
   Transition,
   UseInViewOptions,
 } from 'motion/react';
+import { useAdaptive } from '@/lib/adaptive-context';
 
 export type InViewProps = {
   children: ReactNode;
@@ -37,6 +38,14 @@ export function InView({
   const isInView = useInView(ref, viewOptions);
 
   const [isViewed, setIsViewed] = useState(false)
+
+  const { isLite } = useAdaptive();
+
+  // Lite: contenido visible sin animaciones ni IntersectionObserver
+  if (isLite) {
+    const Tag = as as React.ElementType;
+    return <Tag ref={ref}>{children}</Tag>;
+  }
 
   const MotionComponent = motion[as as keyof typeof motion] as typeof as;
 

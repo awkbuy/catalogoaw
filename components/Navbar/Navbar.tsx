@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { ShoppingCart, Home, Info } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 import AppleDock from "@/components/AppleDock";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import InfoModal from "@/components/InfoModal";
@@ -30,6 +31,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios, onCartClick, onCartClose }: NavbarProps) {
+  const { isLite } = useAdaptive();
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
   const [infoOpen, setInfoOpen] = useState(false);
@@ -121,19 +123,21 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
 
   return (
     <>
-      <motion.nav
+      <Motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
+            ? isLite
+              ? "bg-white/95"
+              : "bg-white/80 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
             : "bg-transparent"
         }`}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <motion.a
+            <Motion.a
               href="/"
               aria-label={businessName}
               whileHover={{ scale: 1.03 }}
@@ -149,7 +153,7 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
                 loading="eager"
                 className="h-9 w-auto md:h-11"
               />
-            </motion.a>
+            </Motion.a>
 
             <div className="hidden items-center gap-1 md:flex">
               {navLinks.map((link) => (
@@ -206,7 +210,7 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
             </div>
           </div>
         </div>
-      </motion.nav>
+      </Motion.nav>
 
       <AppleDock tabs={tabsWithBadge} activeTab={activeSection} />
 

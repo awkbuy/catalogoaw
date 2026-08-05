@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, ShoppingCart, Users, Clock, Baby, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 import { parsePrice, formatPrice } from "@/lib/format";
 import { getYouTubeEmbedUrl } from "@/lib/video";
 import {
@@ -41,6 +43,7 @@ interface ProductDetailModalProps {
 }
 
 export default function ProductDetailModal({ game, open, onClose, taxConfig }: ProductDetailModalProps) {
+  const { isLite } = useAdaptive();
   const { addItem } = useCart();
   const [cantidad, setCantidad] = useState(1);
   const [observacion, setObservacion] = useState("");
@@ -77,19 +80,19 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
     <AnimatePresence>
       {open && (
         <>
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            className={`fixed inset-0 z-50 ${isLite ? "bg-black/50" : "bg-black/40 backdrop-blur-sm"}`}
             onClick={onClose}
           />
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            transition={isLite ? { duration: 0.2 } : { type: "spring", damping: 25, stiffness: 300 }}
             className="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-white shadow-2xl flex flex-col"
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
@@ -240,7 +243,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
                 Agregar al carrito {cantidad > 1 && `(${cantidad} unidades)`}
               </button>
             </div>
-          </motion.div>
+          </Motion.div>
         </>
       )}
     </AnimatePresence>

@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Users, Clock, Baby, Eye, ShoppingCart, BadgePercent } from "lucide-react";
 import Image from "next/image";
 import type { PublicGame } from "./Catalog";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 import { useCart } from "@/lib/cart-context";
 import { parsePrice, formatPrice } from "@/lib/format";
 import PaymentMethodIcon from "@/components/PaymentMethodIcon";
@@ -47,6 +48,7 @@ interface GameCardProps {
 }
 
 export default function GameCard({ game, index, taxConfig, paymentMethods, onViewDetail }: GameCardProps) {
+  const { isLite } = useAdaptive();
   const { addItem } = useCart();
   const isAvailable = game.estado === "Disponible";
 
@@ -83,13 +85,13 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
   const promocional = paymentMethods.find((pm) => pm.promocional);
 
   return (
-    <motion.article
+    <Motion.article
       layout
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: isLite ? 0 : 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay: index * 0.05 }}
-      whileHover={{ y: -4 }}
+      transition={{ duration: 0.5, delay: isLite ? 0 : index * 0.05 }}
+      whileHover={isLite ? undefined : { y: -4 }}
       onClick={() => onViewDetail?.(game)}
       className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg hover:shadow-black/5"
     >
@@ -269,6 +271,6 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
           )}
         </div>
       </div>
-    </motion.article>
+    </Motion.article>
   );
 }

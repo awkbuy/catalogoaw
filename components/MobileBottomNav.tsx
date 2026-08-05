@@ -1,7 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 
 interface Tab {
   id: string;
@@ -17,9 +18,13 @@ interface MobileBottomNavProps {
 }
 
 export default function MobileBottomNav({ tabs, activeTab }: MobileBottomNavProps) {
+  const { isLite } = useAdaptive();
+
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E5E7EB] bg-white/95 backdrop-blur-xl md:hidden"
+      className={`fixed bottom-0 left-0 right-0 z-50 border-t border-[#E5E7EB] md:hidden ${
+        isLite ? "bg-white/95" : "bg-white/95 backdrop-blur-xl"
+      }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div className="flex items-center justify-around px-2 py-1">
@@ -31,13 +36,16 @@ export default function MobileBottomNav({ tabs, activeTab }: MobileBottomNavProp
               onClick={tab.onClick}
               className="relative flex flex-1 flex-col items-center gap-0.5 py-2 min-w-0"
             >
-              {isActive && (
-                <motion.div
-                  layoutId="bottom-nav-indicator"
-                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                  className="absolute -top-1 left-1/2 h-1 w-8 -translate-x-1/2 rounded-full bg-[#31D3A9]"
-                />
-              )}
+              {isActive &&
+                (isLite ? (
+                  <div className="absolute -top-1 left-1/2 h-1 w-8 -translate-x-1/2 rounded-full bg-[#31D3A9]" />
+                ) : (
+                  <Motion.div
+                    layoutId="bottom-nav-indicator"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                    className="absolute -top-1 left-1/2 h-1 w-8 -translate-x-1/2 rounded-full bg-[#31D3A9]"
+                  />
+                ))}
               <div className="relative">
                 {tab.icon}
                 {tab.badge && tab.badge > 0 ? (

@@ -2,7 +2,9 @@
 
 import { useMemo, useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 import GameCard from "./GameCard";
 import ProductDetailModal from "@/components/ProductDetailModal";
 import type { TaxConfig } from "@/lib/tax";
@@ -54,6 +56,7 @@ interface CatalogProps {
 }
 
 export default function Catalog({ games, whatsappNumber, taxConfig, paymentMethods, initialCategoria, initialQuery }: CatalogProps) {
+  const { isLite } = useAdaptive();
   const [query, setQuery] = useState(initialQuery ?? "");
   const [activeCategory, setActiveCategory] = useState(initialCategoria ?? "Todos");
   const [selectedGame, setSelectedGame] = useState<PublicGame | null>(null);
@@ -173,8 +176,8 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
             )}
           </div>
         ) : (
-          <motion.div layout className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6">
-            <AnimatePresence mode="popLayout">
+          <Motion.div layout className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6">
+            <AnimatePresence mode={isLite ? undefined : "popLayout"}>
               {filteredGames.map((game, index) => (
                 <GameCard
                   key={game.id}
@@ -186,7 +189,7 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
                 />
               ))}
             </AnimatePresence>
-          </motion.div>
+          </Motion.div>
         )}
       </div>
 

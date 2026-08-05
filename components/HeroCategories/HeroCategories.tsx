@@ -3,7 +3,9 @@
 import { useRef } from "react";
 import Image from "next/image";
 import { Dices } from "lucide-react";
-import { motion, useInView, type Variants } from "framer-motion";
+import { useInView, type Variants } from "framer-motion";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 
 interface Category {
   id: string;
@@ -42,6 +44,7 @@ const cardVariants: Variants = {
 };
 
 export default function HeroCategories({ categories, logoUrl }: HeroCategoriesProps) {
+  const { isLite } = useAdaptive();
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -75,8 +78,8 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
       className="py-20 sm:py-28 bg-[#FAFAFA]"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+        <Motion.div
+          initial={{ opacity: 0, y: isLite ? 0 : 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
           className="mb-10 text-center"
@@ -101,9 +104,9 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
           <p className="mx-auto mt-3 max-w-lg text-[#6B7280]">
               Encontrá el juego perfecto para cada ocasión
           </p>
-        </motion.div>
+        </Motion.div>
 
-        <motion.div
+        <Motion.div
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
@@ -117,11 +120,11 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
             const { r, g, b } = hexToRgb(cat.color);
 
             return (
-              <motion.button
+              <Motion.button
                 key={cat.id}
                 variants={cardVariants}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={isLite ? undefined : { scale: 1.03 }}
+                whileTap={isLite ? undefined : { scale: 0.98 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 onClick={() => handleCategoryClick(cat.nombre)}
                 className="group relative h-[200px] sm:h-[220px] overflow-hidden rounded-[20px] shadow-sm transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/60 hover:shadow-2xl hover:shadow-black/20"
@@ -165,12 +168,12 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
                     {promo}
                   </span>
                 )}
-              </motion.button>
+              </Motion.button>
             );
           })}
-        </motion.div>
+        </Motion.div>
 
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.5, delay: 0.6 }}
@@ -182,7 +185,7 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
           >
             Todas las categorías
           </button>
-        </motion.div>
+        </Motion.div>
       </div>
     </section>
   );

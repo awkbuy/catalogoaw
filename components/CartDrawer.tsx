@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash2, ShoppingBag, Tag, Check, Loader2, Wallet } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 import { formatPrice } from "@/lib/format";
 import { sileo } from "sileo";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
@@ -30,6 +32,7 @@ const paymentOptions = [
 ];
 
 export default function CartDrawer({ open, onClose, whatsappNumber, paymentMethods }: CartDrawerProps) {
+  const { isLite } = useAdaptive();
   const {
     items,
     removeItem,
@@ -183,19 +186,19 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
     <AnimatePresence>
       {open && (
         <>
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            className={`fixed inset-0 z-50 ${isLite ? "bg-black/50" : "bg-black/40 backdrop-blur-sm"}`}
             onClick={onClose}
           />
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            transition={isLite ? { duration: 0.2 } : { type: "spring", damping: 25, stiffness: 300 }}
             className="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-white shadow-2xl flex flex-col"
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E7EB]">
@@ -361,7 +364,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
 
                   <AnimatePresence>
                     {entrega === "envio" && (
-                      <motion.div
+                      <Motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
@@ -453,7 +456,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                             placeholder="Referencia (opcional)"
                           />
                         </div>
-                      </motion.div>
+                      </Motion.div>
                     )}
                   </AnimatePresence>
 
@@ -596,7 +599,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                 </div>
               </div>
             )}
-          </motion.div>
+          </Motion.div>
         </>
       )}
     </AnimatePresence>

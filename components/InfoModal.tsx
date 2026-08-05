@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { X, Clock, MapPin, CalendarCheck } from "lucide-react";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import {
   DIAS_NOMBRES,
@@ -26,6 +28,7 @@ export default function InfoModal({
   whatsappNumber,
   businessName,
 }: InfoModalProps) {
+  const { isLite } = useAdaptive();
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -66,19 +69,19 @@ export default function InfoModal({
     <AnimatePresence>
       {open && (
         <>
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            className={`fixed inset-0 z-50 ${isLite ? "bg-black/50" : "bg-black/40 backdrop-blur-sm"}`}
             onClick={onClose}
           />
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, y: 40, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.96 }}
-            transition={{ type: "spring", damping: 26, stiffness: 300 }}
+            transition={isLite ? { duration: 0.2 } : { type: "spring", damping: 26, stiffness: 300 }}
             className="fixed inset-0 z-50 flex items-end justify-center sm:items-center p-0 sm:p-4"
           >
             <div className="flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
@@ -178,7 +181,7 @@ export default function InfoModal({
                 </a>
               </div>
             </div>
-          </motion.div>
+          </Motion.div>
         </>
       )}
     </AnimatePresence>

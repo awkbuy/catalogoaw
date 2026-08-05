@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ToasterProvider from "@/components/ToasterProvider";
+import { AdaptiveProvider } from "@/lib/adaptive-context";
 import { getSeoSettings, buildSiteMetadata } from "@/lib/seo";
 
 const geistSans = Geist({
@@ -37,7 +38,9 @@ export default async function RootLayout({
     <html lang={lang} className={`${geistSans.variable} ${geistMono.variable}`}>
       <head />
       <body className="min-h-screen antialiased">
-        {children}
+        <AdaptiveProvider>
+          {children}
+        </AdaptiveProvider>
         <ToasterProvider />
       </body>
     </html>

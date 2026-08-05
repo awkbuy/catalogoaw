@@ -1,13 +1,15 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 
 interface HeroProps {
   whatsappNumber: string;
 }
 
 export default function Hero({ whatsappNumber }: HeroProps) {
+  const { isLite } = useAdaptive();
   const WHATSAPP_RESERVA = `https://wa.me/${whatsappNumber}?text=Hola.%20Quisiera%20consultar%20para%20reservar%20una%20mesa%20en%20Wolfie%20Room.`;
 
   return (
@@ -16,28 +18,36 @@ export default function Hero({ whatsappNumber }: HeroProps) {
       className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5" />
-      <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-primary/10 blur-[100px]" />
-      <div className="absolute bottom-20 right-10 h-72 w-72 rounded-full bg-secondary/10 blur-[100px]" />
+      {!isLite && (
+        <>
+          <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-primary/10 blur-[100px]" />
+          <div className="absolute bottom-20 right-10 h-72 w-72 rounded-full bg-secondary/10 blur-[100px]" />
+        </>
+      )}
 
-      <motion.div
-        animate={{ y: [0, -20, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-1/4 left-[15%] h-2 w-2 rounded-full bg-primary/30"
-      />
-      <motion.div
-        animate={{ y: [0, 15, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute top-1/3 right-[20%] h-3 w-3 rounded-full bg-secondary/30"
-      />
-      <motion.div
-        animate={{ y: [0, -12, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="absolute bottom-1/3 left-[25%] h-2 w-2 rounded-full bg-primary/20"
-      />
+      {!isLite && (
+        <>
+          <Motion.div
+            animate={{ y: [0, -20, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/4 left-[15%] h-2 w-2 rounded-full bg-primary/30"
+          />
+          <Motion.div
+            animate={{ y: [0, 15, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute top-1/3 right-[20%] h-3 w-3 rounded-full bg-secondary/30"
+          />
+          <Motion.div
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute bottom-1/3 left-[25%] h-2 w-2 rounded-full bg-primary/20"
+          />
+        </>
+      )}
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
+        <Motion.div
+          initial={{ opacity: 0, y: isLite ? 0 : 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
@@ -45,10 +55,10 @@ export default function Hero({ whatsappNumber }: HeroProps) {
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             Juegos de mesa en Mendoza
           </div>
-        </motion.div>
+        </Motion.div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+        <Motion.h1
+          initial={{ opacity: 0, y: isLite ? 0 : 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-6 text-4xl font-bold leading-tight tracking-tight text-text sm:text-5xl md:text-6xl lg:text-7xl"
@@ -57,20 +67,20 @@ export default function Hero({ whatsappNumber }: HeroProps) {
           <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             juego favorito
           </span>
-        </motion.h1>
+        </Motion.h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
+        <Motion.p
+          initial={{ opacity: 0, y: isLite ? 0 : 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mx-auto mb-10 max-w-2xl text-lg text-text-secondary sm:text-xl"
         >
           Jugá en nuestro espacio, reservá una mesa con tus amigos o encontrá
           ese juego que querés llevarte a casa.
-        </motion.p>
+        </Motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
+        <Motion.div
+          initial={{ opacity: 0, y: isLite ? 0 : 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
@@ -89,9 +99,9 @@ export default function Hero({ whatsappNumber }: HeroProps) {
           >
             Ver catálogo
           </a>
-        </motion.div>
+        </Motion.div>
 
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.6 }}
@@ -99,7 +109,7 @@ export default function Hero({ whatsappNumber }: HeroProps) {
         >
           <MapPin size={14} className="text-secondary" />
           Patio Lorenza · Mendoza
-        </motion.div>
+        </Motion.div>
       </div>
     </section>
   );

@@ -1,7 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Gamepad2, CalendarCheck, MapPin, PartyPopper } from "lucide-react";
+import { Motion } from "@/components/motion-wrapper";
+import { useAdaptive } from "@/lib/adaptive-context";
 
 const steps = [
   {
@@ -35,12 +36,14 @@ const steps = [
 ];
 
 export default function HowItWorks() {
+  const { isLite } = useAdaptive();
+
   return (
     <section id="como-funciona" className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
+        <Motion.div
+          initial={{ opacity: 0, y: isLite ? 0 : 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -52,7 +55,7 @@ export default function HowItWorks() {
           <p className="mx-auto max-w-lg text-text-secondary">
             Si querés venir a jugar, es así de simple.
           </p>
-        </motion.div>
+        </Motion.div>
 
         {/* Steps */}
         <div className="relative grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -62,12 +65,12 @@ export default function HowItWorks() {
           {steps.map((step, i) => {
             const Icon = step.icon;
             return (
-              <motion.div
+              <Motion.div
                 key={step.title}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: isLite ? 0 : 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
+                transition={{ duration: 0.5, delay: isLite ? 0 : i * 0.1 }}
                 className="relative text-center"
               >
                 {/* Step number & icon */}
@@ -88,7 +91,7 @@ export default function HowItWorks() {
                 <p className="text-sm leading-relaxed text-text-secondary">
                   {step.description}
                 </p>
-              </motion.div>
+              </Motion.div>
             );
           })}
         </div>
