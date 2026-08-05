@@ -97,3 +97,22 @@ body {
     max-width: calc(100vw - 2.5rem);
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   ADAPTIVE PERFORMANCE: Reduced Motion + Fallbacks
+   ═══════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .backdrop-blur-fallback {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+  }
+}

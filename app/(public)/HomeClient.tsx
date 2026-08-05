@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CartProvider } from "@/lib/cart-context";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Navbar from "@/components/Navbar/Navbar";
 import HeroCategories from "@/components/HeroCategories/HeroCategories";
 import Catalog from "@/components/Catalog/Catalog";
@@ -79,24 +80,30 @@ export default function HomeClient({
         onCartClose={() => setCartOpen(false)}
       />
       <div className="pb-20 md:pb-0">
-        <HeroCategories categories={categories} logoUrl={logoUrl} />
+        <ErrorBoundary sectionName="HeroCategories" fallback={<div />}>
+          <HeroCategories categories={categories} logoUrl={logoUrl} />
+        </ErrorBoundary>
         <main>
-          <Catalog
-            games={games}
-            whatsappNumber={whatsappNumber}
-            taxConfig={taxConfig}
-            paymentMethods={paymentMethods}
-            initialCategoria={initialCategoria}
-            initialQuery={initialQuery}
-          />
+          <ErrorBoundary sectionName="Catalog" fallback={<div />}>
+            <Catalog
+              games={games}
+              whatsappNumber={whatsappNumber}
+              taxConfig={taxConfig}
+              paymentMethods={paymentMethods}
+              initialCategoria={initialCategoria}
+              initialQuery={initialQuery}
+            />
+          </ErrorBoundary>
         </main>
       </div>
-      <CartDrawer
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        whatsappNumber={whatsappNumber}
-        paymentMethods={paymentMethods}
-      />
+      <ErrorBoundary sectionName="CartDrawer" fallback={<div />}>
+        <CartDrawer
+          open={cartOpen}
+          onClose={() => setCartOpen(false)}
+          whatsappNumber={whatsappNumber}
+          paymentMethods={paymentMethods}
+        />
+      </ErrorBoundary>
       <ScrollToTop />
     </CartProvider>
   );

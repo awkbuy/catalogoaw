@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Artefactos de build locales (gitignored, no son código fuente)
+    "dist/**",
   ]),
 ]);
 

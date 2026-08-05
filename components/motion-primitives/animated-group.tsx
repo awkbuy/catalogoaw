@@ -2,6 +2,7 @@
 import { ReactNode } from 'react';
 import { motion, Variants } from 'motion/react';
 import React from 'react';
+import { useAdaptive } from '@/lib/adaptive-context';
 
 export type PresetType =
   | 'fade'
@@ -108,6 +109,8 @@ function AnimatedGroup({
   as = 'div',
   asChild = 'div',
 }: AnimatedGroupProps) {
+  const { isLite } = useAdaptive();
+
   const selectedVariants = {
     item: addDefaultVariants(preset ? presetVariants[preset] : {}),
     container: addDefaultVariants(defaultContainerVariants),
@@ -115,14 +118,13 @@ function AnimatedGroup({
   const containerVariants = variants?.container || selectedVariants.container;
   const itemVariants = variants?.item || selectedVariants.item;
 
-  const MotionComponent = React.useMemo(
-    () => motion.create(as as React.ElementType),
-    [as]
-  );
-  const MotionChild = React.useMemo(
-    () => motion.create(asChild as React.ElementType),
-    [asChild]
-  );
+  if (isLite) {
+    const Tag = as as React.ElementType;
+    return <Tag className={className}>{children}</Tag>;
+  }
+
+  const MotionComponent = motion[as as keyof typeof motion] as typeof as;
+  const MotionChild = motion[asChild as keyof typeof motion] as typeof asChild;
 
   return (
     <MotionComponent
