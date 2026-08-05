@@ -19,6 +19,17 @@ cd "$APP_DIR"
 echo "==> Backup previo al deploy"
 /usr/local/bin/backup-wolfie.sh
 
+echo "==> Aplicando migraciones (prisma migrate deploy contra la BD de producción)"
+# CLI de Prisma aislado en tools/ (ver install-server.sh). Si falla la
+# migración, `set -euo pipefail` aborta ANTES del swap: producción no se toca.
+set -a
+# shellcheck disable=SC1091
+source "$APP_DIR/.env"
+set +a
+cd "$APP_DIR/tools"
+npx --no-install prisma migrate deploy
+cd "$APP_DIR"
+
 echo "==> Preparando release $SHA"
 mkdir -p "$APP_DIR/releases/$SHA/public"
 ln -sfn "$APP_DIR/uploads" "$APP_DIR/releases/$SHA/public/uploads"
