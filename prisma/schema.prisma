@@ -60,6 +60,18 @@ model Game {
   disponibleVenta    Boolean  @default(false)
   disponibleMesa     Boolean  @default(true)
   orden              Int      @default(0)
+  showInMerchant      Boolean  @default(false)
+  showInMetaCommerce  Boolean  @default(false)
+  allowDynamicAds     Boolean  @default(false)
+  marketingFeatured   Boolean  @default(false)
+  remarketingEligible Boolean  @default(false)
+  googleProductCategory String @default("")
+  metaProductCategory    String @default("")
+  gtin                 String  @default("")
+  mpn                  String  @default("")
+  brand                String  @default("Wolfie Room")
+  condition            String  @default("new")
+  marketingPriority    Int     @default(0)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -103,4 +115,98 @@ model PaymentMethod {
   updatedAt   DateTime @updatedAt
 
   @@index([orden])
+}
+
+model AnalyticsEvent {
+  id           String   @id @default(cuid())
+  eventType    String
+  gameId       String?
+  gameName     String?
+  categoryId   String?
+  categoryName String?
+  searchTerm   String?
+  source       String?
+  price        Float?
+  metadata     String?
+  createdAt    DateTime @default(now())
+
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([gameId])
+  @@index([eventType, createdAt])
+}
+
+model DailyMetrics {
+  id             String   @id @default(cuid())
+  date           DateTime @unique
+  uniqueVisitors Int      @default(0)
+  sessions       Int      @default(0)
+  pageViews      Int      @default(0)
+  productViews   Int      @default(0)
+  cartAdditions  Int      @default(0)
+  whatsappClicks Int      @default(0)
+  searches       Int      @default(0)
+  checkouts      Int      @default(0)
+  topDevice      String?
+  topBrowser     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([date])
+}
+
+model ProductMetrics {
+  id             String    @id @default(cuid())
+  gameId         String    @unique
+  gameName       String
+  categoryName   String?
+  totalViews     Int       @default(0)
+  totalCartAdds  Int       @default(0)
+  totalWhatsapp  Int       @default(0)
+  totalCheckouts Int       @default(0)
+  lastViewedAt   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([totalViews(sort: Desc)])
+  @@index([totalCartAdds(sort: Desc)])
+  @@index([totalWhatsapp(sort: Desc)])
+}
+
+model CategoryMetrics {
+  id            String   @id @default(cuid())
+  categoryId    String   @unique
+  categoryName  String
+  totalViews    Int      @default(0)
+  totalCartAdds Int      @default(0)
+  totalWhatsapp Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([totalViews(sort: Desc)])
+}
+
+model GA4DailyMetrics {
+  id                 String   @id @default(cuid())
+  date               DateTime @unique
+  users              Int      @default(0)
+  newUsers           Int      @default(0)
+  sessions           Int      @default(0)
+  pageViews          Int      @default(0)
+  bounceRate         Float    @default(0)
+  avgSessionDuration Float    @default(0)
+  deviceDesktop      Int      @default(0)
+  deviceMobile       Int      @default(0)
+  deviceTablet       Int      @default(0)
+  topCountries       String?
+  topCities          String?
+  topBrowsers        String?
+  topOS              String?
+  topSources         String?
+  topLandingPages    String?
+  topEvents          String?
+  syncedAt           DateTime @default(now())
+  createdAt          DateTime @default(now())
+
+  @@index([date])
 }

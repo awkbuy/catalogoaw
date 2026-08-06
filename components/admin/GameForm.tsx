@@ -44,6 +44,18 @@ interface GameData {
   imagenAlt: string;
   descripcionAccesible: string;
   resumenIA: string;
+  showInMerchant: boolean;
+  showInMetaCommerce: boolean;
+  allowDynamicAds: boolean;
+  marketingFeatured: boolean;
+  remarketingEligible: boolean;
+  googleProductCategory: string;
+  metaProductCategory: string;
+  gtin: string;
+  mpn: string;
+  brand: string;
+  condition: string;
+  marketingPriority: string;
 }
 
 interface GameFormProps {
@@ -90,6 +102,18 @@ const defaultData: GameData = {
   imagenAlt: "",
   descripcionAccesible: "",
   resumenIA: "",
+  showInMerchant: false,
+  showInMetaCommerce: false,
+  allowDynamicAds: false,
+  marketingFeatured: false,
+  remarketingEligible: false,
+  googleProductCategory: "",
+  metaProductCategory: "",
+  gtin: "",
+  mpn: "",
+  brand: "Wolfie Room",
+  condition: "new",
+  marketingPriority: "",
 };
 
 export default function GameForm({
@@ -610,6 +634,152 @@ export default function GameForm({
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all resize-none"
                   placeholder="Resumen breve del juego para mostrar en la página"
                 />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
+            <h3 className="text-sm font-semibold text-[#1F2937] mb-1">
+              Marketing
+            </h3>
+            <p className="text-[11px] text-[#9CA3AF] mb-4">
+              Controla dónde aparece este juego en Google Merchant, Meta Commerce y campañas de anuncios.
+            </p>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { name: "showInMerchant", label: "Mostrar en Google Merchant" },
+                  { name: "showInMetaCommerce", label: "Mostrar en Meta Commerce" },
+                  { name: "allowDynamicAds", label: "Permitir anuncios dinámicos" },
+                  { name: "marketingFeatured", label: "Producto destacado" },
+                  { name: "remarketingEligible", label: "Incluir en remarketing" },
+                ].map((opt) => (
+                  <label
+                    key={opt.name}
+                    className="flex items-center gap-3 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      name={opt.name}
+                      checked={form[opt.name as keyof GameData] as boolean}
+                      onChange={handleChange}
+                      className="w-4 h-4 rounded border-[#E5E7EB] text-[#31D3A9] focus:ring-[#31D3A9]/30"
+                    />
+                    <span className="text-sm text-[#1F2937]">{opt.label}</span>
+                  </label>
+                ))}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Categoría de producto (Google Merchant)
+                </label>
+                <input
+                  type="text"
+                  name="googleProductCategory"
+                  value={form.googleProductCategory}
+                  onChange={handleChange}
+                  list="google-product-categories"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="Ej. Toys & Games > Games > Board Games"
+                />
+                <datalist id="google-product-categories">
+                  <option value="Toys & Games > Games > Board Games" />
+                  <option value="Toys & Games > Games > Card Games" />
+                  <option value="Toys & Games > Games > Family Games" />
+                  <option value="Toys & Games > Games > Puzzle Games" />
+                </datalist>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Categoría de producto (Meta Commerce)
+                </label>
+                <input
+                  type="text"
+                  name="metaProductCategory"
+                  value={form.metaProductCategory}
+                  onChange={handleChange}
+                  list="meta-product-categories"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="Ej. Juegos de mesa"
+                />
+                <datalist id="meta-product-categories">
+                  <option value="Juegos de mesa" />
+                  <option value="Juegos de cartas" />
+                  <option value="Juguetes" />
+                </datalist>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                    GTIN (código de barras)
+                  </label>
+                  <input
+                    type="text"
+                    name="gtin"
+                    value={form.gtin}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                    placeholder="Ej. 0702217114061"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                    MPN (número de pieza)
+                  </label>
+                  <input
+                    type="text"
+                    name="mpn"
+                    value={form.mpn}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                    placeholder="Ej. WR-CATAN-001"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                    Marca
+                  </label>
+                  <input
+                    type="text"
+                    name="brand"
+                    value={form.brand}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                    placeholder="Wolfie Room"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                    Condición
+                  </label>
+                  <select
+                    name="condition"
+                    value={form.condition}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  >
+                    <option value="new">Nuevo</option>
+                    <option value="used">Usado</option>
+                    <option value="refurbished">Reacondicionado</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                    Prioridad de marketing
+                  </label>
+                  <input
+                    type="number"
+                    name="marketingPriority"
+                    value={form.marketingPriority}
+                    onChange={handleChange}
+                    min={0}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                    placeholder="0"
+                  />
+                </div>
               </div>
             </div>
           </div>

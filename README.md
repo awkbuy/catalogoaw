@@ -270,6 +270,38 @@ wolfie-room/
 | `key` | String (unique) | Clave de configuración |
 | `value` | String | Valor de configuración |
 
+#### AnalyticsEvent
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `id` | String (cuid) | Identificador único |
+| `eventType` | String | `view_item`, `add_to_cart`, `search`, `whatsapp_click`, `page_view`, `begin_checkout`, etc. |
+| `gameId` | String? | Referencia al juego |
+| `gameName` | String? | Nombre del juego |
+| `categoryId` | String? | Referencia a la categoría |
+| `categoryName` | String? | Nombre de la categoría |
+| `searchTerm` | String? | Término de búsqueda |
+| `source` | String? | Origen del evento (`hero`, `navbar`, `cart`, ...) |
+| `price` | Float? | Precio |
+| `metadata` | String? | JSON string con datos extra (clientId, sessionId, device, browser) |
+| `createdAt` | DateTime | Fecha de creación |
+
+#### DailyMetrics
+
+Snapshot diario de métricas agregadas: `uniqueVisitors`, `sessions`, `pageViews`, `productViews`, `cartAdditions`, `whatsappClicks`, `searches`, `checkouts`, `topDevice`, `topBrowser` (fecha única).
+
+#### ProductMetrics
+
+Contadores acumulados por juego (`gameId` único): `totalViews`, `totalCartAdds`, `totalWhatsapp`, `totalCheckouts`, `lastViewedAt`.
+
+#### CategoryMetrics
+
+Contadores acumulados por categoría (`categoryId` único): `totalViews`, `totalCartAdds`, `totalWhatsapp`.
+
+#### GA4DailyMetrics
+
+Datos agregados sincronizados desde Google Analytics (para la fase de dashboard): usuarios, sesiones, page views, bounce rate, dispositivos, top países/ciudades/browsers/OS/fuentes (fecha única).
+
 ### Settings conocidas
 
 | Key | Descripción |
@@ -386,6 +418,14 @@ Todas las rutas API están bajo `/api/admin/` y requieren autenticación.
 | `PUT` | `/api/admin/settings` | Actualizar settings (upsert) |
 | `POST` | `/api/admin/upload` | Subir imagen a `/public/uploads/` |
 
+### API pública de analytics
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `POST` | `/api/analytics/event` | Registra un evento de analytics (sin auth, rate limit 60/min/IP). Cuerpo: `{ eventType, gameId?, gameName?, categoryId?, categoryName?, searchTerm?, source?, price?, metadata? }` |
+
+**Tracking propio**: `lib/analytics/events.ts` expone funciones tipadas (`trackViewItem`, `trackAddToCart`, `trackSearch`, `trackWhatsApp`, `trackPageView`, etc.) que envían con `sendBeacon()` al endpoint. **GA4**: `lib/analytics/ga4.ts` empuja eventos a `gtag()`. Detalle en `ANALYTICS-CHANGELOG.md`.
+
 ---
 
 ## SEO y rendimiento
@@ -482,6 +522,12 @@ npx prisma db seed
 npm run build
 npm start
 ```
+
+### Documentación relacionada
+
+- `DEPLOY.md` — Deploy y operaciones en el VPS DonWeb (releases, migraciones, backups).
+- `SECURITY-CHANGELOG.md` — Fase 0: hardening de seguridad para producción.
+- `ANALYTICS-CHANGELOG.md` — Fase 2: infraestructura de analytics (modelos, endpoint, tracking).
 
 ### Despliegue en Vercel
 

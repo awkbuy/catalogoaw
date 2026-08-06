@@ -298,6 +298,7 @@ ssh -p5293 wolfie@149.50.155.111 'ls -1 /var/www/wolfie-room/releases; readlink 
 ## 12. Notas / pendientes
 
 - **PENDIENTE — Branch protection en `main`** (requerir PR + checks): repo → Settings → Branches → *Add rule* → `main` → Require PR + status checks (`build`). Ver §5.
+- **PENDIENTE — Migración de analytics (Fase 2, pasos 1-4)**: el código de `app/api/analytics/event` y los 5 modelos nuevos (`AnalyticsEvent`, `DailyMetrics`, `ProductMetrics`, `CategoryMetrics`, `GA4DailyMetrics`) están listos localmente pero la migración `20260806002142_analytics_infrastructure` **NO está aplicada en producción**. Ver `ANALYTICS-CHANGELOG.md`. Al desplegar: (1) aplicar migración en el VPS con el workflow *Apply DB Migrations* (o manual en `tools/`), y (2) luego merge a `main`. No desplegar el código sin migrar.
 - **PENDIENTE — Rotar credenciales expuestas en el chat**: contraseña root de DonWeb (panel DonWeb) y PAT de GitHub (`token git.txt`). La de root ya no sirve por SSH (harden), pero rotarla igual.
 - **Lint local**: hay un error pre-existente en `components/motion-primitives/animated-group.tsx` (`react-hooks/static-components`) que no bloquea el build. Se excluyó lint del CI para no romper el pipeline; se puede arreglar luego y sumar `npm run lint` al CI.
 - **Instalación local de dependencias (Windows)**: `npm ci` plano falla porque `better-sqlite3@13` intenta `node-gyp rebuild` (necesita VS Build Tools). Usar:

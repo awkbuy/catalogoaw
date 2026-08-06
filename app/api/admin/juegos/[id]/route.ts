@@ -67,6 +67,18 @@ export async function PUT(
         imagenAlt: String(data.imagenAlt || ""),
         descripcionAccesible: String(data.descripcionAccesible || ""),
         resumenIA: String(data.resumenIA || ""),
+        showInMerchant: data.showInMerchant === true,
+        showInMetaCommerce: data.showInMetaCommerce === true,
+        allowDynamicAds: data.allowDynamicAds === true,
+        marketingFeatured: data.marketingFeatured === true,
+        remarketingEligible: data.remarketingEligible === true,
+        googleProductCategory: String(data.googleProductCategory || ""),
+        metaProductCategory: String(data.metaProductCategory || ""),
+        gtin: String(data.gtin || ""),
+        mpn: String(data.mpn || ""),
+        brand: String(data.brand || "Wolfie Room"),
+        condition: String(data.condition || "new"),
+        marketingPriority: Math.max(0, Number(data.marketingPriority) || 0),
       },
     });
     return NextResponse.json(juego);

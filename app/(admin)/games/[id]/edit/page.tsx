@@ -54,6 +54,18 @@ export default async function EditGamePage({
     imagenAlt: juego.imagenAlt || "",
     descripcionAccesible: juego.descripcionAccesible || "",
     resumenIA: juego.resumenIA || "",
+    showInMerchant: juego.showInMerchant,
+    showInMetaCommerce: juego.showInMetaCommerce,
+    allowDynamicAds: juego.allowDynamicAds,
+    marketingFeatured: juego.marketingFeatured,
+    remarketingEligible: juego.remarketingEligible,
+    googleProductCategory: juego.googleProductCategory || "",
+    metaProductCategory: juego.metaProductCategory || "",
+    gtin: juego.gtin || "",
+    mpn: juego.mpn || "",
+    brand: juego.brand || "Wolfie Room",
+    condition: juego.condition || "new",
+    marketingPriority: String(juego.marketingPriority),
   };
 
   return (
