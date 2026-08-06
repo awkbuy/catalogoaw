@@ -7,6 +7,7 @@ import type { PublicGame } from "./Catalog";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
 import { useCart } from "@/lib/cart-context";
+import { trackMarketingEvent } from "@/lib/marketing";
 import { parsePrice, formatPrice } from "@/lib/format";
 import PaymentMethodIcon from "@/components/PaymentMethodIcon";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
@@ -73,6 +74,18 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
       precio: formatPrice(hasDescuento ? precioDescuento : precioNum),
       precioNum: hasDescuento ? precioDescuento : precioNum,
       imagen: game.imagen,
+    });
+    trackMarketingEvent({
+      event: "AddToCart",
+      data: {
+        content_ids: [game.id],
+        content_name: game.nombre,
+        content_category: game.categoria.nombre,
+        value: hasDescuento ? precioDescuento : precioNum,
+        currency: "ARS",
+        quantity: 1,
+        source: "catalog_quick_add",
+      },
     });
   };
 

@@ -6,6 +6,7 @@ import { X, Clock, MapPin, CalendarCheck } from "lucide-react";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
+import { trackMarketingEvent } from "@/lib/marketing";
 import {
   DIAS_NOMBRES,
   obtenerEstadoHorario,
@@ -174,6 +175,12 @@ export default function InfoModal({
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackMarketingEvent({
+                      event: "ClickWhatsApp",
+                      data: { source: "info_modal" },
+                    })
+                  }
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#25D366]/20 transition-all hover:bg-[#1fb959] hover:shadow-xl active:scale-[0.98]"
                 >
                   <WhatsAppIcon size={16} />

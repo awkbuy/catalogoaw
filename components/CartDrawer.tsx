@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, Trash2, ShoppingBag, Tag, Check, Loader2, Wallet } from "lucide-react";
 import ImageWithProgress from "@/components/ImageWithProgress";
 import { useCart } from "@/lib/cart-context";
+import { trackMarketingEvent } from "@/lib/marketing";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
 import { formatPrice } from "@/lib/format";
@@ -60,6 +61,17 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
   const [codigoPostal, setCodigoPostal] = useState("");
   const [referencia, setReferencia] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const prevOpenRef = useRef(false);
+  useEffect(() => {
+    if (open && !prevOpenRef.current && itemCount > 0) {
+      trackMarketingEvent({
+        event: "ViewCart",
+        data: { quantity: itemCount, source: "cart_drawer" },
+      });
+    }
+    prevOpenRef.current = open;
+  }, [open, itemCount]);
 
   const handleFieldChange = (
     key: string,
@@ -159,6 +171,22 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
       sileo.error({ title: "Revisá los campos marcados en rojo" });
       return;
     }
+
+    trackMarketingEvent({
+      event: "InitiateCheckout",
+      data: {
+        content_ids: items.map((i) => i.gameId),
+        content_name: items[0]?.nombre,
+        value: finalTotal,
+        currency: "ARS",
+        quantity: itemCount,
+        source: "cart_drawer",
+      },
+    });
+    trackMarketingEvent({
+      event: "ClickWhatsApp",
+      data: { source: "cart_drawer" },
+    });
 
     let message = "Hola, quisiera hacer un pedido:\n\n";
     message += "🛒 *Productos:*\n";

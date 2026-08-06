@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, ShoppingCart, Users, Clock, Baby, MessageCircle } from "lucide-react";
 import ImageWithProgress from "@/components/ImageWithProgress";
 import { useCart } from "@/lib/cart-context";
+import { trackMarketingEvent } from "@/lib/marketing";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
 import { parsePrice, formatPrice } from "@/lib/format";
@@ -72,6 +73,18 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
         imagen: game.imagen,
       });
     }
+    trackMarketingEvent({
+      event: "AddToCart",
+      data: {
+        content_ids: [game.id],
+        content_name: game.nombre,
+        content_category: game.categoria.nombre,
+        value: precioFinal,
+        currency: "ARS",
+        quantity: cantidad,
+        source: "product_modal",
+      },
+    });
     setCantidad(1);
     setObservacion("");
     onClose();

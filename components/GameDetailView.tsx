@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import ImageWithProgress from "@/components/ImageWithProgress";
 import {
@@ -12,6 +12,7 @@ import {
   MessageCircleQuestion,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { trackMarketingEvent } from "@/lib/marketing";
 import { parsePrice, formatPrice } from "@/lib/format";
 import { getYouTubeEmbedUrl } from "@/lib/video";
 import {
@@ -80,6 +81,23 @@ export default function GameDetailView({
   const precioNum = parsePrice(game.precioFinalVenta);
   const precioFinal =
     game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
+
+  const viewSentRef = useRef(false);
+  useEffect(() => {
+    if (viewSentRef.current) return;
+    viewSentRef.current = true;
+    trackMarketingEvent({
+      event: "ViewContent",
+      data: {
+        content_ids: [game.id],
+        content_name: game.nombre,
+        content_category: game.categoria.nombre,
+        value: precioFinal,
+        currency: "ARS",
+        source: "game_detail",
+      },
+    });
+  }, [game, precioFinal]);
   const embedUrl = game.integrarVideo ? getYouTubeEmbedUrl(game.videoUrl) : null;
   const mostrarSinImpuestos =
     taxConfig.activoCalculoAutomatico &&
@@ -101,6 +119,18 @@ export default function GameDetailView({
         imagen: game.imagen,
       });
     }
+    trackMarketingEvent({
+      event: "AddToCart",
+      data: {
+        content_ids: [game.id],
+        content_name: game.nombre,
+        content_category: game.categoria.nombre,
+        value: precioFinal,
+        currency: "ARS",
+        quantity: cantidad,
+        source: "game_detail",
+      },
+    });
     setCartOpen(true);
     setCantidad(1);
   };
@@ -329,6 +359,12 @@ export default function GameDetailView({
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackMarketingEvent({
+                      event: "ClickWhatsApp",
+                      data: { source: "game_detail" },
+                    })
+                  }
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 py-3 text-sm font-semibold text-text shadow-sm transition-all hover:border-primary/30 hover:shadow-md"
                 >
                   Consultar por WhatsApp

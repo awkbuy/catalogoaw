@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+import { trackMarketingEvent } from "@/lib/marketing";
 
 export interface CartItem {
   gameId: string;
@@ -55,8 +56,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeItem = useCallback((gameId: string) => {
+    const item = items.find((i) => i.gameId === gameId);
+    if (item) {
+      trackMarketingEvent({
+        event: "RemoveFromCart",
+        data: {
+          content_ids: [item.gameId],
+          content_name: item.nombre,
+          value: item.precioNum,
+          currency: "ARS",
+          quantity: item.cantidad,
+          source: "cart",
+        },
+      });
+    }
     setItems((prev) => prev.filter((i) => i.gameId !== gameId));
-  }, []);
+  }, [items]);
 
   const updateCantidad = useCallback((gameId: string, delta: number) => {
     setItems((prev) =>

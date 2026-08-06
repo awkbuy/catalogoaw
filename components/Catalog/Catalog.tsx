@@ -7,6 +7,8 @@ import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
 import GameCard from "./GameCard";
 import ProductDetailModal from "@/components/ProductDetailModal";
+import { trackMarketingEvent } from "@/lib/marketing";
+import { parsePrice } from "@/lib/format";
 import type { TaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
 
@@ -106,9 +108,41 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
     });
   }, [games, query, activeCategory]);
 
+  const filteredGamesRef = useRef(0);
+  useEffect(() => {
+    filteredGamesRef.current = filteredGames.length;
+  }, [filteredGames.length]);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) return;
+    const timer = setTimeout(() => {
+      trackMarketingEvent({
+        event: "Search",
+        data: {
+          search_term: q,
+          quantity: filteredGamesRef.current,
+          source: "catalog_search",
+        },
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [query]);
+
   const openDetail = (game: PublicGame) => {
     setSelectedGame(game);
     setModalOpen(true);
+    trackMarketingEvent({
+      event: "ViewContent",
+      data: {
+        content_ids: [game.id],
+        content_name: game.nombre,
+        content_category: game.categoria.nombre,
+        value: parsePrice(game.precioFinalVenta),
+        currency: "ARS",
+        source: "catalog_card",
+      },
+    });
   };
 
   return (
@@ -150,7 +184,27 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
               return (
                 <button
                   key={cat.nombre}
-                  onClick={() => setActiveCategory(cat.nombre)}
+                  onClick={() => {
+                    if (cat.nombre !== "Todos") {
+                      const categoryGames = games.filter((game) => {
+                        const gameCats =
+                          game.categorias && game.categorias.length > 0
+                            ? game.categorias
+                            : [game.categoria];
+                        return gameCats.some((c) => c.nombre === cat.nombre);
+                      });
+                      trackMarketingEvent({
+                        event: "ViewCategory",
+                        data: {
+                          content_ids: categoryGames.map((g) => g.id),
+                          content_category: cat.nombre,
+                          quantity: categoryGames.length,
+                          source: "catalog_category",
+                        },
+                      });
+                    }
+                    setActiveCategory(cat.nombre);
+                  }}
                   className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
                     active
                       ? `${getTextOnColor(cat.color)} shadow-md`
@@ -180,6 +234,12 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
                 href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola, estoy buscando un juego en particular.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackMarketingEvent({
+                    event: "ClickWhatsApp",
+                    data: { source: "catalog_empty" },
+                  })
+                }
                 className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-[#0B3B30] shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30"
               >
                 Consultar por WhatsApp

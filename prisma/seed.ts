@@ -94,6 +94,18 @@ async function main() {
       { key: "otrosImpuestosNacionales", value: "0" },
       { key: "activoCalculoAutomatico", value: "true" },
       { key: "mostrarPrecioSinImpuestos", value: "true" },
+      { key: "ga4MeasurementId", value: "G-9HBTQN02YJ" },
+      { key: "ga4Enabled", value: "true" },
+      { key: "ga4PropertyId", value: "" },
+      { key: "ga4ServiceAccountEmail", value: "" },
+      { key: "metaPixelId", value: "" },
+      { key: "metaPixelEnabled", value: "false" },
+      { key: "metaCapiEnabled", value: "false" },
+      { key: "metaTestEventCode", value: "" },
+      { key: "metaBusinessId", value: "" },
+      { key: "metaCatalogId", value: "" },
+      { key: "clarityProjectId", value: "" },
+      { key: "clarityEnabled", value: "false" },
     ];
 
     for (const setting of settings) {

@@ -3,6 +3,7 @@
 import { MapPin } from "lucide-react";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
+import { trackMarketingEvent } from "@/lib/marketing";
 
 interface HeroProps {
   whatsappNumber: string;
@@ -89,6 +90,12 @@ export default function Hero({ whatsappNumber }: HeroProps) {
             href={WHATSAPP_RESERVA}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              trackMarketingEvent({
+                event: "ClickWhatsApp",
+                data: { source: "hero_reservar_mesa" },
+              })
+            }
             className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-secondary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:scale-105 active:scale-95"
           >
             Reservar mesa

@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import ToasterProvider from "@/components/ToasterProvider";
 import ProgressBar from "@/components/ProgressBar";
 import Analytics from "@/components/Analytics";
-import { GA_MEASUREMENT_ID } from "@/lib/analytics";
+import MarketingScripts from "@/components/MarketingScripts";
 import { ProgressProvider } from "@/lib/progress-context";
 import { AdaptiveProvider } from "@/lib/adaptive-context";
 import { getSeoSettings, buildSiteMetadata } from "@/lib/seo";
@@ -51,18 +50,7 @@ export default async function RootLayout({
         </AdaptiveProvider>
         <ToasterProvider />
         <Analytics />
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}');
-          `}
-        </Script>
+        <MarketingScripts />
       </body>
     </html>
   );

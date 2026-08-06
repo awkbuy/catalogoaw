@@ -9,6 +9,7 @@ import { useAdaptive } from "@/lib/adaptive-context";
 import AppleDock from "@/components/AppleDock";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import InfoModal from "@/components/InfoModal";
+import { trackMarketingEvent } from "@/lib/marketing";
 import {
   obtenerEstadoHorario,
   type DiaHorario,
@@ -112,7 +113,13 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
       id: "whatsapp",
       label: "WhatsApp",
       icon: <WhatsAppIcon size={20} className="text-current" />,
-      onClick: () => window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer"),
+      onClick: () => {
+        trackMarketingEvent({
+          event: "ClickWhatsApp",
+          data: { source: "dock_whatsapp" },
+        });
+        window.open(WHATSAPP_URL, "_blank", "noopener,noreferrer");
+      },
     },
   ];
 

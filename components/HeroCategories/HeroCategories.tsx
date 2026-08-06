@@ -6,6 +6,7 @@ import { Dices } from "lucide-react";
 import { useInView, type Variants } from "framer-motion";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
+import { trackMarketingEvent } from "@/lib/marketing";
 
 interface Category {
   id: string;
@@ -50,7 +51,16 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
 
   if (categories.length === 0) return null;
 
-  const handleCategoryClick = (nombre: string) => {
+  const handleCategoryClick = (cat: Category) => {
+    const nombre = cat.nombre;
+    trackMarketingEvent({
+      event: "ViewCategory",
+      data: {
+        content_category: nombre,
+        quantity: cat._count.games,
+        source: "hero_categories",
+      },
+    });
     const catalogSection = document.getElementById("catalogo");
     if (catalogSection) {
       catalogSection.scrollIntoView({ behavior: "smooth" });
@@ -126,7 +136,7 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
                 whileHover={isLite ? undefined : { scale: 1.03 }}
                 whileTap={isLite ? undefined : { scale: 0.98 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                onClick={() => handleCategoryClick(cat.nombre)}
+                onClick={() => handleCategoryClick(cat)}
                 className="group relative h-[200px] sm:h-[220px] overflow-hidden rounded-[20px] shadow-sm transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/60 hover:shadow-2xl hover:shadow-black/20"
               >
                 {hasImage ? (

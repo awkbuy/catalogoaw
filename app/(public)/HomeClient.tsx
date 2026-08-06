@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CartProvider } from "@/lib/cart-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Navbar from "@/components/Navbar/Navbar";
@@ -8,6 +8,7 @@ import HeroCategories from "@/components/HeroCategories/HeroCategories";
 import Catalog from "@/components/Catalog/Catalog";
 import CartDrawer from "@/components/CartDrawer";
 import ScrollToTop from "@/components/ScrollToTop/ScrollToTop";
+import { trackMarketingEvent } from "@/lib/marketing";
 import type { DiaHorario } from "@/lib/horarios";
 import type { TaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
@@ -69,6 +70,19 @@ export default function HomeClient({
   initialQuery?: string;
 }) {
   const [cartOpen, setCartOpen] = useState(false);
+
+  const pageViewSentRef = useRef(false);
+  useEffect(() => {
+    if (pageViewSentRef.current) return;
+    pageViewSentRef.current = true;
+    trackMarketingEvent({
+      event: "PageView",
+      data: {
+        path: window.location.pathname + window.location.search,
+        source: "home",
+      },
+    });
+  }, []);
 
   return (
     <CartProvider>

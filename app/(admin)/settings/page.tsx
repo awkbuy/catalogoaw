@@ -13,6 +13,47 @@ interface Settings {
   [key: string]: string;
 }
 
+function ToggleButtons({
+  value,
+  onTrue,
+  onFalse,
+  trueLabel = "Sí",
+  falseLabel = "No",
+}: {
+  value: string;
+  onTrue: () => void;
+  onFalse: () => void;
+  trueLabel?: string;
+  falseLabel?: string;
+}) {
+  return (
+    <div className="flex rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-1 gap-1 max-w-[240px]">
+      <button
+        type="button"
+        onClick={onTrue}
+        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+          value !== "false"
+            ? "bg-[#31D3A9] text-[#0B3B30]"
+            : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
+        }`}
+      >
+        {trueLabel}
+      </button>
+      <button
+        type="button"
+        onClick={onFalse}
+        className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+          value === "false"
+            ? "bg-[#31D3A9] text-[#0B3B30]"
+            : "text-[#6B7280] hover:bg-[#E5E7EB]/50"
+        }`}
+      >
+        {falseLabel}
+      </button>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const router = useRouter();
   const { start, done } = useProgress();
@@ -249,6 +290,182 @@ export default function SettingsPage() {
                     No
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
+            <h3 className="text-sm font-semibold text-[#1F2937] mb-1">
+              Google Analytics (GA4)
+            </h3>
+            <p className="text-[11px] text-[#9CA3AF] mb-4">
+              Mide visitas, búsquedas y conversiones con Google Analytics 4.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Activar GA4
+                </label>
+                <ToggleButtons
+                  value={settings.ga4Enabled || "true"}
+                  onTrue={() => handleChange("ga4Enabled", "true")}
+                  onFalse={() => handleChange("ga4Enabled", "false")}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Measurement ID
+                </label>
+                <input
+                  type="text"
+                  value={settings.ga4MeasurementId || ""}
+                  onChange={(e) => handleChange("ga4MeasurementId", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="G-XXXXXXXXXX"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Property ID
+                </label>
+                <input
+                  type="text"
+                  value={settings.ga4PropertyId || ""}
+                  onChange={(e) => handleChange("ga4PropertyId", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="Ej. 548805609"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Service Account Email (sync futuro)
+                </label>
+                <input
+                  type="email"
+                  value={settings.ga4ServiceAccountEmail || ""}
+                  onChange={(e) => handleChange("ga4ServiceAccountEmail", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="service@proyecto.iam.gserviceaccount.com"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
+            <h3 className="text-sm font-semibold text-[#1F2937] mb-1">
+              Meta Pixel + Conversions API
+            </h3>
+            <p className="text-[11px] text-[#9CA3AF] mb-4">
+              Rastrea eventos con el Pixel de Meta y envía conversiones server-side (CAPI).
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Activar Meta Pixel
+                </label>
+                <ToggleButtons
+                  value={settings.metaPixelEnabled || "false"}
+                  onTrue={() => handleChange("metaPixelEnabled", "true")}
+                  onFalse={() => handleChange("metaPixelEnabled", "false")}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Pixel ID
+                </label>
+                <input
+                  type="text"
+                  value={settings.metaPixelId || ""}
+                  onChange={(e) => handleChange("metaPixelId", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="Ej. 123456789012345"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Activar Conversions API
+                </label>
+                <ToggleButtons
+                  value={settings.metaCapiEnabled || "false"}
+                  onTrue={() => handleChange("metaCapiEnabled", "true")}
+                  onFalse={() => handleChange("metaCapiEnabled", "false")}
+                />
+                <p className="text-xs text-[#9CA3AF] mt-1.5">
+                  El token de acceso se configura con la variable de entorno
+                  <code className="ml-1 px-1 py-0.5 bg-[#F3F4F6] rounded text-[11px]">
+                    META_ACCESS_TOKEN
+                  </code>
+                  en el servidor (no se guarda en la base de datos).
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Test Event Code (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={settings.metaTestEventCode || ""}
+                  onChange={(e) => handleChange("metaTestEventCode", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="TESTXXXXXX"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Business Manager ID
+                </label>
+                <input
+                  type="text"
+                  value={settings.metaBusinessId || ""}
+                  onChange={(e) => handleChange("metaBusinessId", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="Ej. 123456789"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Catalog ID (Catálogo Commerce, Fase 4)
+                </label>
+                <input
+                  type="text"
+                  value={settings.metaCatalogId || ""}
+                  onChange={(e) => handleChange("metaCatalogId", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="Ej. 987654321"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
+            <h3 className="text-sm font-semibold text-[#1F2937] mb-1">
+              Microsoft Clarity
+            </h3>
+            <p className="text-[11px] text-[#9CA3AF] mb-4">
+              Grabaciones de sesión y mapas de calor de Microsoft.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Activar Clarity
+                </label>
+                <ToggleButtons
+                  value={settings.clarityEnabled || "false"}
+                  onTrue={() => handleChange("clarityEnabled", "true")}
+                  onFalse={() => handleChange("clarityEnabled", "false")}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Project ID
+                </label>
+                <input
+                  type="text"
+                  value={settings.clarityProjectId || ""}
+                  onChange={(e) => handleChange("clarityProjectId", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="Ej. abcdefghij"
+                />
               </div>
             </div>
           </div>
