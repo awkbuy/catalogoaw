@@ -592,8 +592,13 @@ export default function GameForm({
                   value={form.canonical}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="https://ejemplo.com/catan"
+                  placeholder="https://marketplace-ejemplo.com/catan"
                 />
+                <p className="mt-1 text-[11px] text-[#9CA3AF]">
+                  Dejalo vacío para usar automáticamente la URL del juego
+                  (https://wolfiesroom.com/juegos/{form.slug}). Solo completalo
+                  si querés apuntar a otra URL en otro dominio.
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#1F2937] mb-1.5">

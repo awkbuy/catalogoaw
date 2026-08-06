@@ -322,8 +322,21 @@ export function gameCanonicalUrl(
   settings: SeoSettings,
   game: GameSeoSource
 ): string {
-  if (game.canonical.trim()) return resolveUrl(settings, game.canonical);
-  return gameUrl(settings, game);
+  const ownUrl = gameUrl(settings, game);
+  const manual = (game.canonical || "").trim();
+  if (!manual) return ownUrl;
+  let parsed: URL;
+  try {
+    parsed = new URL(manual);
+  } catch {
+    return ownUrl;
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return ownUrl;
+  }
+  const siteOrigin = new URL(getSiteUrl(settings)).origin;
+  if (parsed.origin === siteOrigin) return ownUrl;
+  return manual;
 }
 
 export function gameImageUrl(
