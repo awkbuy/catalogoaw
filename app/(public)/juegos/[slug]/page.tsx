@@ -14,7 +14,7 @@ import { parsearHorarios } from "@/lib/horarios";
 import { parseTaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
 import JsonLd from "@/components/JsonLd";
-import GameDetailView from "@/components/GameDetailView";
+import ProductDetailPage from "@/components/ProductDetailPage";
 import { CartProvider } from "@/lib/cart-context";
 
 export const dynamic = "force-dynamic";
@@ -122,48 +122,42 @@ export default async function GamePage({
       <JsonLd data={productJsonLd(settings, source)} />
       <JsonLd data={breadcrumbJsonLd(breadcrumbs)} />
       <CartProvider>
-        <GameDetailView
-        game={{
-          id: game.id,
-          nombre: game.nombre,
-          slug: game.slug,
-          descripcion: game.descripcion,
-          categoria: {
-            nombre: game.categoria.nombre,
-            icono: game.categoria.icono,
-            color: game.categoria.color,
-          },
-          categorias: game.categorias.map((c) => ({
-            nombre: c.nombre,
-            icono: c.icono,
-            color: c.color,
-          })),
-          jugadoresMin: game.jugadoresMin,
-          jugadoresMax: game.jugadoresMax,
-          duracion: game.duracion,
-          edad: game.edad,
-          dificultad: game.dificultad,
-          imagen: game.imagen,
-          integrarVideo: game.integrarVideo,
-          videoUrl: game.videoUrl,
-          estado: game.estado,
-          destacado: game.destacado,
-          nuevo: game.nuevo,
-          precioFinalVenta: game.precioFinalVenta,
-          descuento: game.descuento,
-          disponibleVenta: game.disponibleVenta,
-          disponibleMesa: game.disponibleMesa,
-          imagenAlt: game.imagenAlt,
-          descripcionAccesible: game.descripcionAccesible,
-          resumenIA: game.resumenIA,
-        }}
-        whatsappNumber={whatsappNumber}
-        businessName={businessName}
-        logoUrl={logoUrl}
-        horarios={horarios}
-        taxConfig={taxConfig}
-        paymentMethods={publicPaymentMethods}
-      />
+        <ProductDetailPage
+          game={{
+            id: game.id,
+            slug: game.slug,
+            nombre: game.nombre,
+            descripcion: game.descripcion,
+            categoria: {
+              nombre: game.categoria.nombre,
+              icono: game.categoria.icono,
+              color: game.categoria.color,
+            },
+            categorias: game.categorias.map((c) => ({
+              nombre: c.nombre,
+              icono: c.icono,
+              color: c.color,
+            })),
+            jugadoresMin: game.jugadoresMin,
+            jugadoresMax: game.jugadoresMax,
+            duracion: game.duracion,
+            edad: game.edad,
+            dificultad: game.dificultad,
+            imagen: game.imagen,
+            integrarVideo: game.integrarVideo,
+            videoUrl: game.videoUrl,
+            precioFinalVenta: game.precioFinalVenta,
+            descuento: game.descuento,
+            disponibleVenta: game.disponibleVenta,
+            disponibleMesa: game.disponibleMesa,
+          }}
+          whatsappNumber={whatsappNumber}
+          businessName={businessName}
+          logoUrl={logoUrl}
+          horarios={horarios}
+          taxConfig={taxConfig}
+          paymentMethods={publicPaymentMethods}
+        />
       </CartProvider>
     </>
   );
