@@ -104,4 +104,15 @@ test.describe("Multi-categoría", () => {
     });
     expect(putRes.status(), `PUT settings falló: ${await putRes.text()}`).toBe(200);
   });
+
+  test("regresión: guardar settings devuelve 200 al incluir clave histórica logo", async ({ page }) => {
+    const getRes = await page.request.get("/api/admin/settings");
+    expect(getRes.status()).toBe(200);
+    const settings: Record<string, string> = await getRes.json();
+
+    const putRes = await page.request.put("/api/admin/settings", {
+      data: { ...settings, logo: "" },
+    });
+    expect(putRes.status(), `PUT settings falló: ${await putRes.text()}`).toBe(200);
+  });
 });

@@ -61,6 +61,7 @@ const ALLOWED_SETTINGS_KEYS = [
   "googleVerification",
   "bingVerification",
   // Claves históricas / migración de diseño anterior
+  "logo",
   "businessName",
   "businessSlogan",
   "whatsappNumber",
