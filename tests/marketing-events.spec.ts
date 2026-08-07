@@ -76,6 +76,16 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     expect(evt.gameId).toBeTruthy();
   });
 
+  test("click en Compartir del detalle dispara share", async ({ page }) => {
+    await spoofIp(page);
+    const events = setupTracking(page);
+    await page.goto("/juegos/catan");
+    await page.getByRole("button", { name: "Compartir" }).click();
+    const evt = await waitForEvent(events, "share");
+    expect(evt.gameId).toBeTruthy();
+    expect(evt.gameName).toBe("Catan");
+  });
+
   test("abrir detalle desde la tarjeta dispara view_item", async ({ page }) => {
     await spoofIp(page);
     const events = setupTracking(page);

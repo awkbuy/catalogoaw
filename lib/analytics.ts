@@ -10,6 +10,7 @@ export const ANALYTICS_EVENT_TYPES = [
   "filter",
   "whatsapp_click",
   "begin_checkout",
+  "share",
 ] as const;
 
 export type AnalyticsEventType = (typeof ANALYTICS_EVENT_TYPES)[number];

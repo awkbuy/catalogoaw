@@ -7,6 +7,7 @@ import {
   trackPageView,
   trackRemoveFromCart,
   trackSearch,
+  trackShare,
   trackViewCart,
   trackViewItem,
   trackWhatsApp,
@@ -17,6 +18,7 @@ import {
   ga4TrackPageView,
   ga4TrackRemoveFromCart,
   ga4TrackSearch,
+  ga4TrackShare,
   ga4TrackViewItem,
   ga4TrackWhatsApp,
 } from "@/lib/analytics/ga4";
@@ -30,7 +32,8 @@ export type MarketingEventName =
   | "RemoveFromCart"
   | "ViewCart"
   | "InitiateCheckout"
-  | "ClickWhatsApp";
+  | "ClickWhatsApp"
+  | "Share";
 
 export interface MarketingEventData {
   content_ids?: string[];
@@ -131,6 +134,14 @@ function dispatchToGa4(event: MarketingEvent): void {
     case "ClickWhatsApp":
       ga4TrackWhatsApp({ source: data.source || "" });
       break;
+    case "Share":
+      ga4TrackShare({
+        content_type: data.content_type,
+        item_id: firstId(data),
+        item_name: data.content_name,
+        source: data.source || "",
+      });
+      break;
     default:
       break;
   }
@@ -172,6 +183,9 @@ function dispatchToPixel(event: MarketingEvent, eventId: string): void {
       break;
     case "InitiateCheckout":
       metaTrack("InitiateCheckout", base, eventId);
+      break;
+    case "Share":
+      metaTrack("Share", base, eventId);
       break;
     default:
       break;
@@ -251,6 +265,14 @@ function dispatchToOwnAnalytics(event: MarketingEvent): void {
         gameId: id,
         gameName: data.content_name,
         categoryName: data.content_category,
+      });
+      break;
+    case "Share":
+      trackShare({
+        gameId: id,
+        gameName: data.content_name,
+        categoryName: data.content_category,
+        source: data.source,
       });
       break;
   }

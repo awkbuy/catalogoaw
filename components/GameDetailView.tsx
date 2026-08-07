@@ -10,7 +10,9 @@ import {
   MessageCircle,
   ShoppingCart,
   MessageCircleQuestion,
+  Share2,
 } from "lucide-react";
+import { sileo } from "sileo";
 import { useCart } from "@/lib/cart-context";
 import { trackMarketingEvent } from "@/lib/marketing";
 import { parsePrice, formatPrice } from "@/lib/format";
@@ -139,6 +141,64 @@ export default function GameDetailView({
   const whatsappUrl = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText)}`
     : null;
+
+  const trackShare = () => {
+    trackMarketingEvent({
+      event: "Share",
+      data: {
+        content_ids: [game.id],
+        content_name: game.nombre,
+        content_category: game.categoria.nombre,
+        source: "game_detail",
+      },
+    });
+  };
+
+  const copyToClipboard = async (text: string): Promise<boolean> => {
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        // fallback al método legacy
+      }
+    }
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return ok;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: game.nombre, url });
+        trackShare();
+        return;
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        // otros errores: caer al portapapeles
+      }
+    }
+    const copied = await copyToClipboard(url);
+    if (copied) {
+      sileo.success({ title: "Enlace copiado" });
+    } else {
+      sileo.error({ title: "No se pudo copiar el enlace" });
+    }
+    trackShare();
+  };
 
   return (
     <div id="inicio" className="bg-white min-h-screen">
@@ -370,6 +430,13 @@ export default function GameDetailView({
                   Consultar por WhatsApp
                 </a>
               )}
+              <button
+                onClick={handleShare}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white px-6 py-3 text-sm font-semibold text-text shadow-sm transition-all hover:border-primary/30 hover:shadow-md"
+              >
+                <Share2 size={16} />
+                Compartir
+              </button>
               <Link
                 href="/#catalogo"
                 className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-text-secondary transition-colors hover:text-text"

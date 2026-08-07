@@ -39,6 +39,13 @@ export interface Ga4WhatsAppParams {
   source: string;
 }
 
+export interface Ga4ShareParams {
+  content_type?: string;
+  item_id?: string;
+  item_name?: string;
+  source?: string;
+}
+
 function push(eventName: string, params?: Record<string, unknown>): void {
   if (typeof window === "undefined") return;
   if (typeof window.gtag === "function") {
@@ -112,6 +119,15 @@ export function ga4TrackBeginCheckout(params: Ga4BeginCheckoutParams): void {
 
 export function ga4TrackWhatsApp(params: Ga4WhatsAppParams): void {
   push("click_whatsapp", {
+    source: params.source,
+  });
+}
+
+export function ga4TrackShare(params: Ga4ShareParams): void {
+  push("share", {
+    content_type: params.content_type,
+    item_id: params.item_id,
+    item_name: params.item_name,
     source: params.source,
   });
 }

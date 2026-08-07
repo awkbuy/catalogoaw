@@ -13,6 +13,7 @@ const ALLOWED_EVENTS = new Set([
   "ViewCart",
   "InitiateCheckout",
   "ClickWhatsApp",
+  "Share",
 ]);
 
 const MAX_STRING_LEN = 200;

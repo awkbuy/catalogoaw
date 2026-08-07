@@ -63,6 +63,14 @@ export interface TrackViewCartParams {
   source?: string;
 }
 
+export interface TrackShareParams {
+  gameId?: string;
+  gameName?: string;
+  categoryId?: string;
+  categoryName?: string;
+  source?: string;
+}
+
 interface EventPayload {
   eventType: AnalyticsEventType;
   gameId?: string;
@@ -259,6 +267,17 @@ export function trackBeginCheckout(params: TrackBeginCheckoutParams): void {
 export function trackViewCart(params: TrackViewCartParams): void {
   send({
     eventType: "view_cart",
+    source: params.source,
+  });
+}
+
+export function trackShare(params: TrackShareParams): void {
+  send({
+    eventType: "share",
+    gameId: params.gameId,
+    gameName: params.gameName,
+    categoryId: params.categoryId,
+    categoryName: params.categoryName,
     source: params.source,
   });
 }
