@@ -43,6 +43,14 @@ async function waitForEvent(events: OwnEvent[], eventType: string): Promise<OwnE
   return events.find((e) => e.eventType === eventType)!;
 }
 
+// En CI el dev server hidrata la home lentamente (bundle enorme en modo dev sobre
+// un runner chico). Un click sobre el HTML del SSR antes de que React adjunte los
+// listeners se pierde en silencio. El page_view se dispara en un useEffect al
+// completarse la hidratación, así que esperarlo garantiza listeners activos.
+async function waitForHydration(events: OwnEvent[]): Promise<void> {
+  await waitForEvent(events, "page_view");
+}
+
 // El quick-add solo existe en tarjetas de juegos disponibles para la compra
 // (2 botones: "Ver detalle" + icono de carrito).
 async function clickQuickAdd(page: Page): Promise<void> {
@@ -90,6 +98,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await spoofIp(page);
     const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
     await page.getByRole("button", { name: "Ver detalle" }).first().click();
     const evt = await waitForEvent(events, "view_item");
     expect(evt.gameId).toBeTruthy();
@@ -99,6 +108,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await spoofIp(page);
     const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
     await clickQuickAdd(page);
     const evt = await waitForEvent(events, "add_to_cart");
     expect(evt.gameId).toBeTruthy();
@@ -109,6 +119,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await spoofIp(page);
     const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
     await page.getByPlaceholder("Buscar juego...").fill("Catan");
     const evt = await waitForEvent(events, "search");
     expect(evt.searchTerm).toBe("Catan");
@@ -118,6 +129,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await spoofIp(page);
     const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
     const heroSection = page.locator("section").filter({ hasText: "Explorá por categoría" });
     await heroSection.getByRole("button").first().click();
     const evt = await waitForEvent(events, "filter");
@@ -128,6 +140,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await spoofIp(page);
     const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
     await clickQuickAdd(page);
     await page.getByLabel("Abrir carrito").first().click();
     await waitForEvent(events, "view_cart");
@@ -140,6 +153,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await spoofIp(page);
     const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
     await clickQuickAdd(page);
     await page.getByLabel("Abrir carrito").first().click();
     await page.getByPlaceholder("Juan Pérez").fill("Juan Pérez");
@@ -158,6 +172,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await spoofIp(page);
     const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
     await page.getByRole("button", { name: "WhatsApp" }).click();
     const evt = await waitForEvent(events, "whatsapp_click");
     expect(evt.source).toBe("dock_whatsapp");
