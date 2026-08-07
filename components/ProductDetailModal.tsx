@@ -136,16 +136,20 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
                   {game.categoria.nombre}
                 </span>
                 <div className="flex items-center gap-2">
-                  {(game.categorias ?? [])
-                    .filter((c) => c.nombre !== game.categoria.nombre)
-                    .map((c) => (
-                      <span
-                        key={c.nombre}
-                        className="inline-flex items-center gap-1 rounded-full bg-white/70 px-2 py-0.5 text-[11px] font-medium text-[#6B7280]"
-                      >
-                        {c.nombre}
-                      </span>
-                    ))}
+                  {Array.from(
+                    new Map(
+                      (game.categorias ?? [])
+                        .filter((c) => c.nombre !== game.categoria.nombre)
+                        .map((c) => [c.nombre, c])
+                    ).values()
+                  ).map((c) => (
+                    <span
+                      key={c.nombre}
+                      className="inline-flex items-center gap-1 rounded-full bg-white/70 px-2 py-0.5 text-[11px] font-medium text-[#6B7280]"
+                    >
+                      {c.nombre}
+                    </span>
+                  ))}
                   <span
                     className="h-1.5 w-24 rounded-full"
                     style={{ backgroundColor: game.categoria.color }}
@@ -190,16 +194,18 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
 
                 <div className="grid grid-cols-4 gap-2">
                   {[
-                    { icon: Users, label: `${game.jugadoresMin}-${game.jugadoresMax}` },
-                    { icon: Clock, label: game.duracion },
-                    { icon: Baby, label: game.edad },
-                    { icon: MessageCircle, label: game.dificultad },
-                  ].map(({ icon: Icon, label }) => (
-                    <div key={label} className="flex flex-col items-center gap-1 rounded-xl bg-[#FAFAFA] p-2.5">
-                      <Icon size={14} className="text-[#31D3A9]" />
-                      <span className="text-xs font-medium text-[#6B7280] text-center leading-tight">{label}</span>
-                    </div>
-                  ))}
+                    { id: "jugadores", icon: Users, label: `${game.jugadoresMin}-${game.jugadoresMax}` },
+                    { id: "duracion", icon: Clock, label: game.duracion },
+                    { id: "edad", icon: Baby, label: game.edad },
+                    { id: "dificultad", icon: MessageCircle, label: game.dificultad },
+                  ]
+                    .filter(({ label }) => label.trim() !== "")
+                    .map(({ id, icon: Icon, label }) => (
+                      <div key={id} className="flex flex-col items-center gap-1 rounded-xl bg-[#FAFAFA] p-2.5">
+                        <Icon size={14} className="text-[#31D3A9]" />
+                        <span className="text-xs font-medium text-[#6B7280] text-center leading-tight">{label}</span>
+                      </div>
+                    ))}
                 </div>
 
                 {game.disponibleVenta && game.precioFinalVenta && (
