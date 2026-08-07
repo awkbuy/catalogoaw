@@ -7,7 +7,6 @@ import Navbar from "@/components/Navbar/Navbar";
 import HeroCategories from "@/components/HeroCategories/HeroCategories";
 import Catalog from "@/components/Catalog/Catalog";
 import CartDrawer from "@/components/CartDrawer";
-import ScrollToTop from "@/components/ScrollToTop/ScrollToTop";
 import { trackMarketingEvent } from "@/lib/marketing";
 import type { DiaHorario } from "@/lib/horarios";
 import type { TaxConfig } from "@/lib/tax";
@@ -119,7 +118,6 @@ export default function HomeClient({
           paymentMethods={paymentMethods}
         />
       </ErrorBoundary>
-      <ScrollToTop />
     </CartProvider>
   );
 }

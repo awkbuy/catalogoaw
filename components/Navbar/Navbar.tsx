@@ -75,12 +75,10 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
     return () => observer.disconnect();
   }, []);
 
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-      setActiveSection(id);
-    }
+  const goHome = () => {
+    onCartClose?.();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setActiveSection("inicio");
   };
 
   const bottomTabs = [
@@ -88,10 +86,7 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
       id: "inicio",
       label: "Inicio",
       icon: <Home size={20} className="text-current" />,
-      onClick: () => {
-        onCartClose?.();
-        scrollTo("inicio");
-      },
+      onClick: goHome,
     },
     {
       id: "info",
@@ -163,15 +158,25 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
             </Motion.a>
 
             <div className="hidden items-center gap-1 md:flex">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="rounded-lg px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-gray-100 hover:text-text"
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) =>
+                link.label === "Inicio" ? (
+                  <button
+                    key={link.href}
+                    onClick={goHome}
+                    className="rounded-lg px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-gray-100 hover:text-text"
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="rounded-lg px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-gray-100 hover:text-text"
+                  >
+                    {link.label}
+                  </a>
+                )
+              )}
               <button
                 onClick={() => setInfoOpen(true)}
                 className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-gray-100 hover:text-text"

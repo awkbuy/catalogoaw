@@ -6,7 +6,7 @@ test.describe("Sitio público", () => {
 
     // Navbar: la marca es una imagen con aria-label = nombre del negocio
     await expect(page.getByRole("link", { name: /Wolfie Room/i }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /Inicio/i }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: /Inicio/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /Catálogo/i }).first()).toBeVisible();
 
     // Hero de categorías
