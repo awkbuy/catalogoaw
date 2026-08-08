@@ -424,7 +424,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
-                  Catalog ID (Catálogo Commerce, Fase 4)
+                  Catalog ID (Catálogo Commerce)
                 </label>
                 <input
                   type="text"
