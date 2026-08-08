@@ -27,10 +27,12 @@ test.describe("08 · Headers HTTP — cabeceras de seguridad presentes", () => {
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("connect-src 'self'");
     expect(csp).toContain("form-action 'self'");
-    // no debe permitir conexiones ni scripts de orígenes externos arbitrarios
+    // no debe permitir conexiones ni scripts de orígenes externos arbitrarios;
+    // el único comodín permitido es el subdominio controlado de Microsoft Clarity
     expect(csp).not.toContain("connect-src *");
+    expect(csp).not.toMatch(/connect-src\s+\*/);
     expect(csp).not.toContain("script-src *");
-    expect(csp).not.toMatch(/connect-src[^;]*\*;/);
+    expect(csp).toContain("https://*.clarity.ms");
     // script-src: solo orígenes propios + Google Tag Manager (GA4)
     expect(csp).toContain(
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com"
