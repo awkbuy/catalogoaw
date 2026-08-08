@@ -25,7 +25,7 @@ test.describe("03 · Cookies — atributos de seguridad", () => {
     expect(docCookie).not.toContain("session_token");
   });
 
-  test("reutilizar cookie inválida → 401", async ({ page, publicApi }) => {
+  test("reutilizar cookie inválida → 401", async ({ publicApi }) => {
     const res = await publicApi.get("/api/admin/settings", {
       headers: { cookie: "session_token=cookie-invalida" },
     });

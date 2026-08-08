@@ -6,6 +6,7 @@ export interface AnalyticsMetadata {
   sessionId?: string;
   device?: string;
   browser?: string;
+  resultsCount?: number;
 }
 
 export interface TrackViewItemParams {
@@ -230,6 +231,10 @@ export function trackSearch(params: TrackSearchParams): void {
     eventType: "search",
     searchTerm: params.searchTerm,
     source: params.source,
+    metadata:
+      params.resultsCount !== undefined
+        ? { resultsCount: params.resultsCount }
+        : undefined,
   });
 }
 

@@ -13,7 +13,7 @@ test.describe("Marketing - campos por juego", () => {
 
   test("sección Marketing visible en el formulario de nuevo juego", async ({ page }) => {
     await page.goto("/games/new");
-    await expect(page.getByText("Marketing", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Marketing" })).toBeVisible();
     await expect(page.getByLabel(/Mostrar en Google Merchant/i)).toBeVisible();
     await expect(page.getByLabel(/Mostrar en Meta Commerce/i)).toBeVisible();
     await expect(page.getByLabel(/Permitir anuncios dinámicos/i)).toBeVisible();

@@ -2,6 +2,7 @@ import { test, expect, assertNoLeak, readBody } from "./fixtures";
 
 const ADMIN_PAGES = [
   "/dashboard",
+  "/marketing",
   "/games",
   "/games/new",
   "/categories",
@@ -19,6 +20,7 @@ const ADMIN_APIS = [
   "/api/admin/juegos",
   "/api/admin/cupones",
   "/api/admin/categorias",
+  "/api/admin/marketing/dashboard",
 ];
 
 test.describe("02 · Panel admin — acceso sin autenticación", () => {

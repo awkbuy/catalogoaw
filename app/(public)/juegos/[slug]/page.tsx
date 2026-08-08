@@ -53,6 +53,10 @@ function toSeoSource(game: GameWithCategoria): GameSeoSource {
     imagenAlt: game.imagenAlt,
     descripcionAccesible: game.descripcionAccesible,
     resumenIA: game.resumenIA,
+    gtin: game.gtin,
+    mpn: game.mpn,
+    brand: game.brand,
+    condition: game.condition,
     updatedAt: game.updatedAt,
   };
 }

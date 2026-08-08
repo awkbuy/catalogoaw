@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks -- fixtures de Playwright: `use` es el helper de fixture, no el hook de React */
 import { test as base, request as pwRequest, expect } from "@playwright/test";
 import type { APIRequestContext, Page } from "@playwright/test";
 import { ADMIN_STATE } from "./global-setup";

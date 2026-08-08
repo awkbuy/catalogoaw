@@ -243,6 +243,10 @@ export interface GameSeoSource {
   imagenAlt: string;
   descripcionAccesible: string;
   resumenIA: string;
+  gtin: string;
+  mpn: string;
+  brand: string;
+  condition: string;
   updatedAt?: Date | string;
 }
 
@@ -578,10 +582,17 @@ export function websiteJsonLd(settings: SeoSettings): object {
   };
 }
 
+const CONDITION_MAP: Record<string, string> = {
+  new: "NewCondition",
+  used: "UsedCondition",
+  refurbished: "RefurbishedCondition",
+};
+
 export function productJsonLd(
   settings: SeoSettings,
   game: GameSeoSource
 ): object {
+  const condition = CONDITION_MAP[game.condition] || "NewCondition";
   const product: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -591,11 +602,13 @@ export function productJsonLd(
     image: [gameImageUrl(settings, game)],
     brand: {
       "@type": "Brand",
-      name: settings.orgNombre,
+      name: game.brand || settings.orgNombre,
     },
     category: game.categoriaNombre,
     sku: game.slug,
-    mpn: game.slug,
+    mpn: game.mpn || game.slug,
+    gtin13: game.gtin || undefined,
+    condition,
     additionalProperty: [
       { "@type": "PropertyValue", name: "Jugadores", value: `${game.jugadoresMin}-${game.jugadoresMax}` },
       { "@type": "PropertyValue", name: "Duración", value: game.duracion },
@@ -619,7 +632,7 @@ export function productJsonLd(
       availability: game.disponibleVenta
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
+      itemCondition: `https://schema.org/${condition}`,
       seller: {
         "@type": "Organization",
         name: settings.orgNombre,

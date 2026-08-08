@@ -87,7 +87,9 @@ test.describe("01 · Login — comportamiento de ataque", () => {
       `"><img src=x onerror="window.__xss=2">`
     );
     await expect(page.getByText(/Credenciales inválidas/i)).toBeVisible({ timeout: 10_000 });
-    const xss = await page.evaluate(() => (window as any).__xss ?? null);
+    const xss = await page.evaluate(
+      () => (window as unknown as { __xss?: unknown }).__xss ?? null
+    );
     expect(xss).toBeNull();
     expect(executed).toBe(false);
   });

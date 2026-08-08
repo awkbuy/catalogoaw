@@ -36,10 +36,14 @@ function dayKey(date: Date): Date {
 async function bumpDailyMetrics(date: Date, patch: Record<string, number>) {
   const base = dayKey(date);
   const existing = await prisma.dailyMetrics.findUnique({ where: { date: base } });
+  const increments: Record<string, { increment: number }> = {};
+  for (const [key, value] of Object.entries(patch)) {
+    increments[key] = { increment: value };
+  }
   if (existing) {
     return prisma.dailyMetrics.update({
       where: { date: base },
-      data: { ...patch, updatedAt: new Date() },
+      data: { ...increments, updatedAt: new Date() },
     });
   }
   return prisma.dailyMetrics.create({

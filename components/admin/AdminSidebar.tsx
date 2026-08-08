@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   User,
   Rocket,
+  Megaphone,
 } from "lucide-react";
 import Image from "next/image";
 import AppleDock from "@/components/AppleDock";
@@ -29,6 +30,7 @@ interface Settings {
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/marketing", label: "Marketing", icon: Megaphone },
   { href: "/games", label: "Juegos", icon: Gamepad2 },
   { href: "/categories", label: "Categorías", icon: FolderOpen },
   { href: "/landings", label: "Landings", icon: Rocket },

@@ -76,7 +76,9 @@ test.describe("06 · XSS — inyección nunca se ejecuta", () => {
 
     await page.goto("/", { waitUntil: "domcontentloaded" });
     for (const m of MARKERS) {
-      const v = await page.evaluate((x) => (window as any)["__xss"], m);
+      const v = await page.evaluate(
+        () => (window as unknown as Record<string, unknown>)["__xss"]
+      );
       expect(v, `window.__xss en / no debe existir (marker ${m})`).toBeUndefined();
     }
     expect(fired.length).toBe(0);
@@ -84,7 +86,9 @@ test.describe("06 · XSS — inyección nunca se ejecuta", () => {
     if (created.gameSlug) {
       await page.goto(`/juegos/${created.gameSlug}`, { waitUntil: "domcontentloaded" });
       for (const m of MARKERS) {
-        const v = await page.evaluate((x) => (window as any)["__xss"], m);
+        const v = await page.evaluate(
+          () => (window as unknown as Record<string, unknown>)["__xss"]
+        );
         expect(v, `window.__xss en detalle no debe existir (marker ${m})`).toBeUndefined();
       }
       expect(fired.length).toBe(0);
@@ -109,7 +113,9 @@ test.describe("06 · XSS — inyección nunca se ejecuta", () => {
     expect(res.status()).toBe(200);
 
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    const v = await page.evaluate(() => (window as any).__xss);
+    const v = await page.evaluate(
+      () => (window as unknown as { __xss?: unknown }).__xss
+    );
     expect(v).toBeUndefined();
 
     const ld = await page.evaluate(() =>
