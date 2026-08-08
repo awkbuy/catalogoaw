@@ -17,11 +17,19 @@ const ALLOWED_EVENTS = new Set([
 ]);
 
 const MAX_STRING_LEN = 200;
+const MAX_URL_LEN = 500;
 
 function sanitizeString(value: unknown, maxLen = MAX_STRING_LEN): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim().slice(0, maxLen);
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function sanitizeEventSourceUrl(value: unknown): string | undefined {
+  const url = sanitizeString(value, MAX_URL_LEN);
+  if (!url) return undefined;
+  if (!/^https?:\/\//i.test(url)) return undefined;
+  return url;
 }
 
 function sanitizePrice(value: unknown): number | undefined {
@@ -101,6 +109,7 @@ export async function POST(req: NextRequest) {
 
   const userAgent = req.headers.get("user-agent") || undefined;
   const origin = req.headers.get("origin") || undefined;
+  const eventSourceUrl = sanitizeEventSourceUrl(body.event_source_url) || origin;
 
   try {
     await sendMetaCapiEvent(
@@ -110,7 +119,7 @@ export async function POST(req: NextRequest) {
         accessToken,
         testEventCode: config.metaTestEventCode || undefined,
         userAgent,
-        eventSourceUrl: origin,
+        eventSourceUrl,
       }
     );
   } catch {

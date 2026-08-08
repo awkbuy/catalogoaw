@@ -4,11 +4,16 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { isAnalyticsEventType } from "@/lib/analytics";
 
 const MAX_STRING_LEN = 200;
+const MAX_UTM_LEN = 100;
 
 function sanitizeString(value: unknown, maxLen = MAX_STRING_LEN): string | undefined {
   if (typeof value !== "string") return undefined;
   const trimmed = value.trim().slice(0, maxLen);
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function sanitizeUtm(value: unknown): string | undefined {
+  return sanitizeString(value, MAX_UTM_LEN);
 }
 
 function sanitizePrice(value: unknown): number | undefined {
@@ -70,6 +75,17 @@ export async function POST(req: NextRequest) {
   const searchTerm = sanitizeString(body.searchTerm, 100);
   const source = sanitizeString(body.source, 50);
   const price = sanitizePrice(body.price);
+
+  const utm =
+    body.utm && typeof body.utm === "object" && !Array.isArray(body.utm)
+      ? {
+          source: sanitizeUtm(body.utm.source),
+          medium: sanitizeUtm(body.utm.medium),
+          campaign: sanitizeUtm(body.utm.campaign),
+          content: sanitizeUtm(body.utm.content),
+          term: sanitizeUtm(body.utm.term),
+        }
+      : null;
 
   let metadata: string | undefined;
   if (body.metadata && typeof body.metadata === "object") {
@@ -141,6 +157,11 @@ export async function POST(req: NextRequest) {
       source,
       price,
       metadata,
+      utmSource: utm?.source,
+      utmMedium: utm?.medium,
+      utmCampaign: utm?.campaign,
+      utmContent: utm?.content,
+      utmTerm: utm?.term,
     },
   });
 

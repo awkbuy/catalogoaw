@@ -286,6 +286,7 @@ function dispatchToCapi(event: MarketingEvent, eventId: string): void {
     body: JSON.stringify({
       event: event.event,
       event_id: eventId,
+      event_source_url: window.location.href,
       data: {
         content_ids: data.content_ids,
         content_type: data.content_type,

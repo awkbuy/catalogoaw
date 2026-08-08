@@ -1,4 +1,5 @@
 import type { AnalyticsEventType } from "@/lib/analytics";
+import { captureUTMParams, getUTMParams, type UtmParams } from "./utm";
 
 export interface AnalyticsMetadata {
   clientId?: string;
@@ -81,6 +82,7 @@ interface EventPayload {
   source?: string;
   price?: number;
   metadata?: AnalyticsMetadata;
+  utm?: UtmParams;
 }
 
 const SESSION_STORAGE_KEY = "wr_analytics_meta";
@@ -162,9 +164,12 @@ function send(payload: EventPayload): void {
   if (typeof window === "undefined") return;
   if (!throttle(payload.eventType)) return;
 
+  const utm = { ...getUTMParams(), ...captureUTMParams() };
+
   const body = JSON.stringify({
     ...payload,
     metadata: buildMetadata(payload.metadata),
+    utm: Object.keys(utm).length > 0 ? utm : undefined,
   });
 
   try {

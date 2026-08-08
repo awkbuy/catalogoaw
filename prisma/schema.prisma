@@ -128,12 +128,19 @@ model AnalyticsEvent {
   source       String?
   price        Float?
   metadata     String?
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  utmContent   String?
+  utmTerm      String?
   createdAt    DateTime @default(now())
 
   @@index([eventType])
   @@index([createdAt])
   @@index([gameId])
   @@index([eventType, createdAt])
+  @@index([utmSource])
+  @@index([utmCampaign])
 }
 
 model DailyMetrics {
