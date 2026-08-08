@@ -120,6 +120,10 @@ test.describe("05 · API — métodos, parámetros, CSRF y JSON", () => {
     const body = await readBody(res);
     expect(body).not.toContain("SESSION_SECRET");
     expect(body).not.toContain("passwordHash");
+    // el estado del token de acceso se expone como booleano, nunca el token en sí
+    expect(body).toContain("metaAccessTokenConfigured");
+    expect(body).toMatch(/"metaAccessTokenConfigured":"(true|false)"/);
+    expect(body).not.toMatch(/EAA[a-zA-Z0-9]{40,}/);
 
     const res2 = await adminApi.get("/api/admin/juegos");
     expect(res2.status()).toBe(200);

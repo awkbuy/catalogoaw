@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { sileo } from "sileo";
 import { uploadImage } from "@/lib/upload-image";
 import { useProgress } from "@/lib/progress-context";
+import ConfiguredBadge from "@/components/admin/ConfiguredBadge";
 
 interface Settings {
   [key: string]: string;
@@ -58,6 +59,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { start, done } = useProgress();
   const [settings, setSettings] = useState<Settings>({});
+  const [metaTokenConfigured, setMetaTokenConfigured] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -67,7 +69,9 @@ export default function SettingsPage() {
     fetch("/api/admin/settings")
       .then((r) => r.json())
       .then((data) => {
-        setSettings(data);
+        const { metaAccessTokenConfigured, ...rest } = data;
+        setMetaTokenConfigured(metaAccessTokenConfigured === "true");
+        setSettings(rest);
         setLoading(false);
       });
   }, []);
@@ -303,8 +307,9 @@ export default function SettingsPage() {
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Activar GA4
+                  {settings.ga4Enabled !== "false" ? <ConfiguredBadge /> : null}
                 </label>
                 <ToggleButtons
                   value={settings.ga4Enabled || "true"}
@@ -313,8 +318,9 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Measurement ID
+                  {settings.ga4MeasurementId ? <ConfiguredBadge /> : null}
                 </label>
                 <input
                   type="text"
@@ -325,8 +331,9 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Property ID
+                  {settings.ga4PropertyId ? <ConfiguredBadge /> : null}
                 </label>
                 <input
                   type="text"
@@ -337,8 +344,9 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Service Account Email (sync futuro)
+                  {settings.ga4ServiceAccountEmail ? <ConfiguredBadge /> : null}
                 </label>
                 <input
                   type="email"
@@ -360,8 +368,9 @@ export default function SettingsPage() {
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Activar Meta Pixel
+                  {settings.metaPixelEnabled === "true" ? <ConfiguredBadge /> : null}
                 </label>
                 <ToggleButtons
                   value={settings.metaPixelEnabled || "false"}
@@ -370,8 +379,9 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Pixel ID
+                  {settings.metaPixelId ? <ConfiguredBadge /> : null}
                 </label>
                 <input
                   type="text"
@@ -382,25 +392,28 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Activar Conversions API
+                  {settings.metaCapiEnabled === "true" ? <ConfiguredBadge /> : null}
                 </label>
                 <ToggleButtons
                   value={settings.metaCapiEnabled || "false"}
                   onTrue={() => handleChange("metaCapiEnabled", "true")}
                   onFalse={() => handleChange("metaCapiEnabled", "false")}
                 />
-                <p className="text-xs text-[#9CA3AF] mt-1.5">
+                <p className="text-xs text-[#9CA3AF] mt-1.5 flex flex-wrap items-center gap-1.5">
                   El token de acceso se configura con la variable de entorno
-                  <code className="ml-1 px-1 py-0.5 bg-[#F3F4F6] rounded text-[11px]">
+                  <code className="px-1 py-0.5 bg-[#F3F4F6] rounded text-[11px]">
                     META_ACCESS_TOKEN
                   </code>
                   en el servidor (no se guarda en la base de datos).
+                  {metaTokenConfigured ? <ConfiguredBadge label="Token presente" /> : null}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Test Event Code (opcional)
+                  {settings.metaTestEventCode ? <ConfiguredBadge /> : null}
                 </label>
                 <input
                   type="text"
@@ -411,8 +424,9 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Business Manager ID
+                  {settings.metaBusinessId ? <ConfiguredBadge /> : null}
                 </label>
                 <input
                   type="text"
@@ -423,8 +437,9 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Catalog ID (Catálogo Commerce)
+                  {settings.metaCatalogId ? <ConfiguredBadge /> : null}
                 </label>
                 <input
                   type="text"
@@ -446,8 +461,9 @@ export default function SettingsPage() {
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Activar Clarity
+                  {settings.clarityEnabled === "true" ? <ConfiguredBadge /> : null}
                 </label>
                 <ToggleButtons
                   value={settings.clarityEnabled || "false"}
@@ -456,8 +472,9 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Project ID
+                  {settings.clarityProjectId ? <ConfiguredBadge /> : null}
                 </label>
                 <input
                   type="text"

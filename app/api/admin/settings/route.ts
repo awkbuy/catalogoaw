@@ -108,6 +108,7 @@ export async function GET() {
   for (const s of settings) {
     data[s.key] = s.value;
   }
+  data.metaAccessTokenConfigured = process.env.META_ACCESS_TOKEN ? "true" : "false";
   return NextResponse.json(data);
 }
 
@@ -119,7 +120,7 @@ export async function PUT(req: NextRequest) {
   if (!data) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
 
   const invalidKeys = Object.keys(data).filter(
-    (key) => !ALLOWED_SETTINGS_KEYS.includes(key)
+    (key) => !ALLOWED_SETTINGS_KEYS.includes(key) && key !== "metaAccessTokenConfigured"
   );
   if (invalidKeys.length > 0) {
     return NextResponse.json(
@@ -130,6 +131,8 @@ export async function PUT(req: NextRequest) {
 
   try {
     for (const [key, value] of Object.entries(data)) {
+      // metaAccessTokenConfigured es derivado (env del servidor), nunca se persiste
+      if (key === "metaAccessTokenConfigured") continue;
       await prisma.setting.upsert({
         where: { key },
         update: { value: String(value ?? "") },
