@@ -17,6 +17,7 @@ import {
   LogOut,
   ChevronLeft,
   User,
+  Rocket,
 } from "lucide-react";
 import Image from "next/image";
 import AppleDock from "@/components/AppleDock";
@@ -30,6 +31,7 @@ const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/games", label: "Juegos", icon: Gamepad2 },
   { href: "/categories", label: "Categorías", icon: FolderOpen },
+  { href: "/landings", label: "Landings", icon: Rocket },
   { href: "/cupones", label: "Cupones", icon: Ticket },
   { href: "/pagos", label: "Medios de Pago", icon: Wallet },
   { href: "/horarios", label: "Horarios", icon: Clock },

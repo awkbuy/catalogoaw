@@ -5,9 +5,14 @@ import { getSeoSettings, getSiteUrl } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [settings, games] = await Promise.all([
+  const [settings, games, landings] = await Promise.all([
     getSeoSettings(),
     prisma.game.findMany({
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+    }),
+    prisma.landingPage.findMany({
+      where: { isActive: true },
       select: { slug: true, updatedAt: true },
       orderBy: { updatedAt: "desc" },
     }),
@@ -31,6 +36,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: game.updatedAt,
       changeFrequency: "monthly",
       priority: 0.8,
+    });
+  }
+
+  for (const landing of landings) {
+    if (!landing.slug) continue;
+    entries.push({
+      url: `${siteUrl}/${landing.slug}`,
+      lastModified: landing.updatedAt,
+      changeFrequency: "weekly",
+      priority: 0.9,
     });
   }
 

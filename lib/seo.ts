@@ -394,6 +394,90 @@ export function buildGameMetadata(
   };
 }
 
+export interface LandingSeoSource {
+  slug: string;
+  title: string;
+  description: string;
+  heroTitle: string;
+  heroDescription: string;
+  heroImage: string;
+  seoTitle: string;
+  seoDescription: string;
+  seoKeywords: string;
+  canonical: string;
+  updatedAt?: Date | string;
+}
+
+export function buildLandingMetadata(
+  settings: SeoSettings,
+  landing: LandingSeoSource
+): Metadata {
+  const title = landing.seoTitle.trim() || landing.heroTitle.trim() || landing.title;
+  const description = truncate(
+    landing.seoDescription.trim() ||
+      landing.heroDescription.trim() ||
+      landing.description ||
+      landing.title
+  );
+  const siteUrl = getSiteUrl(settings);
+  const ownUrl = `${siteUrl}/${landing.slug}`;
+  const manual = (landing.canonical || "").trim();
+  let canonical = ownUrl;
+  if (manual) {
+    try {
+      const parsed = new URL(manual);
+      if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+        const siteOrigin = new URL(siteUrl).origin;
+        canonical = parsed.origin === siteOrigin ? ownUrl : manual;
+      }
+    } catch {
+      canonical = ownUrl;
+    }
+  }
+  const image = resolveImage(settings, landing.heroImage || settings.ogImage);
+  const indexable = settings.index && settings.follow;
+  const keywords =
+    landing.seoKeywords
+      .split(",")
+      .map((k) => k.trim())
+      .filter(Boolean) || undefined;
+
+  return {
+    title,
+    description,
+    keywords,
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      locale: settings.idioma,
+      url: canonical,
+      title,
+      description,
+      siteName: settings.nombreSitio,
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: settings.twitterCard as "summary" | "summary_large_image" | "app" | "player",
+      title: settings.twitterTitle || title,
+      description: settings.twitterDescription || description,
+      images: [
+        settings.twitterImage ? resolveImage(settings, settings.twitterImage) : image,
+      ],
+    },
+    robots: {
+      index: indexable,
+      follow: indexable,
+      googleBot: {
+        index: indexable,
+        follow: indexable,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+  };
+}
+
 export function organizationJsonLd(settings: SeoSettings): object {
   const siteUrl = getSiteUrl(settings);
   const sameAs = [settings.instagram, settings.facebook].filter(Boolean);
