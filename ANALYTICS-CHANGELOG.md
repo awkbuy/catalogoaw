@@ -40,7 +40,7 @@
 
 ### 3. `lib/analytics.ts` — Constantes y tipos compartidos
 
-- `GA_MEASUREMENT_ID` (env `NEXT_PUBLIC_GA_ID`, fallback `G-9HBTQN02YJ`).
+- `GA_MEASUREMENT_ID` (env `NEXT_PUBLIC_GA_ID`; ~~fallback `G-9HBTQN02YJ`~~ — eliminado el 8 ago 2026: ahora solo sale del env, el sitio carga GA4 únicamente con configuración real).
 - `ANALYTICS_EVENT_TYPES`: whitelist de 9 tipos (`page_view`, `view_item`, `add_to_cart`, `remove_from_cart`, `view_cart`, `search`, `filter`, `whatsapp_click`, `begin_checkout`).
 - `AnalyticsEventType` + guard `isAnalyticsEventType()`.
 - Tipos globales de `window.gtag` y `window.dataLayer`.

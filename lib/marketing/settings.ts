@@ -11,7 +11,7 @@ export interface MarketingConfig extends ClientMarketingConfig {
   clarityEnabled: boolean;
 }
 
-export const MARKETING_DEFAULT_GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-9HBTQN02YJ";
+export const MARKETING_DEFAULT_GA_ID = process.env.NEXT_PUBLIC_GA_ID || "";
 
 function toBool(value: string | undefined, fallback: boolean): boolean {
   if (value === undefined || value === "") return fallback;

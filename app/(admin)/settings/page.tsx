@@ -309,7 +309,7 @@ export default function SettingsPage() {
               <div>
                 <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
                   Activar GA4
-                  {settings.ga4Enabled !== "false" ? <ConfiguredBadge /> : null}
+                  {settings.ga4Enabled === "true" ? <ConfiguredBadge /> : null}
                 </label>
                 <ToggleButtons
                   value={settings.ga4Enabled || "true"}

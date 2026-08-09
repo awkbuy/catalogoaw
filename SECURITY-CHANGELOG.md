@@ -5,6 +5,30 @@
 
 ---
 
+## Actualización: CSP de Microsoft Clarity (8-ago-2026)
+
+**Problema**: el loader de Clarity (`https://www.clarity.ms/tag/{id}`) inyecta dinámicamente su script de recolector desde `https://scripts.clarity.ms/clarity.js`. La CSP solo permitía `https://www.clarity.ms`, por lo que el navegador bloqueaba el script con:
+
+```
+Loading the script 'https://scripts.clarity.ms/0.8.69/clarity.js' violates the following
+Content Security Policy directive: "script-src ... https://www.clarity.ms"
+```
+
+Consecuencia: Clarity no recolectaba datos ("Data from this session is not being collected").
+
+**Fix** (`next.config.ts`):
+- `script-src` → agrega `https://scripts.clarity.ms`.
+- `connect-src` → agrega `https://*.clarity.ms` (telemetría/recolector).
+- `img-src` → agrega `https://*.clarity.ms` (session replay/heatmaps).
+
+Sigue la guía oficial de Microsoft Clarity para CSP. El único comodín permitido es el subdominio controlado `*.clarity.ms`; se mantiene el bloqueo de `connect-src *` / `script-src *` abiertos.
+
+**Test actualizado** (`tests/security/08-security-headers.spec.ts`): la aserción anti-comodín de `connect-src` ahora permite únicamente `https://*.clarity.ms` y sigue rechazando comodines abiertos.
+
+**Verificación**: suite de seguridad **107/107** y suite funcional **79/79** en verde. Commit `5313b43`, desplegado.
+
+---
+
 ## Cambios Aplicados
 
 ### 1. `lib/auth.ts` — Session Hardening

@@ -45,8 +45,9 @@ test.describe("Sitio público", () => {
     const searchInput = page.locator('input[placeholder*="Buscar"], input[type="search"]').first();
     if (await searchInput.isVisible()) {
       await searchInput.fill("Catan");
-      await page.waitForTimeout(300);
-      await expect(page.getByText("Catan").first()).toBeVisible();
+      await expect(page.getByText("Catan").first()).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 

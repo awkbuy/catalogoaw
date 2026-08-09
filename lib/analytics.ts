@@ -1,4 +1,4 @@
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "G-9HBTQN02YJ";
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || "";
 
 export const ANALYTICS_EVENT_TYPES = [
   "page_view",
