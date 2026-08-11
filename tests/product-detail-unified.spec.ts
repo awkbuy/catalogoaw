@@ -44,6 +44,7 @@ test.describe("Diseño unificado de detalle de producto", () => {
     await page.goto("/juegos/catan");
 
     await expect(page.getByRole("button", { name: "Compartir" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Comprar" })).toBeVisible();
     await expect(page.getByRole("button", { name: /Agregar al carrito/ })).toBeVisible();
     await expect(page.getByText("Observaciones")).toBeVisible();
     await expect(

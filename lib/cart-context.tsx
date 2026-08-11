@@ -35,6 +35,9 @@ interface CartContextType {
   discount: number;
   finalTotal: number;
   itemCount: number;
+  cartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -42,6 +45,10 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
+  const [cartOpen, setCartOpen] = useState(false);
+
+  const openCart = useCallback(() => setCartOpen(true), []);
+  const closeCart = useCallback(() => setCartOpen(false), []);
 
   const addItem = useCallback((item: Omit<CartItem, "cantidad" | "observacion">) => {
     setItems((prev) => {
@@ -126,6 +133,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         discount,
         finalTotal,
         itemCount,
+        cartOpen,
+        openCart,
+        closeCart,
       }}
     >
       {children}

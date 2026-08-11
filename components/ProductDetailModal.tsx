@@ -1,11 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, ShoppingCart } from "lucide-react";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
+import { useCart } from "@/lib/cart-context";
+import { trackMarketingEvent } from "@/lib/marketing";
+import { parsePrice } from "@/lib/format";
 import type { TaxConfig } from "@/lib/tax";
 import ProductDetailContent, { type ProductDetailGame } from "@/components/ProductDetailContent";
+import ShareButton from "@/components/ShareButton";
 
 interface ProductDetailModalProps {
   game: ProductDetailGame | null;
@@ -16,8 +21,42 @@ interface ProductDetailModalProps {
 
 export default function ProductDetailModal({ game, open, onClose, taxConfig }: ProductDetailModalProps) {
   const { isLite } = useAdaptive();
+  const { addItem, openCart } = useCart();
+  const [cantidad, setCantidad] = useState(1);
 
   if (!game) return null;
+
+  const comprable = game.disponibleVenta && !!game.precioFinalVenta;
+
+  const handleAdd = () => {
+    if (!game) return;
+    const precioNum = parsePrice(game.precioFinalVenta);
+    const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
+    for (let i = 0; i < cantidad; i++) {
+      addItem({
+        gameId: game.id,
+        nombre: game.nombre,
+        precio: game.precioFinalVenta,
+        precioNum,
+        imagen: game.imagen,
+      });
+    }
+    trackMarketingEvent({
+      event: "AddToCart",
+      data: {
+        content_ids: [game.id],
+        content_name: game.nombre,
+        content_category: game.categoria.nombre,
+        value: precioFinal,
+        currency: "ARS",
+        quantity: cantidad,
+        source: "product_modal",
+      },
+    });
+    setCantidad(1);
+    onClose();
+    openCart();
+  };
 
   return (
     <AnimatePresence>
@@ -54,9 +93,27 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
                 game={game}
                 taxConfig={taxConfig}
                 source="product_modal"
-                onAdded={onClose}
+                cantidad={cantidad}
+                onCantidadChange={setCantidad}
               />
             </div>
+
+            {comprable && (
+              <div className="grid grid-cols-2 gap-3 border-t border-[#E5E7EB] p-4">
+                <ShareButton
+                  game={game}
+                  source="product_modal"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#1F2937] shadow-sm transition-all hover:border-[#31D3A9]/30 hover:shadow-md"
+                />
+                <button
+                  onClick={handleAdd}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#31D3A9] px-4 py-3 text-sm font-semibold text-[#0B3B30] shadow-lg shadow-[#31D3A9]/20 hover:bg-[#2bc49b] hover:shadow-xl hover:shadow-[#31D3A9]/30 active:scale-[0.98] transition-all"
+                >
+                  <ShoppingCart size={16} />
+                  Agregar al carrito {cantidad > 1 && `(${cantidad} unidades)`}
+                </button>
+              </div>
+            )}
           </Motion.div>
         </>
       )}

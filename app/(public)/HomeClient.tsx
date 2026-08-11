@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { CartProvider } from "@/lib/cart-context";
+import { useEffect, useRef } from "react";
+import { CartProvider, useCart } from "@/lib/cart-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Navbar from "@/components/Navbar/Navbar";
 import HeroCategories from "@/components/HeroCategories/HeroCategories";
@@ -45,7 +45,26 @@ interface Category {
   _count: { games: number };
 }
 
-export default function HomeClient({
+export default function HomeClient(props: {
+  games: PublicGame[];
+  categories: Category[];
+  whatsappNumber: string;
+  businessName: string;
+  logoUrl: string | null;
+  horarios: DiaHorario[];
+  taxConfig: TaxConfig;
+  paymentMethods: PublicPaymentMethod[];
+  initialCategoria?: string;
+  initialQuery?: string;
+}) {
+  return (
+    <CartProvider>
+      <HomeContent {...props} />
+    </CartProvider>
+  );
+}
+
+function HomeContent({
   games,
   categories,
   whatsappNumber,
@@ -68,7 +87,7 @@ export default function HomeClient({
   initialCategoria?: string;
   initialQuery?: string;
 }) {
-  const [cartOpen, setCartOpen] = useState(false);
+  const { cartOpen, openCart, closeCart } = useCart();
 
   const pageViewSentRef = useRef(false);
   useEffect(() => {
@@ -84,14 +103,14 @@ export default function HomeClient({
   }, []);
 
   return (
-    <CartProvider>
+    <>
       <Navbar
         whatsappNumber={whatsappNumber}
         businessName={businessName}
         logoUrl={logoUrl}
         horarios={horarios}
-        onCartClick={() => setCartOpen(true)}
-        onCartClose={() => setCartOpen(false)}
+        onCartClick={openCart}
+        onCartClose={closeCart}
       />
       <div className="pb-20 md:pb-0">
         <ErrorBoundary sectionName="HeroCategories" fallback={<div />}>
@@ -113,11 +132,11 @@ export default function HomeClient({
       <ErrorBoundary sectionName="CartDrawer" fallback={<div />}>
         <CartDrawer
           open={cartOpen}
-          onClose={() => setCartOpen(false)}
+          onClose={closeCart}
           whatsappNumber={whatsappNumber}
           paymentMethods={paymentMethods}
         />
       </ErrorBoundary>
-    </CartProvider>
+    </>
   );
 }

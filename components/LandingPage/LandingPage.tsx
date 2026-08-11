@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { CartProvider } from "@/lib/cart-context";
+import { useEffect, useRef } from "react";
+import { CartProvider, useCart } from "@/lib/cart-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Navbar from "@/components/Navbar/Navbar";
 import CartDrawer from "@/components/CartDrawer";
@@ -46,7 +46,45 @@ export default function LandingPage({
   taxConfig,
   paymentMethods,
 }: LandingPageProps) {
-  const [cartOpen, setCartOpen] = useState(false);
+  return (
+    <CartProvider>
+      <LandingContent
+        games={games}
+        slug={slug}
+        title={title}
+        description={description}
+        heroTitle={heroTitle}
+        heroDescription={heroDescription}
+        heroImage={heroImage}
+        bannerColor={bannerColor}
+        whatsappNumber={whatsappNumber}
+        businessName={businessName}
+        logoUrl={logoUrl}
+        horarios={horarios}
+        taxConfig={taxConfig}
+        paymentMethods={paymentMethods}
+      />
+    </CartProvider>
+  );
+}
+
+function LandingContent({
+  games,
+  slug,
+  title,
+  description,
+  heroTitle,
+  heroDescription,
+  heroImage,
+  bannerColor,
+  whatsappNumber,
+  businessName,
+  logoUrl,
+  horarios,
+  taxConfig,
+  paymentMethods,
+}: LandingPageProps) {
+  const { cartOpen, openCart, closeCart } = useCart();
 
   const pageViewSentRef = useRef(false);
   useEffect(() => {
@@ -62,14 +100,14 @@ export default function LandingPage({
   }, [slug]);
 
   return (
-    <CartProvider>
+    <>
       <Navbar
         whatsappNumber={whatsappNumber}
         businessName={businessName}
         logoUrl={logoUrl}
         horarios={horarios}
-        onCartClick={() => setCartOpen(true)}
-        onCartClose={() => setCartOpen(false)}
+        onCartClick={openCart}
+        onCartClose={closeCart}
       />
       <div className="pb-20 md:pb-0">
         <ErrorBoundary sectionName="LandingHero" fallback={<div />}>
@@ -96,11 +134,11 @@ export default function LandingPage({
       <ErrorBoundary sectionName="CartDrawer" fallback={<div />}>
         <CartDrawer
           open={cartOpen}
-          onClose={() => setCartOpen(false)}
+          onClose={closeCart}
           whatsappNumber={whatsappNumber}
           paymentMethods={paymentMethods}
         />
       </ErrorBoundary>
-    </CartProvider>
+    </>
   );
 }

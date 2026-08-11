@@ -29,9 +29,10 @@ interface NavbarProps {
   horarios: DiaHorario[];
   onCartClick?: () => void;
   onCartClose?: () => void;
+  hideMobileDock?: boolean;
 }
 
-export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios, onCartClick, onCartClose }: NavbarProps) {
+export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios, onCartClick, onCartClose, hideMobileDock = false }: NavbarProps) {
   const { isLite } = useAdaptive();
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
@@ -224,7 +225,7 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
         </div>
       </Motion.nav>
 
-      <AppleDock tabs={tabsWithBadge} activeTab={activeSection} />
+      {!hideMobileDock && <AppleDock tabs={tabsWithBadge} activeTab={activeSection} />}
 
       <InfoModal
         open={infoOpen}

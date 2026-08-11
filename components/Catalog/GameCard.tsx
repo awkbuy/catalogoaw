@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, Clock, Baby, Eye, ShoppingCart, BadgePercent } from "lucide-react";
+import { Users, Clock, Baby, Eye, Zap, BadgePercent } from "lucide-react";
 import Image from "next/image";
 import ImageWithProgress from "@/components/ImageWithProgress";
 import type { PublicGame } from "./Catalog";
@@ -51,7 +51,7 @@ interface GameCardProps {
 
 export default function GameCard({ game, index, taxConfig, paymentMethods, onViewDetail }: GameCardProps) {
   const { isLite } = useAdaptive();
-  const { addItem } = useCart();
+  const { addItem, openCart } = useCart();
   const isAvailable = game.estado === "Disponible";
 
   const precioNum = parsePrice(game.precioFinalVenta);
@@ -87,6 +87,7 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
         source: "catalog_quick_add",
       },
     });
+    openCart();
   };
 
   const tags: string[] = [];
@@ -302,9 +303,10 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
           {game.disponibleVenta && (
             <button
               onClick={handleQuickAdd}
-              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-[#0B3B30] shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-[#0B3B30] shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <ShoppingCart size={16} />
+              <Zap size={16} />
+              Comprar
             </button>
           )}
         </div>

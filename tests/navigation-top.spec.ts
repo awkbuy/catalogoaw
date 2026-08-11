@@ -10,7 +10,7 @@ test.describe("Navegación al inicio de la página", () => {
   });
 
   test("el botón Inicio del menú vuelve al tope de la página", async ({ page }) => {
-    await page.goto("/juegos/catan");
+    await page.goto("/");
 
     await page.evaluate(() =>
       window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" })

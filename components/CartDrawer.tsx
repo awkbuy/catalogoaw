@@ -257,8 +257,9 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                 <p className="text-sm text-[#6B7280]">Agregá productos desde el catálogo</p>
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                {items.map((item) => (
+              <>
+                <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                  {items.map((item) => (
                   <div key={item.gameId} className="flex gap-3 bg-[#FAFAFA] rounded-xl p-3">
                     <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-[#F3F4F6] flex items-center justify-center">
                       {item.imagen ? (
@@ -317,12 +318,8 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                     </div>
                   </div>
                 ))}
-              </div>
-            )}
 
-            {items.length > 0 && (
-              <div className="border-t border-[#E5E7EB] p-5 space-y-4 overflow-y-auto max-h-[60vh]">
-                <div className="space-y-3">
+                <div className="space-y-3 border-t border-[#E5E7EB] pt-5">
                   <div>
                     <label className="block text-xs font-medium text-[#6B7280] mb-1">Nombre y apellido *</label>
                     <input
@@ -597,8 +594,9 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                     </div>
                   </div>
                 )}
+                </div>
 
-                <div className="border-t border-[#E5E7EB] pt-4 space-y-2">
+                <div className="border-t border-[#E5E7EB] p-5 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-[#6B7280]">Subtotal</span>
                     <span className="text-sm font-semibold text-[#1F2937]">{formatPrice(total)}</span>
@@ -630,7 +628,7 @@ export default function CartDrawer({ open, onClose, whatsappNumber, paymentMetho
                     Pedir por WhatsApp
                   </button>
                 </div>
-              </div>
+              </>
             )}
           </Motion.div>
         </>
