@@ -146,12 +146,19 @@ export default function PurchasePanel({
           <p className="flex items-center gap-1.5 text-sm font-semibold text-green-600">
             <Truck size={15} className="flex-shrink-0" />
             {envio.gratis
-              ? "Envío gratis"
+              ? envio.zonaGratis
+                ? `Envío gratis a ${envio.zonaGratis}`
+                : "Envío gratis"
               : `Envío desde ${formatPrice(envio.desde || 0)}`}
           </p>
           {!envio.gratis && envio.freeFrom && (
             <p className="text-xs font-medium text-green-700">
               Gratis desde {formatPrice(envio.freeFrom)}
+            </p>
+          )}
+          {envio.hayConsultar && (
+            <p className="text-xs font-medium text-green-700">
+              Resto del país: consultar monto de envío
             </p>
           )}
           {hayRetiro && (

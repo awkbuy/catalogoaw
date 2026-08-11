@@ -32,6 +32,7 @@ export interface PublicShippingZone {
   name: string;
   cost: number;
   freeFrom: number;
+  consultar: boolean;
   active: boolean;
 }
 
@@ -39,6 +40,8 @@ export interface EnvioResultado {
   gratis: boolean;
   desde?: number;
   freeFrom?: number;
+  zonaGratis?: string;
+  hayConsultar?: boolean;
 }
 
 export function getCuotasInfo(raw: Record<string, string>): CuotasInfo {
@@ -58,27 +61,33 @@ export function resolverEnvio(opts: {
   const { precio, envioGratisDelJuego, zonas } = opts;
   const activas = zonas.filter((z) => z.active);
   if (activas.length === 0) return null;
-  if (envioGratisDelJuego) return { gratis: true };
 
-  const conCosto = activas.filter((z) => z.cost > 0);
-  if (conCosto.length === 0) return { gratis: true };
+  const conTarifa = activas.filter((z) => !z.consultar);
+  const hayConsultar = activas.some((z) => z.consultar);
+  const conCosto = conTarifa.filter((z) => z.cost > 0);
+  const zonaGratis = conTarifa.find((z) => z.freeFrom > 0)?.name;
 
-  const gratis = activas.some((z) => z.freeFrom > 0 && precio >= z.freeFrom);
-  if (gratis) return { gratis: true };
+  if (envioGratisDelJuego) return { gratis: true, zonaGratis, hayConsultar };
+
+  if (conCosto.length === 0) return { gratis: true, zonaGratis, hayConsultar };
+
+  if (conTarifa.some((z) => z.freeFrom > 0 && precio >= z.freeFrom)) {
+    return { gratis: true, zonaGratis, hayConsultar };
+  }
 
   const desde = Math.min(...conCosto.map((z) => z.cost));
-  const freeFrom = activas
+  const freeFrom = conTarifa
     .filter((z) => z.freeFrom > 0)
     .sort((a, b) => a.freeFrom - b.freeFrom)[0]?.freeFrom;
 
-  return { gratis: false, desde, freeFrom };
+  return { gratis: false, desde, freeFrom, hayConsultar };
 }
 
 export interface CalculoEnvioCarrito {
   monto: number;
   gratis: boolean;
   zona: PublicShippingZone | null;
-  motivo: "retiro" | "envio_gratis" | "descuento_umbral" | "costo";
+  motivo: "retiro" | "envio_gratis" | "descuento_umbral" | "costo" | "consultar";
 }
 
 export function calcularEnvioCarrito(opts: {
@@ -102,6 +111,10 @@ export function calcularEnvioCarrito(opts: {
 
   const zona = zonas.find((z) => z.id === zonaId && z.active) ?? null;
   if (!zona) return null;
+
+  if (zona.consultar) {
+    return { monto: 0, gratis: false, zona, motivo: "consultar" };
+  }
 
   if (zona.freeFrom > 0 && subtotal >= zona.freeFrom) {
     return { monto: 0, gratis: true, zona, motivo: "descuento_umbral" };

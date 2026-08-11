@@ -81,4 +81,33 @@ test.describe("18 · Ventas — zonas de envío y validación de inputs", () => 
     expect(json.name).toContain("img");
     await adminApi.delete(`/api/admin/envios/${json.id}`);
   });
+
+  test("consultar se guarda como booleano estricto y no refleja input del atacante", async ({
+    adminApi,
+  }) => {
+    const res = await adminApi.post("/api/admin/envios", {
+      data: {
+        name: "Zona Consultar",
+        cost: 5000,
+        consultar: true,
+        xss: "<img src=x onerror=alert(1)>",
+      },
+    });
+    expect(res.status()).toBe(200);
+    const body = await readBody(res);
+    assertNoLeak(body, "POST consultar");
+    const json = JSON.parse(body) as { id: string; consultar: boolean; cost: number };
+    expect(json.consultar).toBe(true);
+    expect(json.cost).toBe(5000);
+
+    const res2 = await adminApi.post("/api/admin/envios", {
+      data: { name: "Zona Consultar Garbage", consultar: "true", cost: 1000 },
+    });
+    expect(res2.status()).toBe(200);
+    const json2 = JSON.parse(await readBody(res2)) as { id: string; consultar: boolean };
+    expect(json2.consultar).toBe(false);
+
+    await adminApi.delete(`/api/admin/envios/${json.id}`);
+    await adminApi.delete(`/api/admin/envios/${json2.id}`);
+  });
 });

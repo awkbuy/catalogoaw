@@ -48,7 +48,7 @@ test.describe("Rendimiento adaptativo", () => {
       ).toContainText("1");
     }).toPass({ timeout: 10_000 });
 
-    await page.getByRole("button", { name: "Abrir carrito" }).first().click();
+    await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
 
     await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
     await expect(page.locator("h4").filter({ hasText: firstName! })).toBeVisible();

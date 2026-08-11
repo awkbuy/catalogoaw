@@ -21,6 +21,7 @@ interface ZonaEnvio {
   name: string;
   cost: number;
   freeFrom: number;
+  consultar: boolean;
   active: boolean;
   order: number;
   createdAt: string;
@@ -69,6 +70,7 @@ export default function EnviosPage() {
     name: "",
     cost: "",
     freeFrom: "",
+    consultar: false,
     active: true,
     order: 1,
   });
@@ -90,6 +92,7 @@ export default function EnviosPage() {
       name: "",
       cost: "",
       freeFrom: "",
+      consultar: false,
       active: true,
       order: zonas.length + 1,
     });
@@ -102,6 +105,7 @@ export default function EnviosPage() {
       name: z.name,
       cost: String(z.cost),
       freeFrom: String(z.freeFrom),
+      consultar: z.consultar,
       active: z.active,
       order: z.order,
     });
@@ -127,6 +131,7 @@ export default function EnviosPage() {
           name: form.name.trim(),
           cost: Number(form.cost) || 0,
           freeFrom: Number(form.freeFrom) || 0,
+          consultar: form.consultar,
           order: Number(form.order) || 1,
         }),
       });
@@ -289,6 +294,9 @@ export default function EnviosPage() {
                   Gratis desde
                 </th>
                 <th className="text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
+                  Consultar
+                </th>
+                <th className="text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
                   Estado
                 </th>
                 <th className="text-right text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
@@ -331,6 +339,15 @@ export default function EnviosPage() {
                   </td>
                   <td className="px-4 py-3 text-sm text-[#6B7280]">
                     {z.freeFrom > 0 ? formatPrice(z.freeFrom) : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {z.consultar ? (
+                      <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-600">
+                        Consultar monto
+                      </span>
+                    ) : (
+                      <span className="text-sm text-[#9CA3AF]">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
@@ -379,7 +396,9 @@ export default function EnviosPage() {
               <div className="flex items-center gap-3 text-xs text-[#6B7280]">
                 <span>
                   Costo:{" "}
-                  {z.cost === 0 ? (
+                  {z.consultar ? (
+                    <span className="font-semibold text-amber-600">Consultar</span>
+                  ) : z.cost === 0 ? (
                     <span className="font-semibold text-[#31D3A9]">Gratis</span>
                   ) : (
                     formatPrice(z.cost)
@@ -389,6 +408,11 @@ export default function EnviosPage() {
                   <span>Gratis desde {formatPrice(z.freeFrom)}</span>
                 )}
               </div>
+              {z.consultar && (
+                <p className="mt-1 text-[11px] font-medium text-amber-600">
+                  Envío sin tarifa publicada, se coordina por WhatsApp
+                </p>
+              )}
               <div className="flex items-center justify-between mt-2">
                 <div className="flex items-center gap-2">
                   <Toggle checked={z.active} onChange={() => handleToggleActive(z)} />
@@ -470,7 +494,8 @@ export default function EnviosPage() {
                       value={form.cost}
                       onChange={(e) => setForm((prev) => ({ ...prev, cost: e.target.value }))}
                       min={0}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                      disabled={form.consultar}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all disabled:opacity-50"
                       placeholder="0"
                     />
                     <p className="mt-1 text-[11px] text-[#9CA3AF]">
@@ -486,7 +511,8 @@ export default function EnviosPage() {
                       value={form.freeFrom}
                       onChange={(e) => setForm((prev) => ({ ...prev, freeFrom: e.target.value }))}
                       min={0}
-                      className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                      disabled={form.consultar}
+                      className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all disabled:opacity-50"
                       placeholder="0"
                     />
                     <p className="mt-1 text-[11px] text-[#9CA3AF]">
@@ -494,6 +520,21 @@ export default function EnviosPage() {
                     </p>
                   </div>
                 </div>
+
+                <label className="flex items-center justify-between rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-4 py-3 cursor-pointer w-full">
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-[#1F2937]">
+                      Consultar monto
+                    </span>
+                    <span className="block text-[11px] text-[#9CA3AF]">
+                      Envío sin tarifa publicada, se coordina por WhatsApp.
+                    </span>
+                  </span>
+                  <Toggle
+                    checked={form.consultar}
+                    onChange={() => setForm((prev) => ({ ...prev, consultar: !prev.consultar }))}
+                  />
+                </label>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>

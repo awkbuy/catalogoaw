@@ -163,6 +163,27 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
     await expect(page.getByText("(1 producto)")).toBeVisible();
   });
 
+  test("el quick add muestra el badge circular volando hacia el carrito", async ({ page }) => {
+    const events = setupTracking(page);
+    await page.goto("/");
+    await waitForHydration(events);
+
+    await page.locator("article").first().getByRole("button", { name: "Comprar" }).click();
+
+    await expect
+      .poll(
+        () =>
+          page
+            .evaluate(() => {
+              const el = document.querySelector("[data-fly-to-cart]");
+              return el ? getComputedStyle(el).borderRadius : "";
+            })
+            .catch(() => ""),
+        { timeout: 3000, message: "el badge circular no apareció tras el quick add" }
+      )
+      .toBe("50%");
+  });
+
   test("móvil: la barra sticky agrega con Agregar y abre el carrito con Comprar", async ({
     page,
   }) => {
@@ -204,7 +225,7 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
 
     const card = page.locator("article").first();
     await expect(card.getByText(/3 cuotas de/)).toBeVisible();
-    await expect(card.getByText(/Envío desde/)).toBeVisible();
+    await expect(card.getByText(/Envío (gratis a|desde)/)).toBeVisible();
     await expect(card.getByText(/Retiro gratis/)).toBeVisible();
   });
 
@@ -213,7 +234,7 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
 
     const buyBox = page.getByRole("complementary");
     await expect(buyBox.getByText(/3 cuotas de/)).toBeVisible();
-    await expect(buyBox.getByText(/Envío desde/)).toBeVisible();
+    await expect(buyBox.getByText(/Envío (gratis a|desde)/)).toBeVisible();
     await expect(buyBox.getByText(/Retiro gratis/)).toBeVisible();
   });
 
@@ -225,7 +246,91 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
 
     const modal = page.locator(".max-w-lg");
     await expect(modal.getByText(/3 cuotas de/).first()).toBeVisible();
-    await expect(modal.getByText(/Envío desde/)).toBeVisible();
+    await expect(modal.getByText(/Envío (gratis a|desde)/)).toBeVisible();
     await expect(modal.getByText(/Retiro gratis/)).toBeVisible();
+  });
+
+  test("zona consultar: la card avisa y el checkout lo pasa como a confirmar", async ({
+    page,
+  }) => {
+    await page.goto("/login");
+    await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+    await page.locator('input[name="password"]').fill("admin123");
+    await page.getByRole("button", { name: /Iniciar sesión/i }).click();
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
+
+    const zonas = (await (await page.request.get("/api/admin/envios")).json()) as Array<{
+      id: string;
+      name: string;
+      consultar: boolean;
+      cost: number;
+      freeFrom: number;
+      active: boolean;
+      order: number;
+      [key: string]: unknown;
+    }>;
+    const nacional = zonas.find((z) => z.name === "Envío Nacional");
+    if (!nacional) return;
+    const payload = (consultar: boolean) => ({
+      name: nacional.name,
+      cost: nacional.cost,
+      freeFrom: nacional.freeFrom,
+      active: nacional.active,
+      order: nacional.order,
+      consultar,
+    });
+
+    try {
+      const put = await page.request.put(`/api/admin/envios/${nacional.id}`, {
+        data: payload(true),
+      });
+      expect(put.status()).toBe(200);
+
+      await page.addInitScript(() => {
+        (window as unknown as { __wrWaUrl: string }).__wrWaUrl = "";
+        window.open = (url?: string | URL) => {
+          (window as unknown as { __wrWaUrl: string }).__wrWaUrl = String(url || "");
+          return null;
+        };
+      });
+      const events = setupTracking(page);
+      await page.goto("/");
+      await waitForHydration(events);
+
+      const card = page.locator("article").first();
+      await expect(
+        card.getByText(/Resto del país: consultar monto de envío/)
+      ).toBeVisible();
+
+      await card.getByRole("button", { name: "Comprar" }).click();
+      await page.getByRole("button", { name: "Hacer pedido" }).click();
+      await page.getByPlaceholder("Juan Pérez").fill("Juan Pérez");
+      await page.getByPlaceholder("261 123 4567").fill("2611234567");
+      await page.getByRole("button", { name: "Continuar" }).click();
+
+      await page.getByRole("radio", { name: /Necesito que me lo envíen/ }).check();
+      await expect(page.getByText(/Envío a confirmar por WhatsApp/)).toBeVisible();
+      await page.getByRole("radio", { name: /Envío Nacional/ }).check();
+      await page.getByPlaceholder("Calle y número").fill("Av. San Martín 1234");
+      await page.getByPlaceholder("Ciudad / Localidad").fill("Córdoba");
+      await page.getByPlaceholder("Provincia").fill("Córdoba");
+      await page.getByPlaceholder("Código postal").fill("5000");
+      await page.getByRole("radio", { name: "Efectivo" }).check();
+
+      await expect(page.getByText(/^A confirmar$/)).toBeVisible();
+      await expect(page.getByText(/se confirma por WhatsApp/)).toBeVisible();
+
+      await page.getByRole("button", { name: /Confirmar y pedir por WhatsApp/ }).click();
+      const url = await page.evaluate(
+        () => (window as unknown as { __wrWaUrl: string }).__wrWaUrl
+      );
+      const decoded = decodeURIComponent(url);
+      expect(decoded).toContain("Envío (Envío Nacional): consultar monto");
+      expect(decoded).toContain("(envío a confirmar)");
+    } finally {
+      await page.request.put(`/api/admin/envios/${nacional.id}`, {
+        data: payload(false),
+      });
+    }
   });
 });

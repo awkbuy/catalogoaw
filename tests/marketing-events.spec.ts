@@ -143,7 +143,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await page.goto("/");
     await waitForHydration(events);
     await clickQuickAdd(page);
-    await page.getByLabel("Abrir carrito").first().click();
+    await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
     await waitForEvent(events, "view_cart");
     await page.getByLabel(/Quitar .* del carrito/).first().click();
     const evt = await waitForEvent(events, "remove_from_cart");
@@ -158,7 +158,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await page.goto("/");
     await waitForHydration(events);
     await clickQuickAdd(page);
-    await page.getByLabel("Abrir carrito").first().click();
+    await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
 
     await page.getByRole("button", { name: "Hacer pedido" }).click();
     const begin = await waitForEvent(events, "begin_checkout");

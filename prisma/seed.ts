@@ -224,6 +224,7 @@ async function main() {
         name: "Envío Nacional",
         cost: 8000,
         freeFrom: 100000,
+        consultar: true,
         active: true,
         order: 3,
       },

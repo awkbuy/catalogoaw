@@ -87,13 +87,22 @@ export default function ProductDetailContent({
             {envio && (
               <div className="rounded-lg bg-green-50 px-3 py-2">
                 {envio.gratis ? (
-                  <p className="text-sm font-semibold text-green-600">Envío gratis</p>
+                  <p className="text-sm font-semibold text-green-600">
+                    {envio.zonaGratis
+                      ? `Envío gratis a ${envio.zonaGratis}`
+                      : "Envío gratis"}
+                  </p>
                 ) : (
                   <p className="text-sm font-semibold text-green-600">
                     Envío desde {formatPrice(envio.desde || 0)}
                     {envio.freeFrom
                       ? ` · gratis desde ${formatPrice(envio.freeFrom)}`
                       : ""}
+                  </p>
+                )}
+                {envio.hayConsultar && (
+                  <p className="text-xs font-medium text-green-700">
+                    Resto del país: consultar monto de envío
                   </p>
                 )}
                 {hayRetiro && (

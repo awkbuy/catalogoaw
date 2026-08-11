@@ -85,6 +85,7 @@ export default async function LandingPageRoute({
     name: z.name,
     cost: z.cost,
     freeFrom: z.freeFrom,
+    consultar: z.consultar,
     active: z.active,
   }));
 

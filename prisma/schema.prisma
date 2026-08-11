@@ -123,6 +123,7 @@ model ShippingZone {
   name      String   @unique
   cost      Int      @default(0)
   freeFrom  Int      @default(0)
+  consultar Boolean  @default(false)
   active    Boolean  @default(true)
   order     Int      @default(0)
   createdAt DateTime @default(now())

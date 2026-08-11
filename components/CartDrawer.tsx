@@ -349,13 +349,17 @@ export default function CartDrawer({
     if (entrega === "envio" && envio) {
       if (envio.gratis) {
         message += `*Envío: gratis${zona ? ` (${zona.name})` : ""}*\n`;
+      } else if (envio.motivo === "consultar") {
+        message += `*Envío (${zona?.name ?? "Envío"}): consultar monto*\n`;
       } else {
         message += `*Envío (${zona?.name ?? "Envío"}): ${formatPrice(envio.monto)}*\n`;
       }
     } else if (entrega === "retiro") {
       message += "*Retiro: gratis*\n";
     }
-    message += `*Total: ${formatPrice(totalConEnvio)}*\n\n`;
+    message += `*Total: ${formatPrice(totalConEnvio)}${
+      envio?.motivo === "consultar" ? " (envío a confirmar)" : ""
+    }*\n\n`;
     message += "📋 *Datos:*\n";
     message += `Nombre: ${nombre.trim()}\n`;
     message += `Teléfono: ${telefono.trim()}\n`;
@@ -668,7 +672,11 @@ export default function CartDrawer({
                                         <span className="min-w-0">
                                           <span className="block text-sm font-semibold text-[#1F2937]">{z.name}</span>
                                           <span className="block text-xs text-[#6B7280]">
-                                            {gratisUmbral ? (
+                                            {z.consultar ? (
+                                              <span className="font-semibold text-amber-600">
+                                                Envío a confirmar por WhatsApp
+                                              </span>
+                                            ) : gratisUmbral ? (
                                               <span className="font-semibold text-[#31D3A9]">Envío gratis</span>
                                             ) : (
                                               <>
@@ -861,10 +869,27 @@ export default function CartDrawer({
                   {step === 3 && envio && (
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-[#6B7280]">Envío</span>
-                      <span className={`text-sm font-semibold ${envio.gratis ? "text-[#31D3A9]" : "text-[#1F2937]"}`}>
-                        {envio.gratis ? "Gratis" : formatPrice(envio.monto)}
+                      <span
+                        className={`text-sm font-semibold ${
+                          envio.gratis
+                            ? "text-[#31D3A9]"
+                            : envio.motivo === "consultar"
+                              ? "text-amber-600"
+                              : "text-[#1F2937]"
+                        }`}
+                      >
+                        {envio.gratis
+                          ? "Gratis"
+                          : envio.motivo === "consultar"
+                            ? "A confirmar"
+                            : formatPrice(envio.monto)}
                       </span>
                     </div>
+                  )}
+                  {step === 3 && envio?.motivo === "consultar" && envio.zona && (
+                    <p className="text-[11px] text-amber-600">
+                      El costo de envío a {envio.zona.name} se confirma por WhatsApp.
+                    </p>
                   )}
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-[#6B7280]">Total</span>

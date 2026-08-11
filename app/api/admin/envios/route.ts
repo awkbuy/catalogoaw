@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
         name,
         cost: Math.max(0, Number(data.cost) || 0),
         freeFrom: Math.max(0, Number(data.freeFrom) || 0),
+        consultar: data.consultar === true,
         active: data.active !== false,
         order: Math.max(0, Number(data.order) || 0),
       },
