@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseJsonBody, sanitizeError, isPrismaNotFound } from "@/lib/errors";
@@ -82,6 +83,7 @@ export async function PUT(
         marketingPriority: Math.max(0, Number(data.marketingPriority) || 0),
       },
     });
+    revalidatePath("/");
     return NextResponse.json(juego);
   } catch (error) {
     if (isPrismaNotFound(error)) {
@@ -114,6 +116,7 @@ export async function DELETE(
 
   try {
     await prisma.game.delete({ where: { id } });
+    revalidatePath("/");
     return NextResponse.json({ ok: true });
   } catch (error) {
     if (isPrismaNotFound(error)) {

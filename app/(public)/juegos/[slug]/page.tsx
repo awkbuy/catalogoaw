@@ -104,6 +104,8 @@ export default async function GamePage({
   const whatsappNumber = rawSettings.whatsapp || rawSettings.telefono || "";
   const businessName = rawSettings.nombreNegocio || "Wolfie Room";
   const logoUrl = rawSettings.logoUrl || null;
+  const direccion = rawSettings.direccion || "";
+  const ciudad = rawSettings.ciudad || "";
   const horarios = parsearHorarios(rawSettings.horarios_semana);
   const taxConfig = parseTaxConfig(rawSettings);
   const cuotasInfo = getCuotasInfo(rawSettings);
@@ -175,6 +177,8 @@ export default async function GamePage({
           businessName={businessName}
           logoUrl={logoUrl}
           horarios={horarios}
+          direccion={direccion}
+          ciudad={ciudad}
           taxConfig={taxConfig}
           paymentMethods={publicPaymentMethods}
           cuotasInfo={cuotasInfo}

@@ -25,6 +25,8 @@ interface ProductDetailPageProps {
   paymentMethods: PublicPaymentMethod[];
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
+  direccion?: string;
+  ciudad?: string;
 }
 
 export default function ProductDetailPage({
@@ -37,6 +39,8 @@ export default function ProductDetailPage({
   paymentMethods,
   cuotasInfo,
   envioZonas,
+  direccion = "",
+  ciudad = "",
 }: ProductDetailPageProps) {
   const { cartOpen, openCart, closeCart } = useCart();
   const [cantidad, setCantidad] = useState(1);
@@ -87,6 +91,8 @@ export default function ProductDetailPage({
         onCartClick={openCart}
         onCartClose={closeCart}
         hideMobileDock={esComprable}
+        direccion={direccion}
+        ciudad={ciudad}
       />
 
       <main className="mx-auto max-w-6xl px-4 pt-24 pb-28 lg:pb-20">
@@ -173,6 +179,7 @@ export default function ProductDetailPage({
         open={cartOpen}
         onClose={closeCart}
         whatsappNumber={whatsappNumber}
+        businessName={businessName}
         paymentMethods={paymentMethods}
         envioZonas={envioZonas}
       />

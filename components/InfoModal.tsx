@@ -20,6 +20,8 @@ interface InfoModalProps {
   horarios: DiaHorario[];
   whatsappNumber: string;
   businessName: string;
+  direccion?: string;
+  ciudad?: string;
 }
 
 export default function InfoModal({
@@ -28,6 +30,8 @@ export default function InfoModal({
   horarios,
   whatsappNumber,
   businessName,
+  direccion = "",
+  ciudad = "",
 }: InfoModalProps) {
   const { isLite } = useAdaptive();
   const [now, setNow] = useState(() => new Date());
@@ -165,7 +169,7 @@ export default function InfoModal({
                 <div className="mt-5 flex items-start gap-2 rounded-2xl border border-[#E5E7EB] p-4">
                   <MapPin size={16} className="mt-0.5 shrink-0 text-[#31D3A9]" />
                   <p className="text-sm text-[#6B7280]">
-                    {businessName} · Patio Lorenza, Mendoza
+                    {[direccion, ciudad].filter(Boolean).join(", ") || businessName}
                   </p>
                 </div>
               </div>

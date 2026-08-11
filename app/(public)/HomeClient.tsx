@@ -59,6 +59,8 @@ export default function HomeClient(props: {
   paymentMethods: PublicPaymentMethod[];
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
+  direccion?: string;
+  ciudad?: string;
 }) {
   return (
     <CartProvider>
@@ -78,6 +80,8 @@ function HomeContent({
   paymentMethods,
   cuotasInfo,
   envioZonas,
+  direccion = "",
+  ciudad = "",
 }: {
   games: PublicGame[];
   categories: Category[];
@@ -89,6 +93,8 @@ function HomeContent({
   paymentMethods: PublicPaymentMethod[];
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
+  direccion?: string;
+  ciudad?: string;
 }) {
   const { cartOpen, openCart, closeCart } = useCart();
 
@@ -122,6 +128,8 @@ function HomeContent({
         horarios={horarios}
         onCartClick={openCart}
         onCartClose={closeCart}
+        direccion={direccion}
+        ciudad={ciudad}
       />
       <div className="pb-24 md:pb-0">
         <AdCtaBanner />
@@ -136,6 +144,7 @@ function HomeContent({
               taxConfig={taxConfig}
               cuotasInfo={cuotasInfo}
               envioZonas={envioZonas}
+              businessName={businessName}
             />
           </ErrorBoundary>
         </main>
@@ -145,6 +154,7 @@ function HomeContent({
           open={cartOpen}
           onClose={closeCart}
           whatsappNumber={whatsappNumber}
+          businessName={businessName}
           paymentMethods={paymentMethods}
           envioZonas={envioZonas}
         />

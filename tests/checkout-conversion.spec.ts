@@ -225,7 +225,7 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
 
     const card = page.locator("article").first();
     await expect(card.getByText(/3 cuotas de/)).toBeVisible();
-    await expect(card.getByText(/Envío (gratis a|desde)/)).toBeVisible();
+    await expect(card.getByText(/Envío a Envío Mendoza desde/)).toBeVisible();
     await expect(card.getByText(/Retiro gratis/)).toBeVisible();
   });
 
@@ -234,7 +234,7 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
 
     const buyBox = page.getByRole("complementary");
     await expect(buyBox.getByText(/3 cuotas de/)).toBeVisible();
-    await expect(buyBox.getByText(/Envío (gratis a|desde)/)).toBeVisible();
+    await expect(buyBox.getByText(/Envío a Envío Mendoza desde/)).toBeVisible();
     await expect(buyBox.getByText(/Retiro gratis/)).toBeVisible();
   });
 
@@ -246,7 +246,7 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
 
     const modal = page.locator(".max-w-lg");
     await expect(modal.getByText(/3 cuotas de/).first()).toBeVisible();
-    await expect(modal.getByText(/Envío (gratis a|desde)/)).toBeVisible();
+    await expect(modal.getByText(/Envío a Envío Mendoza desde/)).toBeVisible();
     await expect(modal.getByText(/Retiro gratis/)).toBeVisible();
   });
 
@@ -299,7 +299,7 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
 
       const card = page.locator("article").first();
       await expect(
-        card.getByText(/Resto del país: consultar monto de envío/)
+        card.getByText(/Envío a Envío Nacional: consultar monto/)
       ).toBeVisible();
 
       await card.getByRole("button", { name: "Comprar" }).click();

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseJsonBody, sanitizeError } from "@/lib/errors";
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
         orden: Math.max(0, Number(data.orden) || 0),
       },
     });
+    revalidatePath("/");
     return NextResponse.json(categoria);
   } catch (error) {
     return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });

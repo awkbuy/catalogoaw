@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseJsonBody } from "@/lib/errors";
@@ -144,6 +145,7 @@ export async function PUT(req: NextRequest) {
         create: { key, value: String(value ?? "") },
       });
     }
+    revalidatePath("/");
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json(

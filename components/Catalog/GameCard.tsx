@@ -43,10 +43,11 @@ interface GameCardProps {
   taxConfig: TaxConfig;
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
+  businessName?: string;
   onViewDetail?: (game: PublicGame) => void;
 }
 
-export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZonas, onViewDetail }: GameCardProps) {
+export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZonas, businessName = "Wolfie Room", onViewDetail }: GameCardProps) {
   const { isLite } = useAdaptive();
   const { addItem, openCart } = useCart();
   const isAvailable = game.estado === "Disponible";
@@ -242,19 +243,21 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
                     ? envio.zonaGratis
                       ? `Envío gratis a ${envio.zonaGratis}`
                       : "Envío gratis"
-                    : `Envío desde ${formatPrice(envio.desde || 0)}`}
+                    : envio.zonaDesde
+                      ? `Envío a ${envio.zonaDesde} desde ${formatPrice(envio.desde || 0)}`
+                      : `Envío desde ${formatPrice(envio.desde || 0)}`}
                   {!envio.gratis && envio.freeFrom
                     ? ` · gratis desde ${formatPrice(envio.freeFrom)}`
                     : ""}
                 </p>
-                {envio.hayConsultar && (
-                  <p className="text-xs font-medium text-green-700">
-                    Resto del país: consultar monto de envío
+                {envio.zonasConsultar?.map((nombre) => (
+                  <p key={nombre} className="text-xs font-medium text-green-700">
+                    Envío a {nombre}: consultar monto
                   </p>
-                )}
+                ))}
                 {hayRetiro && (
                   <p className="text-xs font-medium text-green-700">
-                    Retiro gratis en Wolfie Room
+                    Retiro gratis en {businessName}
                   </p>
                 )}
               </div>

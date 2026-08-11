@@ -21,9 +21,10 @@ interface ProductDetailModalProps {
   taxConfig: TaxConfig;
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
+  businessName?: string;
 }
 
-export default function ProductDetailModal({ game, open, onClose, taxConfig, cuotasInfo, envioZonas }: ProductDetailModalProps) {
+export default function ProductDetailModal({ game, open, onClose, taxConfig, cuotasInfo, envioZonas, businessName }: ProductDetailModalProps) {
   const { isLite } = useAdaptive();
   const { addItem, showCartToast } = useCart();
   const [cantidad, setCantidad] = useState(1);
@@ -108,6 +109,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig, cuo
                 onCantidadChange={setCantidad}
                 cuotasInfo={cuotasInfo}
                 envioZonas={envioZonas}
+                businessName={businessName}
               />
             </div>
 

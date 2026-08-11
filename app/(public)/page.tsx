@@ -46,6 +46,8 @@ export default async function Home() {
   const whatsappNumber = rawSettings.whatsapp || rawSettings.telefono || "";
   const businessName = rawSettings.nombreNegocio || "Wolfie Room";
   const logoUrl = rawSettings.logoUrl || null;
+  const direccion = rawSettings.direccion || "";
+  const ciudad = rawSettings.ciudad || "";
   const taxConfig = parseTaxConfig(rawSettings);
   const cuotasInfo = getCuotasInfo(rawSettings);
 
@@ -88,6 +90,8 @@ export default async function Home() {
         paymentMethods={publicPaymentMethods}
         cuotasInfo={cuotasInfo}
         envioZonas={publicShippingZones}
+        direccion={direccion}
+        ciudad={ciudad}
       />
     </>
   );

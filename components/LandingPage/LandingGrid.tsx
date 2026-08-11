@@ -17,6 +17,7 @@ interface LandingGridProps {
   taxConfig: TaxConfig;
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
+  businessName?: string;
 }
 
 export default function LandingGrid({
@@ -25,6 +26,7 @@ export default function LandingGrid({
   taxConfig,
   cuotasInfo,
   envioZonas,
+  businessName,
 }: LandingGridProps) {
   const { isLite } = useAdaptive();
   const [selectedGame, setSelectedGame] = useState<PublicGame | null>(null);
@@ -104,6 +106,7 @@ export default function LandingGrid({
                 taxConfig={taxConfig}
                 cuotasInfo={cuotasInfo}
                 envioZonas={envioZonas}
+                businessName={businessName}
                 onViewDetail={openDetail}
               />
             ))}
@@ -139,6 +142,7 @@ export default function LandingGrid({
         taxConfig={taxConfig}
         cuotasInfo={cuotasInfo}
         envioZonas={envioZonas}
+        businessName={businessName}
       />
     </section>
   );

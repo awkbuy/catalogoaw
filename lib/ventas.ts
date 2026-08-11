@@ -41,7 +41,8 @@ export interface EnvioResultado {
   desde?: number;
   freeFrom?: number;
   zonaGratis?: string;
-  hayConsultar?: boolean;
+  zonaDesde?: string;
+  zonasConsultar?: string[];
 }
 
 export function getCuotasInfo(raw: Record<string, string>): CuotasInfo {
@@ -63,24 +64,34 @@ export function resolverEnvio(opts: {
   if (activas.length === 0) return null;
 
   const conTarifa = activas.filter((z) => !z.consultar);
-  const hayConsultar = activas.some((z) => z.consultar);
+  const zonasConsultar = activas.filter((z) => z.consultar).map((z) => z.name);
   const conCosto = conTarifa.filter((z) => z.cost > 0);
-  const zonaGratis = conTarifa.find((z) => z.freeFrom > 0)?.name;
 
-  if (envioGratisDelJuego) return { gratis: true, zonaGratis, hayConsultar };
-
-  if (conCosto.length === 0) return { gratis: true, zonaGratis, hayConsultar };
-
-  if (conTarifa.some((z) => z.freeFrom > 0 && precio >= z.freeFrom)) {
-    return { gratis: true, zonaGratis, hayConsultar };
+  if (envioGratisDelJuego) {
+    return { gratis: true, zonaGratis: conTarifa[0]?.name, zonasConsultar };
   }
 
-  const desde = Math.min(...conCosto.map((z) => z.cost));
+  const zonaUmbral = conTarifa.find((z) => z.freeFrom > 0 && precio >= z.freeFrom);
+  if (zonaUmbral) {
+    return { gratis: true, zonaGratis: zonaUmbral.name, zonasConsultar };
+  }
+
+  if (conCosto.length === 0) {
+    return { gratis: true, zonaGratis: conTarifa[0]?.name, zonasConsultar };
+  }
+
+  const masBarata = [...conCosto].sort((a, b) => a.cost - b.cost)[0];
   const freeFrom = conTarifa
     .filter((z) => z.freeFrom > 0)
     .sort((a, b) => a.freeFrom - b.freeFrom)[0]?.freeFrom;
 
-  return { gratis: false, desde, freeFrom, hayConsultar };
+  return {
+    gratis: false,
+    desde: masBarata.cost,
+    zonaDesde: masBarata.name,
+    freeFrom,
+    zonasConsultar,
+  };
 }
 
 export interface CalculoEnvioCarrito {

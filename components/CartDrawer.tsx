@@ -35,6 +35,7 @@ interface CartDrawerProps {
   whatsappNumber: string;
   paymentMethods: PublicPaymentMethod[];
   envioZonas?: PublicShippingZone[];
+  businessName?: string;
 }
 
 const deliveryOptions = [
@@ -75,6 +76,7 @@ export default function CartDrawer({
   whatsappNumber,
   paymentMethods,
   envioZonas = [],
+  businessName = "Wolfie Room",
 }: CartDrawerProps) {
   const { start, done } = useProgress();
   const { isLite } = useAdaptive();
@@ -642,7 +644,7 @@ export default function CartDrawer({
                               </p>
                               {zonasActivas.length === 0 ? (
                                 <p className="text-xs text-[#6B7280]">
-                                  No hay zonas de envío configuradas. Podés retirar tu pedido en Wolfie Room.
+                                  No hay zonas de envío configuradas. Podés retirar tu pedido en {businessName}.
                                 </p>
                               ) : (
                                 <div className="space-y-2">

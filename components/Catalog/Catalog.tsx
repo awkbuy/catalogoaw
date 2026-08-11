@@ -56,9 +56,10 @@ interface CatalogProps {
   taxConfig: TaxConfig;
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
+  businessName?: string;
 }
 
-export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, envioZonas }: CatalogProps) {
+export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, envioZonas, businessName }: CatalogProps) {
   const { isLite } = useAdaptive();
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("Todos");
@@ -265,6 +266,7 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
                   taxConfig={taxConfig}
                   cuotasInfo={cuotasInfo}
                   envioZonas={envioZonas}
+                  businessName={businessName}
                   onViewDetail={openDetail}
                 />
               ))}
@@ -280,6 +282,7 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
         taxConfig={taxConfig}
         cuotasInfo={cuotasInfo}
         envioZonas={envioZonas}
+        businessName={businessName}
       />
     </section>
   );

@@ -31,9 +31,11 @@ interface NavbarProps {
   onCartClick?: () => void;
   onCartClose?: () => void;
   hideMobileDock?: boolean;
+  direccion?: string;
+  ciudad?: string;
 }
 
-export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios, onCartClick, onCartClose, hideMobileDock = false }: NavbarProps) {
+export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios, onCartClick, onCartClose, hideMobileDock = false, direccion = "", ciudad = "" }: NavbarProps) {
   const { isLite } = useAdaptive();
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
@@ -234,6 +236,8 @@ export default function Navbar({ whatsappNumber, businessName, logoUrl, horarios
         horarios={horarios}
         whatsappNumber={whatsappNumber}
         businessName={businessName}
+        direccion={direccion}
+        ciudad={ciudad}
       />
     </>
   );

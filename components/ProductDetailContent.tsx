@@ -21,6 +21,7 @@ interface ProductDetailContentProps {
   onCantidadChange: (n: number) => void;
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
+  businessName?: string;
 }
 
 export default function ProductDetailContent({
@@ -31,6 +32,7 @@ export default function ProductDetailContent({
   onCantidadChange,
   cuotasInfo,
   envioZonas,
+  businessName = "Wolfie Room",
 }: ProductDetailContentProps) {
   const precioNum = parsePrice(game.precioFinalVenta);
   const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
@@ -94,20 +96,22 @@ export default function ProductDetailContent({
                   </p>
                 ) : (
                   <p className="text-sm font-semibold text-green-600">
-                    Envío desde {formatPrice(envio.desde || 0)}
+                    {envio.zonaDesde
+                      ? `Envío a ${envio.zonaDesde} desde ${formatPrice(envio.desde || 0)}`
+                      : `Envío desde ${formatPrice(envio.desde || 0)}`}
                     {envio.freeFrom
                       ? ` · gratis desde ${formatPrice(envio.freeFrom)}`
                       : ""}
                   </p>
                 )}
-                {envio.hayConsultar && (
-                  <p className="text-xs font-medium text-green-700">
-                    Resto del país: consultar monto de envío
+                {envio.zonasConsultar?.map((nombre) => (
+                  <p key={nombre} className="text-xs font-medium text-green-700">
+                    Envío a {nombre}: consultar monto
                   </p>
-                )}
+                ))}
                 {hayRetiro && (
                   <p className="text-xs font-medium text-green-700">
-                    Retiro gratis en Wolfie Room
+                    Retiro gratis en {businessName}
                   </p>
                 )}
               </div>

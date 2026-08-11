@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseJsonBody, sanitizeError, isPrismaNotFound } from "@/lib/errors";
@@ -36,6 +37,7 @@ export async function PUT(
         promocional: data.promocional === true,
       },
     });
+    revalidatePath("/");
     return NextResponse.json(item);
   } catch (error) {
     if (isPrismaNotFound(error)) {
@@ -59,6 +61,7 @@ export async function DELETE(
 
   try {
     await prisma.paymentMethod.delete({ where: { id } });
+    revalidatePath("/");
     return NextResponse.json({ ok: true });
   } catch (error) {
     if (isPrismaNotFound(error)) {

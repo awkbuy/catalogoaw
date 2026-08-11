@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sanitizeError } from "@/lib/errors";
@@ -23,6 +24,7 @@ export async function POST(req: NextRequest) {
         })
       )
     );
+    revalidatePath("/");
     return NextResponse.json({ ok: true });
   } catch (error) {
     return NextResponse.json(

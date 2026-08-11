@@ -31,6 +31,8 @@ interface LandingPageProps {
   paymentMethods: PublicPaymentMethod[];
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
+  direccion?: string;
+  ciudad?: string;
 }
 
 export default function LandingPage({
@@ -50,6 +52,8 @@ export default function LandingPage({
   paymentMethods,
   cuotasInfo,
   envioZonas,
+  direccion,
+  ciudad,
 }: LandingPageProps) {
   return (
     <CartProvider>
@@ -70,6 +74,8 @@ export default function LandingPage({
         paymentMethods={paymentMethods}
         cuotasInfo={cuotasInfo}
         envioZonas={envioZonas}
+        direccion={direccion}
+        ciudad={ciudad}
       />
     </CartProvider>
   );
@@ -92,6 +98,8 @@ function LandingContent({
   paymentMethods,
   cuotasInfo,
   envioZonas,
+  direccion = "",
+  ciudad = "",
 }: LandingPageProps) {
   const { cartOpen, openCart, closeCart } = useCart();
 
@@ -117,6 +125,8 @@ function LandingContent({
         horarios={horarios}
         onCartClick={openCart}
         onCartClose={closeCart}
+        direccion={direccion}
+        ciudad={ciudad}
       />
       <div className="pb-20 md:pb-0">
         <ErrorBoundary sectionName="LandingHero" fallback={<div />}>
@@ -137,6 +147,7 @@ function LandingContent({
               taxConfig={taxConfig}
               cuotasInfo={cuotasInfo}
               envioZonas={envioZonas}
+              businessName={businessName}
             />
           </ErrorBoundary>
         </main>
@@ -146,6 +157,7 @@ function LandingContent({
           open={cartOpen}
           onClose={closeCart}
           whatsappNumber={whatsappNumber}
+          businessName={businessName}
           paymentMethods={paymentMethods}
           envioZonas={envioZonas}
         />

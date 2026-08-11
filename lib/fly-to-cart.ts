@@ -86,7 +86,7 @@ export function flyToCart({ image, from, onComplete, size = 56 }: FlyToCartOptio
       opacity: [1, 1, 0.95],
     },
     {
-      duration: 0.6,
+      duration: 0.85,
       ease: [0.32, 0.72, 0, 1],
       onComplete: () => {
         overlay.remove();
