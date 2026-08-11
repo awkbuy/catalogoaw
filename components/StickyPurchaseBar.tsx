@@ -2,18 +2,62 @@
 
 import { ShoppingCart, Zap } from "lucide-react";
 import { parsePrice, formatPrice } from "@/lib/format";
+import { useCart } from "@/lib/cart-context";
+import { trackMarketingEvent } from "@/lib/marketing";
+import { flyToCart } from "@/lib/fly-to-cart";
 import type { ProductDetailGame } from "./ProductDetailMain";
 
 interface StickyPurchaseBarProps {
   game: ProductDetailGame;
   cantidad: number;
-  onBuy: () => void;
-  onAdded: () => void;
 }
 
-export default function StickyPurchaseBar({ game, cantidad, onBuy, onAdded }: StickyPurchaseBarProps) {
+export default function StickyPurchaseBar({ game, cantidad }: StickyPurchaseBarProps) {
+  const { addItem, openCart, showCartToast } = useCart();
   const precioNum = parsePrice(game.precioFinalVenta);
   const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
+
+  const addItems = () => {
+    for (let i = 0; i < cantidad; i++) {
+      addItem({
+        gameId: game.id,
+        nombre: game.nombre,
+        precio: game.precioFinalVenta,
+        precioNum,
+        imagen: game.imagen,
+      });
+    }
+    trackMarketingEvent({
+      event: "AddToCart",
+      data: {
+        content_ids: [game.id],
+        content_name: game.nombre,
+        content_category: game.categoria.nombre,
+        value: precioFinal,
+        currency: "ARS",
+        quantity: cantidad,
+        source: "game_detail_sticky",
+      },
+    });
+  };
+
+  const handleAgregar = (e: React.MouseEvent<HTMLButtonElement>) => {
+    addItems();
+    flyToCart({
+      image: game.imagen,
+      from: e.currentTarget,
+      onComplete: showCartToast,
+    });
+  };
+
+  const handleComprar = (e: React.MouseEvent<HTMLButtonElement>) => {
+    addItems();
+    flyToCart({
+      image: game.imagen,
+      from: e.currentTarget,
+      onComplete: openCart,
+    });
+  };
 
   return (
     <div
@@ -28,14 +72,14 @@ export default function StickyPurchaseBar({ game, cantidad, onBuy, onAdded }: St
           <p className="text-lg font-bold text-[#1F2937]">{formatPrice(precioFinal * cantidad)}</p>
         </div>
         <button
-          onClick={onAdded}
+          onClick={handleAgregar}
           className="inline-flex items-center justify-center gap-1.5 rounded-xl border-2 border-[#31D3A9] bg-white px-3 py-2.5 text-xs font-bold text-[#0B3B30] active:scale-[0.98]"
         >
           <ShoppingCart size={16} />
           Agregar
         </button>
         <button
-          onClick={onBuy}
+          onClick={handleComprar}
           className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#31D3A9] px-4 py-2.5 text-xs font-bold text-[#0B3B30] shadow-md shadow-[#31D3A9]/20 active:scale-[0.98]"
         >
           <Zap size={16} />

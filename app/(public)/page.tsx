@@ -10,18 +10,9 @@ import {
   faqJsonLd,
 } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const { categoria, q } = await searchParams;
-  const initialCategoria =
-    typeof categoria === "string" ? categoria : undefined;
-  const initialQuery = typeof q === "string" ? q : undefined;
-
+export default async function Home() {
   const [games, categories, paymentMethods, settings] = await Promise.all([
     prisma.game.findMany({
       include: {
@@ -80,8 +71,6 @@ export default async function Home({
         horarios={parsearHorarios(rawSettings.horarios_semana)}
         taxConfig={taxConfig}
         paymentMethods={publicPaymentMethods}
-        initialCategoria={initialCategoria}
-        initialQuery={initialQuery}
       />
     </>
   );

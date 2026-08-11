@@ -130,7 +130,6 @@ export default function ProductDetailPage({
                       cantidad={cantidad}
                       onCantidadChange={setCantidad}
                       onBuy={openCart}
-                      onAdded={() => {}}
                     />
                   </div>
                 )}
@@ -150,7 +149,6 @@ export default function ProductDetailPage({
                   cantidad={cantidad}
                   onCantidadChange={setCantidad}
                   onBuy={openCart}
-                  onAdded={() => {}}
                 />
               </div>
             </aside>
@@ -159,12 +157,7 @@ export default function ProductDetailPage({
       </main>
 
       {esComprable && showSticky && (
-        <StickyPurchaseBar
-          game={game}
-          cantidad={cantidad}
-          onBuy={openCart}
-          onAdded={() => {}}
-        />
+        <StickyPurchaseBar game={game} cantidad={cantidad} />
       )}
 
       <CartDrawer

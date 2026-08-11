@@ -1,6 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, useEffect, type ReactNode } from "react";
+import { AnimatePresence } from "framer-motion";
+import { Check } from "lucide-react";
+import { Motion } from "@/components/motion-wrapper";
 import { trackMarketingEvent } from "@/lib/marketing";
 
 export interface CartItem {
@@ -38,6 +41,9 @@ interface CartContextType {
   cartOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
+  cartToastVisible: boolean;
+  showCartToast: () => void;
+  hideCartToast: () => void;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -49,6 +55,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const openCart = useCallback(() => setCartOpen(true), []);
   const closeCart = useCallback(() => setCartOpen(false), []);
+
+  const [cartToastVisible, setCartToastVisible] = useState(false);
+  const hideCartToast = useCallback(() => setCartToastVisible(false), []);
+  const showCartToast = useCallback(() => setCartToastVisible(true), []);
+
+  useEffect(() => {
+    if (!cartToastVisible) return;
+    const t = setTimeout(hideCartToast, 4000);
+    return () => clearTimeout(t);
+  }, [cartToastVisible, hideCartToast]);
 
   const addItem = useCallback((item: Omit<CartItem, "cantidad" | "observacion">) => {
     setItems((prev) => {
@@ -136,9 +152,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
         cartOpen,
         openCart,
         closeCart,
+        cartToastVisible,
+        showCartToast,
+        hideCartToast,
       }}
     >
       {children}
+      <AnimatePresence>
+        {cartToastVisible && (
+          <Motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.25 }}
+            className="fixed bottom-24 right-4 z-[70]"
+          >
+            <button
+              onClick={() => {
+                hideCartToast();
+                openCart();
+              }}
+              aria-label="Ver carrito"
+              className="flex items-center gap-2.5 rounded-2xl border border-[#31D3A9]/40 bg-white py-3 pl-4 pr-5 shadow-2xl shadow-black/10 transition-transform active:scale-[0.98]"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#31D3A9]/15">
+                <Check size={14} className="text-[#31D3A9]" />
+              </span>
+              <span className="text-sm font-semibold text-[#1F2937]">Agregado al carrito</span>
+              <span className="text-sm font-bold text-[#31D3A9]">Ver carrito →</span>
+            </button>
+          </Motion.div>
+        )}
+      </AnimatePresence>
     </CartContext.Provider>
   );
 }

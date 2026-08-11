@@ -11,6 +11,7 @@ import { parsePrice } from "@/lib/format";
 import type { TaxConfig } from "@/lib/tax";
 import ProductDetailContent, { type ProductDetailGame } from "@/components/ProductDetailContent";
 import ShareButton from "@/components/ShareButton";
+import { flyToCart } from "@/lib/fly-to-cart";
 
 interface ProductDetailModalProps {
   game: ProductDetailGame | null;
@@ -21,14 +22,14 @@ interface ProductDetailModalProps {
 
 export default function ProductDetailModal({ game, open, onClose, taxConfig }: ProductDetailModalProps) {
   const { isLite } = useAdaptive();
-  const { addItem, openCart } = useCart();
+  const { addItem, showCartToast } = useCart();
   const [cantidad, setCantidad] = useState(1);
 
   if (!game) return null;
 
   const comprable = game.disponibleVenta && !!game.precioFinalVenta;
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!game) return;
     const precioNum = parsePrice(game.precioFinalVenta);
     const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
@@ -54,8 +55,14 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
       },
     });
     setCantidad(1);
-    onClose();
-    openCart();
+    flyToCart({
+      image: game.imagen,
+      from: e.currentTarget,
+      onComplete: () => {
+        onClose();
+        showCartToast();
+      },
+    });
   };
 
   return (

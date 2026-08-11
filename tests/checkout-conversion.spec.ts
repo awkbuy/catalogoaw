@@ -58,6 +58,23 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
     await expect(page.getByRole("button", { name: /Agregar al carrito/ })).toBeInViewport();
   });
 
+  test("modal: Agregar al carrito cierra el modal, no abre el checkout y muestra Ver carrito", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    await page.getByRole("button", { name: "Ver detalle" }).first().click();
+    await page.getByRole("button", { name: /Agregar al carrito/ }).click();
+
+    await expect(page.getByRole("heading", { name: "Detalle del producto" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Carrito" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /Ver carrito/ })).toBeVisible();
+
+    await page.getByRole("button", { name: /Ver carrito/ }).click();
+    await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
+    await expect(page.getByText("(1 producto)")).toBeVisible();
+  });
+
   test("el carrito mantiene Subtotal y Pedir por WhatsApp fijos abajo al scrollear", async ({
     page,
   }) => {
@@ -80,6 +97,27 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
 
     await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
     await expect(page.getByText("(1 producto)")).toBeVisible();
+  });
+
+  test("móvil: la barra sticky agrega con Agregar y abre el carrito con Comprar", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/juegos/catan");
+
+    await page.evaluate(() => window.scrollBy(0, 1200));
+
+    const stickyAgregar = page.getByRole("button", { name: "Agregar" }).first();
+    await expect(stickyAgregar).toBeInViewport();
+    await stickyAgregar.click();
+
+    await expect(page.getByRole("button", { name: /Ver carrito/ })).toBeVisible();
+
+    const stickyComprar = page.getByRole("button", { name: "Comprar" }).last();
+    await stickyComprar.click();
+
+    await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
+    await expect(page.getByText("(2 productos)")).toBeVisible();
   });
 
   test("móvil: buy box arriba del pliegue y barra sticky al scrollear", async ({ page }) => {

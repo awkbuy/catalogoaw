@@ -5,6 +5,7 @@ import { CartProvider, useCart } from "@/lib/cart-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Navbar from "@/components/Navbar/Navbar";
 import HeroCategories from "@/components/HeroCategories/HeroCategories";
+import AdCtaBanner from "@/components/AdCtaBanner";
 import Catalog from "@/components/Catalog/Catalog";
 import CartDrawer from "@/components/CartDrawer";
 import { trackMarketingEvent } from "@/lib/marketing";
@@ -54,8 +55,6 @@ export default function HomeClient(props: {
   horarios: DiaHorario[];
   taxConfig: TaxConfig;
   paymentMethods: PublicPaymentMethod[];
-  initialCategoria?: string;
-  initialQuery?: string;
 }) {
   return (
     <CartProvider>
@@ -73,8 +72,6 @@ function HomeContent({
   horarios,
   taxConfig,
   paymentMethods,
-  initialCategoria,
-  initialQuery,
 }: {
   games: PublicGame[];
   categories: Category[];
@@ -84,10 +81,16 @@ function HomeContent({
   horarios: DiaHorario[];
   taxConfig: TaxConfig;
   paymentMethods: PublicPaymentMethod[];
-  initialCategoria?: string;
-  initialQuery?: string;
 }) {
   const { cartOpen, openCart, closeCart } = useCart();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("categoria");
+    const q = params.get("q");
+    if (cat) window.dispatchEvent(new CustomEvent("categoryChange", { detail: cat }));
+    if (q) window.dispatchEvent(new CustomEvent("queryChange", { detail: q }));
+  }, []);
 
   const pageViewSentRef = useRef(false);
   useEffect(() => {
@@ -112,7 +115,8 @@ function HomeContent({
         onCartClick={openCart}
         onCartClose={closeCart}
       />
-      <div className="pb-20 md:pb-0">
+      <div className="pb-24 md:pb-0">
+        <AdCtaBanner />
         <ErrorBoundary sectionName="HeroCategories" fallback={<div />}>
           <HeroCategories categories={categories} logoUrl={logoUrl} />
         </ErrorBoundary>
@@ -123,8 +127,6 @@ function HomeContent({
               whatsappNumber={whatsappNumber}
               taxConfig={taxConfig}
               paymentMethods={paymentMethods}
-              initialCategoria={initialCategoria}
-              initialQuery={initialQuery}
             />
           </ErrorBoundary>
         </main>

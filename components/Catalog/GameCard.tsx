@@ -8,6 +8,7 @@ import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
 import { useCart } from "@/lib/cart-context";
 import { trackMarketingEvent } from "@/lib/marketing";
+import { flyToCart } from "@/lib/fly-to-cart";
 import { parsePrice, formatPrice } from "@/lib/format";
 import PaymentMethodIcon from "@/components/PaymentMethodIcon";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
@@ -87,7 +88,11 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
         source: "catalog_quick_add",
       },
     });
-    openCart();
+    flyToCart({
+      image: game.imagen,
+      from: e.currentTarget as HTMLElement,
+      onComplete: openCart,
+    });
   };
 
   const tags: string[] = [];
@@ -117,6 +122,8 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
             alt={game.nombre}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            loading={index === 0 ? "eager" : "lazy"}
+            fetchPriority={index === 0 ? "high" : "auto"}
             className="absolute inset-0"
             imgClassName="object-cover"
           />
@@ -166,36 +173,13 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="mb-1 text-lg font-bold text-text">{game.nombre}</h3>
+        <h3 className="mb-1 truncate text-lg font-bold text-text">{game.nombre}</h3>
 
         {game.descripcion && (
           <p className="mb-3 line-clamp-2 text-sm text-text-secondary">
             {game.descripcion}
           </p>
         )}
-
-        {(() => {
-          const extra =
-            game.categorias && game.categorias.length > 0
-              ? game.categorias.filter((c) => c.nombre !== game.categoria.nombre)
-              : [];
-          if (extra.length === 0) return null;
-          return (
-            <div className="mb-4 flex flex-wrap gap-1.5">
-              {extra.map((c) => (
-                <span
-                  key={c.nombre}
-                  className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-text-secondary"
-                >
-                  {c.icono && !c.icono.startsWith("/") && !c.icono.startsWith("http")
-                    ? `${c.icono} `
-                    : ""}
-                  {c.nombre}
-                </span>
-              ))}
-            </div>
-          );
-        })()}
 
         {tags.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-1.5">
@@ -213,25 +197,19 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
           </div>
         )}
 
-        <div className="mb-5 mt-auto grid grid-cols-3 gap-2">
-          <div className="flex flex-col items-center gap-1 rounded-xl bg-background p-2">
+        <div className="mb-5 mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-secondary">
+          <span className="inline-flex items-center gap-1.5">
             <Users size={14} className="text-primary" />
-            <span className="text-xs font-medium text-text-secondary">
-              {game.jugadoresMin}-{game.jugadoresMax}
-            </span>
-          </div>
-          <div className="flex flex-col items-center gap-1 rounded-xl bg-background p-2">
+            {game.jugadoresMin}-{game.jugadoresMax} jug.
+          </span>
+          <span className="inline-flex items-center gap-1.5">
             <Clock size={14} className="text-primary" />
-            <span className="text-xs font-medium text-text-secondary">
-              {game.duracion}
-            </span>
-          </div>
-          <div className="flex flex-col items-center gap-1 rounded-xl bg-background p-2">
+            {game.duracion}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
             <Baby size={14} className="text-primary" />
-            <span className="text-xs font-medium text-text-secondary">
-              {game.edad}
-            </span>
-          </div>
+            {game.edad}
+          </span>
         </div>
 
         {game.disponibleVenta && (
@@ -239,7 +217,7 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
             <div className="flex items-baseline gap-2">
               {hasDescuento ? (
                 <>
-                  <span className="text-lg font-bold text-red-500">
+                  <span className="text-2xl font-bold text-red-500">
                     {formatPrice(precioDescuento)}
                   </span>
                   <span className="text-sm text-text-secondary line-through">
@@ -247,7 +225,7 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
                   </span>
                 </>
               ) : (
-                <span className="text-lg font-bold text-text">
+                <span className="text-2xl font-bold text-text">
                   {formatPrice(precioNum)}
                 </span>
               )}

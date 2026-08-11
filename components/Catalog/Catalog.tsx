@@ -54,14 +54,12 @@ interface CatalogProps {
   whatsappNumber: string;
   taxConfig: TaxConfig;
   paymentMethods: PublicPaymentMethod[];
-  initialCategoria?: string;
-  initialQuery?: string;
 }
 
-export default function Catalog({ games, whatsappNumber, taxConfig, paymentMethods, initialCategoria, initialQuery }: CatalogProps) {
+export default function Catalog({ games, whatsappNumber, taxConfig, paymentMethods }: CatalogProps) {
   const { isLite } = useAdaptive();
-  const [query, setQuery] = useState(initialQuery ?? "");
-  const [activeCategory, setActiveCategory] = useState(initialCategoria ?? "Todos");
+  const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("Todos");
   const [selectedGame, setSelectedGame] = useState<PublicGame | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const catalogRef = useRef<HTMLElement>(null);
@@ -71,8 +69,16 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
       const detail = (e as CustomEvent<string>).detail;
       setActiveCategory(detail || "Todos");
     };
+    const handleQueryChange = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      setQuery(detail || "");
+    };
     window.addEventListener("categoryChange", handleCategoryChange);
-    return () => window.removeEventListener("categoryChange", handleCategoryChange);
+    window.addEventListener("queryChange", handleQueryChange);
+    return () => {
+      window.removeEventListener("categoryChange", handleCategoryChange);
+      window.removeEventListener("queryChange", handleQueryChange);
+    };
   }, []);
 
   const categories = useMemo(() => {

@@ -13,7 +13,7 @@ import {
 import PaymentMethodIcon from "@/components/PaymentMethodIcon";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
 import { calcularCuotas, type CuotasInfo } from "@/lib/ventas";
-import { sileo } from "sileo";
+import { flyToCart } from "@/lib/fly-to-cart";
 import type { ProductDetailGame } from "./ProductDetailMain";
 
 interface PurchasePanelProps {
@@ -26,7 +26,6 @@ interface PurchasePanelProps {
   cantidad: number;
   onCantidadChange: (n: number) => void;
   onBuy: () => void;
-  onAdded: () => void;
 }
 
 export default function PurchasePanel({
@@ -39,9 +38,8 @@ export default function PurchasePanel({
   cantidad,
   onCantidadChange,
   onBuy,
-  onAdded,
 }: PurchasePanelProps) {
-  const { addItem } = useCart();
+  const { addItem, showCartToast } = useCart();
 
   const precioNum = parsePrice(game.precioFinalVenta);
   const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
@@ -79,15 +77,22 @@ export default function PurchasePanel({
     onCantidadChange(1);
   };
 
-  const handleBuy = () => {
+  const handleBuy = (e: React.MouseEvent<HTMLButtonElement>) => {
     addItems();
-    onBuy();
+    flyToCart({
+      image: game.imagen,
+      from: e.currentTarget,
+      onComplete: onBuy,
+    });
   };
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
     addItems();
-    sileo.success({ title: "Agregado al carrito" });
-    onAdded();
+    flyToCart({
+      image: game.imagen,
+      from: e.currentTarget,
+      onComplete: showCartToast,
+    });
   };
 
   return (

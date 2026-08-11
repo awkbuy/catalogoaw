@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { ShoppingCart, Home, Info } from "lucide-react";
 import ImageWithProgress from "@/components/ImageWithProgress";
 import { useCart } from "@/lib/cart-context";
@@ -242,8 +243,14 @@ function CartBadge() {
   const { itemCount } = useCart();
   if (itemCount === 0) return null;
   return (
-    <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full bg-secondary text-white text-[9px] font-bold leading-none">
+    <motion.span
+      key={itemCount}
+      initial={{ scale: 0.4 }}
+      animate={{ scale: 1 }}
+      transition={{ type: "spring", stiffness: 500, damping: 15 }}
+      className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full bg-secondary text-white text-[9px] font-bold leading-none"
+    >
       {itemCount > 9 ? "9+" : itemCount}
-    </span>
+    </motion.span>
   );
 }
