@@ -65,6 +65,14 @@ export interface TrackViewCartParams {
   source?: string;
 }
 
+export interface TrackAddPaymentInfoParams {
+  total: number;
+  itemsCount: number;
+  gameId?: string;
+  gameName?: string;
+  source?: string;
+}
+
 export interface TrackShareParams {
   gameId?: string;
   gameName?: string;
@@ -277,6 +285,16 @@ export function trackBeginCheckout(params: TrackBeginCheckoutParams): void {
 export function trackViewCart(params: TrackViewCartParams): void {
   send({
     eventType: "view_cart",
+    source: params.source,
+  });
+}
+
+export function trackAddPaymentInfo(params: TrackAddPaymentInfoParams): void {
+  send({
+    eventType: "add_payment_info",
+    gameId: params.gameId,
+    gameName: params.gameName,
+    price: params.total,
     source: params.source,
   });
 }

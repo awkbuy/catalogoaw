@@ -9,6 +9,7 @@ import { trackMarketingEvent } from "@/lib/marketing";
 import type { DiaHorario } from "@/lib/horarios";
 import type { TaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
+import type { CuotasInfo, PublicShippingZone } from "@/lib/ventas";
 import LandingHero from "./LandingHero";
 import LandingGrid from "./LandingGrid";
 import type { PublicGame } from "@/components/Catalog/Catalog";
@@ -28,6 +29,8 @@ interface LandingPageProps {
   horarios: DiaHorario[];
   taxConfig: TaxConfig;
   paymentMethods: PublicPaymentMethod[];
+  cuotasInfo: CuotasInfo;
+  envioZonas: PublicShippingZone[];
 }
 
 export default function LandingPage({
@@ -45,6 +48,8 @@ export default function LandingPage({
   horarios,
   taxConfig,
   paymentMethods,
+  cuotasInfo,
+  envioZonas,
 }: LandingPageProps) {
   return (
     <CartProvider>
@@ -63,6 +68,8 @@ export default function LandingPage({
         horarios={horarios}
         taxConfig={taxConfig}
         paymentMethods={paymentMethods}
+        cuotasInfo={cuotasInfo}
+        envioZonas={envioZonas}
       />
     </CartProvider>
   );
@@ -83,6 +90,8 @@ function LandingContent({
   horarios,
   taxConfig,
   paymentMethods,
+  cuotasInfo,
+  envioZonas,
 }: LandingPageProps) {
   const { cartOpen, openCart, closeCart } = useCart();
 
@@ -126,7 +135,8 @@ function LandingContent({
               games={games}
               whatsappNumber={whatsappNumber}
               taxConfig={taxConfig}
-              paymentMethods={paymentMethods}
+              cuotasInfo={cuotasInfo}
+              envioZonas={envioZonas}
             />
           </ErrorBoundary>
         </main>
@@ -137,6 +147,7 @@ function LandingContent({
           onClose={closeCart}
           whatsappNumber={whatsappNumber}
           paymentMethods={paymentMethods}
+          envioZonas={envioZonas}
         />
       </ErrorBoundary>
     </>

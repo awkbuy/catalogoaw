@@ -58,7 +58,7 @@ test.describe("Diseño unificado de detalle de producto", () => {
     await page.goto("/");
     await waitForEvent(events, "page_view");
 
-    await page.getByRole("button", { name: "Ver detalle" }).first().click();
+    await page.locator("article").first().click();
 
     await expect(page.getByRole("button", { name: "Compartir" })).toBeVisible();
     await expect(page.getByRole("button", { name: /Agregar al carrito/ })).toBeVisible();

@@ -12,6 +12,7 @@ const ALLOWED_EVENTS = new Set([
   "RemoveFromCart",
   "ViewCart",
   "InitiateCheckout",
+  "AddPaymentInfo",
   "ClickWhatsApp",
   "Share",
 ]);

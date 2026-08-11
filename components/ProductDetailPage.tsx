@@ -10,6 +10,7 @@ import { parsePrice } from "@/lib/format";
 import type { TaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
 import type { DiaHorario } from "@/lib/horarios";
+import type { CuotasInfo, PublicShippingZone } from "@/lib/ventas";
 import Navbar from "@/components/Navbar/Navbar";
 import CartDrawer from "@/components/CartDrawer";
 import { useCart } from "@/lib/cart-context";
@@ -22,6 +23,8 @@ interface ProductDetailPageProps {
   horarios: DiaHorario[];
   taxConfig: TaxConfig;
   paymentMethods: PublicPaymentMethod[];
+  cuotasInfo: CuotasInfo;
+  envioZonas: PublicShippingZone[];
 }
 
 export default function ProductDetailPage({
@@ -32,6 +35,8 @@ export default function ProductDetailPage({
   horarios,
   taxConfig,
   paymentMethods,
+  cuotasInfo,
+  envioZonas,
 }: ProductDetailPageProps) {
   const { cartOpen, openCart, closeCart } = useCart();
   const [cantidad, setCantidad] = useState(1);
@@ -127,6 +132,8 @@ export default function ProductDetailPage({
                       source="game_detail"
                       businessName={businessName}
                       paymentMethods={paymentMethods}
+                      cuotasInfo={cuotasInfo}
+                      envioZonas={envioZonas}
                       cantidad={cantidad}
                       onCantidadChange={setCantidad}
                       onBuy={openCart}
@@ -146,6 +153,8 @@ export default function ProductDetailPage({
                   source="game_detail"
                   businessName={businessName}
                   paymentMethods={paymentMethods}
+                  cuotasInfo={cuotasInfo}
+                  envioZonas={envioZonas}
                   cantidad={cantidad}
                   onCantidadChange={setCantidad}
                   onBuy={openCart}
@@ -165,6 +174,7 @@ export default function ProductDetailPage({
         onClose={closeCart}
         whatsappNumber={whatsappNumber}
         paymentMethods={paymentMethods}
+        envioZonas={envioZonas}
       />
     </div>
   );

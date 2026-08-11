@@ -10,6 +10,7 @@ export const ANALYTICS_EVENT_TYPES = [
   "filter",
   "whatsapp_click",
   "begin_checkout",
+  "add_payment_info",
   "share",
 ] as const;
 

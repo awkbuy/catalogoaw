@@ -8,21 +8,23 @@ import GameCard from "@/components/Catalog/GameCard";
 import ProductDetailModal from "@/components/ProductDetailModal";
 import { trackMarketingEvent } from "@/lib/marketing";
 import type { TaxConfig } from "@/lib/tax";
-import type { PublicPaymentMethod } from "@/lib/payment-methods";
 import type { PublicGame } from "@/components/Catalog/Catalog";
+import type { CuotasInfo, PublicShippingZone } from "@/lib/ventas";
 
 interface LandingGridProps {
   games: PublicGame[];
   whatsappNumber: string;
   taxConfig: TaxConfig;
-  paymentMethods: PublicPaymentMethod[];
+  cuotasInfo: CuotasInfo;
+  envioZonas: PublicShippingZone[];
 }
 
 export default function LandingGrid({
   games,
   whatsappNumber,
   taxConfig,
-  paymentMethods,
+  cuotasInfo,
+  envioZonas,
 }: LandingGridProps) {
   const { isLite } = useAdaptive();
   const [selectedGame, setSelectedGame] = useState<PublicGame | null>(null);
@@ -100,7 +102,8 @@ export default function LandingGrid({
                 game={game}
                 index={index}
                 taxConfig={taxConfig}
-                paymentMethods={paymentMethods}
+                cuotasInfo={cuotasInfo}
+                envioZonas={envioZonas}
                 onViewDetail={openDetail}
               />
             ))}
@@ -134,6 +137,8 @@ export default function LandingGrid({
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         taxConfig={taxConfig}
+        cuotasInfo={cuotasInfo}
+        envioZonas={envioZonas}
       />
     </section>
   );

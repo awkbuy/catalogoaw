@@ -28,6 +28,7 @@ interface GameData {
   dificultad: string;
   precioFinalVenta: string;
   descuento: string;
+  envioGratis: boolean;
   imagen: string;
   integrarVideo: boolean;
   videoUrl: string;
@@ -86,6 +87,7 @@ const defaultData: GameData = {
   dificultad: "",
   precioFinalVenta: "",
   descuento: "",
+  envioGratis: false,
   imagen: "",
   integrarVideo: false,
   videoUrl: "",
@@ -522,6 +524,18 @@ export default function GameForm({
                 />
               </div>
             )}
+            <label className="flex items-center gap-3 cursor-pointer mt-4 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] px-4 py-3">
+              <input
+                type="checkbox"
+                name="envioGratis"
+                checked={form.envioGratis}
+                onChange={handleChange}
+                className="w-4 h-4 rounded border-[#E5E7EB] text-[#31D3A9] focus:ring-[#31D3A9]/30"
+              />
+              <span className="text-sm text-[#1F2937]">
+                Envío gratis para este juego
+              </span>
+            </label>
           </div>
 
           <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">

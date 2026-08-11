@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, Clock, Baby, Eye, Zap, BadgePercent } from "lucide-react";
+import { Eye, Zap, Truck } from "lucide-react";
 import Image from "next/image";
 import ImageWithProgress from "@/components/ImageWithProgress";
 import type { PublicGame } from "./Catalog";
@@ -10,23 +10,18 @@ import { useCart } from "@/lib/cart-context";
 import { trackMarketingEvent } from "@/lib/marketing";
 import { flyToCart } from "@/lib/fly-to-cart";
 import { parsePrice, formatPrice } from "@/lib/format";
-import PaymentMethodIcon from "@/components/PaymentMethodIcon";
-import type { PublicPaymentMethod } from "@/lib/payment-methods";
 import {
   LEYENDA_SIN_IMPUESTOS,
   calcularPrecioSinImpuestos,
   formatPrecioConDecimales,
   type TaxConfig,
 } from "@/lib/tax";
+import { calcularCuotas, resolverEnvio, type CuotasInfo, type PublicShippingZone } from "@/lib/ventas";
 
 const tagConfig: Record<string, { label: string; className: string }> = {
   jugar: {
     label: "🟢 Para jugar",
     className: "bg-primary/10 text-primary",
-  },
-  compra: {
-    label: "🛍 Disponible para compra",
-    className: "bg-secondary/10 text-secondary",
   },
   recomendado: {
     label: "⭐ Recomendado",
@@ -46,11 +41,12 @@ interface GameCardProps {
   game: PublicGame;
   index: number;
   taxConfig: TaxConfig;
-  paymentMethods: PublicPaymentMethod[];
+  cuotasInfo: CuotasInfo;
+  envioZonas: PublicShippingZone[];
   onViewDetail?: (game: PublicGame) => void;
 }
 
-export default function GameCard({ game, index, taxConfig, paymentMethods, onViewDetail }: GameCardProps) {
+export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZonas, onViewDetail }: GameCardProps) {
   const { isLite } = useAdaptive();
   const { addItem, openCart } = useCart();
   const isAvailable = game.estado === "Disponible";
@@ -66,6 +62,15 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
   const precioSinImpuestos = mostrarSinImpuestos
     ? formatPrecioConDecimales(calcularPrecioSinImpuestos(precioFinal, taxConfig))
     : "";
+  const cuotas = game.disponibleVenta && cuotasInfo ? calcularCuotas(precioFinal, cuotasInfo) : null;
+  const envio = game.disponibleVenta
+    ? resolverEnvio({
+        precio: precioFinal,
+        envioGratisDelJuego: game.envioGratis,
+        zonas: envioZonas,
+      })
+    : null;
+  const hayRetiro = envioZonas.some((z) => z.active && z.cost === 0);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -75,6 +80,7 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
       precio: formatPrice(hasDescuento ? precioDescuento : precioNum),
       precioNum: hasDescuento ? precioDescuento : precioNum,
       imagen: game.imagen,
+      envioGratis: game.envioGratis,
     });
     trackMarketingEvent({
       event: "AddToCart",
@@ -97,12 +103,9 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
 
   const tags: string[] = [];
   if (game.disponibleMesa) tags.push("jugar");
-  if (game.disponibleVenta) tags.push("compra");
   if (game.destacado) tags.push("recomendado");
   if (game.nuevo) tags.push("novedad");
   if (hasDescuento) tags.push("descuento");
-
-  const promocional = paymentMethods.find((pm) => pm.promocional);
 
   return (
     <Motion.article
@@ -197,39 +200,25 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
           </div>
         )}
 
-        <div className="mb-5 mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-secondary">
-          <span className="inline-flex items-center gap-1.5">
-            <Users size={14} className="text-primary" />
-            {game.jugadoresMin}-{game.jugadoresMax} jug.
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock size={14} className="text-primary" />
-            {game.duracion}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Baby size={14} className="text-primary" />
-            {game.edad}
-          </span>
-        </div>
-
         {game.disponibleVenta && (
-          <div className="mb-3">
-            <div className="flex items-baseline gap-2">
+          <div className="mt-auto mb-4">
+            <div className="flex flex-wrap items-baseline gap-2">
               {hasDescuento ? (
                 <>
-                  <span className="text-2xl font-bold text-red-500">
+                  <span className="text-3xl font-bold text-red-500">
                     {formatPrice(precioDescuento)}
                   </span>
-                  <span className="text-sm text-text-secondary line-through">
+                  <span className="text-base text-text-secondary line-through">
                     {formatPrice(precioNum)}
                   </span>
                 </>
               ) : (
-                <span className="text-2xl font-bold text-text">
+                <span className="text-3xl font-bold text-text">
                   {formatPrice(precioNum)}
                 </span>
               )}
             </div>
+
             {precioSinImpuestos && (
               <div className="mt-1">
                 <p className="text-xs font-medium text-text-secondary">
@@ -238,56 +227,54 @@ export default function GameCard({ game, index, taxConfig, paymentMethods, onVie
                 <p className="text-xs text-text-secondary">{precioSinImpuestos}</p>
               </div>
             )}
-          </div>
-        )}
 
-        {game.disponibleVenta && paymentMethods.length > 0 && (
-          <div className="mb-3 space-y-2 rounded-xl border border-border bg-background p-3">
-            {promocional && (
-              <div className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5">
-                <BadgePercent size={13} className="flex-shrink-0 text-primary" />
-                <p className="text-[11px] font-semibold leading-snug text-primary">
-                  {promocional.titulo}
-                  {promocional.descripcion ? ` — ${promocional.descripcion}` : ""}
+            {cuotas && (
+              <p className="mt-1 text-sm font-semibold text-green-600">
+                {cuotas.cuotas} cuotas de {formatPrice(cuotas.valorCuota)}
+              </p>
+            )}
+
+            {envio && (
+              <div className="mt-1.5 space-y-0.5">
+                <p className="flex items-center gap-1.5 text-sm font-semibold text-green-600">
+                  <Truck size={15} className="flex-shrink-0" />
+                  {envio.gratis
+                    ? "Envío gratis"
+                    : `Envío desde ${formatPrice(envio.desde || 0)}`}
+                  {!envio.gratis && envio.freeFrom
+                    ? ` · gratis desde ${formatPrice(envio.freeFrom)}`
+                    : ""}
                 </p>
+                {hayRetiro && (
+                  <p className="text-xs font-medium text-green-700">
+                    Retiro gratis en Wolfie Room
+                  </p>
+                )}
               </div>
             )}
-            <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-              {paymentMethods.map((pm) => (
-                <span
-                  key={pm.id}
-                  className="inline-flex items-center gap-1.5 text-[11px] font-medium text-text-secondary"
-                  title={pm.descripcion || pm.titulo}
-                >
-                  <PaymentMethodIcon icono={pm.icono} size={16} className="text-primary" />
-                  {pm.titulo}
-                </span>
-              ))}
-            </div>
           </div>
         )}
 
-        <div className="flex gap-2">
+        {game.disponibleVenta ? (
+          <button
+            onClick={handleQuickAdd}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-[#0B3B30] shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Zap size={16} />
+            Comprar
+          </button>
+        ) : (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onViewDetail?.(game);
             }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-text shadow-sm transition-all hover:border-primary/30 hover:shadow-md active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-text shadow-sm transition-all hover:border-primary/30 hover:shadow-md active:scale-[0.98]"
           >
             <Eye size={16} />
             Ver detalle
           </button>
-          {game.disponibleVenta && (
-            <button
-              onClick={handleQuickAdd}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-[#0B3B30] shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <Zap size={16} />
-              Comprar
-            </button>
-          )}
-        </div>
+        )}
       </div>
     </Motion.article>
   );

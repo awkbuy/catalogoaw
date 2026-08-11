@@ -97,6 +97,11 @@ const ALLOWED_SETTINGS_KEYS = [
   "paymentLink",
   "bankTransferAlias",
   "bankTransferCbu",
+  // Ventas (Fase 2)
+  "cuotasHabilitadas",
+  "cuotasMax",
+  "cuotasInteresMensual",
+  "cuotasMinimoPrecio",
 ];
 
 export async function GET() {

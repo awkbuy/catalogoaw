@@ -44,6 +44,7 @@ model Game {
   precioFinalVenta   String   @default("")
   descuento          Int      @default(0)
   precioReservaMesa  String   @default("")
+  envioGratis        Boolean  @default(false)
   imagen             String   @default("")
   integrarVideo      Boolean  @default(false)
   videoUrl           String   @default("")
@@ -115,6 +116,19 @@ model PaymentMethod {
   updatedAt   DateTime @updatedAt
 
   @@index([orden])
+}
+
+model ShippingZone {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  cost      Int      @default(0)
+  freeFrom  Int      @default(0)
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
 }
 
 model AnalyticsEvent {

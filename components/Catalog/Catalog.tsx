@@ -10,7 +10,7 @@ import ProductDetailModal from "@/components/ProductDetailModal";
 import { trackMarketingEvent } from "@/lib/marketing";
 import { parsePrice } from "@/lib/format";
 import type { TaxConfig } from "@/lib/tax";
-import type { PublicPaymentMethod } from "@/lib/payment-methods";
+import type { CuotasInfo, PublicShippingZone } from "@/lib/ventas";
 
 function getTextOnColor(hex: string) {
   const clean = hex.replace("#", "");
@@ -45,6 +45,7 @@ export interface PublicGame {
   nuevo: boolean;
   precioFinalVenta: string;
   descuento: number;
+  envioGratis: boolean;
   disponibleVenta: boolean;
   disponibleMesa: boolean;
 }
@@ -53,10 +54,11 @@ interface CatalogProps {
   games: PublicGame[];
   whatsappNumber: string;
   taxConfig: TaxConfig;
-  paymentMethods: PublicPaymentMethod[];
+  cuotasInfo: CuotasInfo;
+  envioZonas: PublicShippingZone[];
 }
 
-export default function Catalog({ games, whatsappNumber, taxConfig, paymentMethods }: CatalogProps) {
+export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, envioZonas }: CatalogProps) {
   const { isLite } = useAdaptive();
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("Todos");
@@ -261,7 +263,8 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
                   game={game}
                   index={index}
                   taxConfig={taxConfig}
-                  paymentMethods={paymentMethods}
+                  cuotasInfo={cuotasInfo}
+                  envioZonas={envioZonas}
                   onViewDetail={openDetail}
                 />
               ))}
@@ -275,6 +278,8 @@ export default function Catalog({ games, whatsappNumber, taxConfig, paymentMetho
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         taxConfig={taxConfig}
+        cuotasInfo={cuotasInfo}
+        envioZonas={envioZonas}
       />
     </section>
   );

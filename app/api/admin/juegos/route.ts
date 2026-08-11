@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
         dificultad: String(data.dificultad || ""),
         precioFinalVenta: String(data.precioFinalVenta || ""),
         descuento: Math.max(0, Number(data.descuento) || 0),
+        envioGratis: data.envioGratis === true,
         imagen: String(data.imagen || ""),
         integrarVideo: data.integrarVideo === true,
         videoUrl: String(data.videoUrl || ""),

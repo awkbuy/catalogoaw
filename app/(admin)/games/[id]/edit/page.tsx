@@ -38,6 +38,7 @@ export default async function EditGamePage({
     dificultad: juego.dificultad || "",
     precioFinalVenta: juego.precioFinalVenta || "",
     descuento: String(juego.descuento),
+    envioGratis: juego.envioGratis,
     imagen: juego.imagen || "",
     integrarVideo: juego.integrarVideo,
     videoUrl: juego.videoUrl || "",

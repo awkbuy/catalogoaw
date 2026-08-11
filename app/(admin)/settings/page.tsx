@@ -300,6 +300,82 @@ export default function SettingsPage() {
 
           <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
             <h3 className="text-sm font-semibold text-[#1F2937] mb-1">
+              Ventas
+            </h3>
+            <p className="text-[11px] text-[#9CA3AF] mb-4">
+              Cuotas mostradas en las fichas y el detalle de producto.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
+                  Activar cuotas
+                </label>
+                <ToggleButtons
+                  value={settings.cuotasHabilitadas || "true"}
+                  onTrue={() => handleChange("cuotasHabilitadas", "true")}
+                  onFalse={() => handleChange("cuotasHabilitadas", "false")}
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                    Máx. cuotas
+                  </label>
+                  <input
+                    type="number"
+                    value={settings.cuotasMax || "0"}
+                    onChange={(e) => handleChange("cuotasMax", e.target.value)}
+                    min={0}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                    placeholder="0"
+                  />
+                  <p className="mt-1 text-[11px] text-[#9CA3AF]">
+                    0 desactiva las cuotas.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                    Interés mensual (%)
+                  </label>
+                  <input
+                    type="number"
+                    value={settings.cuotasInteresMensual || "0"}
+                    onChange={(e) => handleChange("cuotasInteresMensual", e.target.value)}
+                    min={0}
+                    step="0.1"
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                    placeholder="0"
+                  />
+                  <p className="mt-1 text-[11px] text-[#9CA3AF]">
+                    0 = sin interés.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                    Precio mínimo (ARS)
+                  </label>
+                  <input
+                    type="number"
+                    value={settings.cuotasMinimoPrecio || "0"}
+                    onChange={(e) => handleChange("cuotasMinimoPrecio", e.target.value)}
+                    min={0}
+                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-[#9CA3AF]">
+                Ejemplo con 3 cuotas sin interés: se muestra{" "}
+                <span className="font-semibold text-[#31D3A9]">
+                  &quot;3 cuotas de $X&quot;
+                </span>{" "}
+                en verde bajo el precio.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
+            <h3 className="text-sm font-semibold text-[#1F2937] mb-1">
               Google Analytics (GA4)
             </h3>
             <p className="text-[11px] text-[#9CA3AF] mb-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, ShoppingCart, Zap } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Zap, Truck, BadgePercent } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { trackMarketingEvent } from "@/lib/marketing";
 import { parsePrice, formatPrice } from "@/lib/format";
@@ -12,7 +12,7 @@ import {
 } from "@/lib/tax";
 import PaymentMethodIcon from "@/components/PaymentMethodIcon";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
-import { calcularCuotas, type CuotasInfo } from "@/lib/ventas";
+import { calcularCuotas, resolverEnvio, type CuotasInfo, type PublicShippingZone } from "@/lib/ventas";
 import { flyToCart } from "@/lib/fly-to-cart";
 import type { ProductDetailGame } from "./ProductDetailMain";
 
@@ -23,6 +23,7 @@ interface PurchasePanelProps {
   businessName?: string;
   paymentMethods?: PublicPaymentMethod[];
   cuotasInfo?: CuotasInfo | null;
+  envioZonas?: PublicShippingZone[];
   cantidad: number;
   onCantidadChange: (n: number) => void;
   onBuy: () => void;
@@ -35,6 +36,7 @@ export default function PurchasePanel({
   businessName = "Wolfie Room",
   paymentMethods,
   cuotasInfo,
+  envioZonas = [],
   cantidad,
   onCantidadChange,
   onBuy,
@@ -51,6 +53,13 @@ export default function PurchasePanel({
     ? formatPrecioConDecimales(calcularPrecioSinImpuestos(precioFinal, taxConfig))
     : "";
   const cuotas = cuotasInfo ? calcularCuotas(precioFinal, cuotasInfo) : null;
+  const envio = resolverEnvio({
+    precio: precioFinal,
+    envioGratisDelJuego: game.envioGratis,
+    zonas: envioZonas,
+  });
+  const hayRetiro = envioZonas.some((z) => z.active && z.cost === 0);
+  const promocional = paymentMethods?.find((pm) => pm.promocional);
 
   const addItems = () => {
     for (let i = 0; i < cantidad; i++) {
@@ -60,6 +69,7 @@ export default function PurchasePanel({
         precio: game.precioFinalVenta,
         precioNum,
         imagen: game.imagen,
+        envioGratis: game.envioGratis,
       });
     }
     trackMarketingEvent({
@@ -131,6 +141,27 @@ export default function PurchasePanel({
         </div>
       )}
 
+      {envio && (
+        <div className="rounded-lg bg-green-50 px-3 py-2">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-green-600">
+            <Truck size={15} className="flex-shrink-0" />
+            {envio.gratis
+              ? "Envío gratis"
+              : `Envío desde ${formatPrice(envio.desde || 0)}`}
+          </p>
+          {!envio.gratis && envio.freeFrom && (
+            <p className="text-xs font-medium text-green-700">
+              Gratis desde {formatPrice(envio.freeFrom)}
+            </p>
+          )}
+          {hayRetiro && (
+            <p className="text-xs font-medium text-green-700">
+              Retiro gratis en Wolfie Room
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-[#1F2937]">Cantidad</span>
         <div className="flex items-center gap-3">
@@ -170,18 +201,29 @@ export default function PurchasePanel({
       </div>
 
       {paymentMethods && paymentMethods.length > 0 && (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-[#E5E7EB] pt-3">
-          <span className="text-[11px] font-medium text-[#6B7280]">Medios de pago:</span>
-          {paymentMethods.map((pm) => (
-            <span
-              key={pm.id}
-              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]"
-              title={pm.descripcion || pm.titulo}
-            >
-              <PaymentMethodIcon icono={pm.icono} size={14} className="text-[#31D3A9]" />
-              {pm.titulo}
-            </span>
-          ))}
+        <div className="space-y-2 border-t border-[#E5E7EB] pt-3">
+          {promocional && (
+            <div className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5">
+              <BadgePercent size={13} className="flex-shrink-0 text-primary" />
+              <p className="text-[11px] font-semibold leading-snug text-primary">
+                {promocional.titulo}
+                {promocional.descripcion ? ` — ${promocional.descripcion}` : ""}
+              </p>
+            </div>
+          )}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <span className="text-[11px] font-medium text-[#6B7280]">Medios de pago:</span>
+            {paymentMethods.map((pm) => (
+              <span
+                key={pm.id}
+                className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#6B7280]"
+                title={pm.descripcion || pm.titulo}
+              >
+                <PaymentMethodIcon icono={pm.icono} size={14} className="text-[#31D3A9]" />
+                {pm.titulo}
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </div>

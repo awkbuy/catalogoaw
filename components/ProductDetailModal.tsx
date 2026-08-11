@@ -12,15 +12,18 @@ import type { TaxConfig } from "@/lib/tax";
 import ProductDetailContent, { type ProductDetailGame } from "@/components/ProductDetailContent";
 import ShareButton from "@/components/ShareButton";
 import { flyToCart } from "@/lib/fly-to-cart";
+import type { CuotasInfo, PublicShippingZone } from "@/lib/ventas";
 
 interface ProductDetailModalProps {
   game: ProductDetailGame | null;
   open: boolean;
   onClose: () => void;
   taxConfig: TaxConfig;
+  cuotasInfo: CuotasInfo;
+  envioZonas: PublicShippingZone[];
 }
 
-export default function ProductDetailModal({ game, open, onClose, taxConfig }: ProductDetailModalProps) {
+export default function ProductDetailModal({ game, open, onClose, taxConfig, cuotasInfo, envioZonas }: ProductDetailModalProps) {
   const { isLite } = useAdaptive();
   const { addItem, showCartToast } = useCart();
   const [cantidad, setCantidad] = useState(1);
@@ -40,6 +43,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
         precio: game.precioFinalVenta,
         precioNum,
         imagen: game.imagen,
+        envioGratis: game.envioGratis,
       });
     }
     trackMarketingEvent({
@@ -102,6 +106,8 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig }: P
                 source="product_modal"
                 cantidad={cantidad}
                 onCantidadChange={setCantidad}
+                cuotasInfo={cuotasInfo}
+                envioZonas={envioZonas}
               />
             </div>
 

@@ -4,6 +4,7 @@ import JsonLd from "@/components/JsonLd";
 import { parsearHorarios } from "@/lib/horarios";
 import { parseTaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
+import { getCuotasInfo, type PublicShippingZone } from "@/lib/ventas";
 import {
   getSeoSettings,
   collectionPageJsonLd,
@@ -13,7 +14,7 @@ import {
 export const revalidate = 300;
 
 export default async function Home() {
-  const [games, categories, paymentMethods, settings] = await Promise.all([
+  const [games, categories, paymentMethods, settings, shippingZones] = await Promise.all([
     prisma.game.findMany({
       include: {
         categoria: { select: { nombre: true, icono: true, color: true } },
@@ -30,6 +31,10 @@ export default async function Home() {
       orderBy: { orden: "asc" },
     }),
     getSeoSettings(),
+    prisma.shippingZone.findMany({
+      where: { active: true },
+      orderBy: { order: "asc" },
+    }),
   ]);
 
   const settingsRows = await prisma.setting.findMany();
@@ -42,6 +47,7 @@ export default async function Home() {
   const businessName = rawSettings.nombreNegocio || "Wolfie Room";
   const logoUrl = rawSettings.logoUrl || null;
   const taxConfig = parseTaxConfig(rawSettings);
+  const cuotasInfo = getCuotasInfo(rawSettings);
 
   const publicPaymentMethods: PublicPaymentMethod[] = paymentMethods.map((pm) => ({
     id: pm.id,
@@ -49,6 +55,14 @@ export default async function Home() {
     descripcion: pm.descripcion,
     icono: pm.icono,
     promocional: pm.promocional,
+  }));
+
+  const publicShippingZones: PublicShippingZone[] = shippingZones.map((z) => ({
+    id: z.id,
+    name: z.name,
+    cost: z.cost,
+    freeFrom: z.freeFrom,
+    active: z.active,
   }));
 
   const faq = faqJsonLd(settings.faq);
@@ -71,6 +85,8 @@ export default async function Home() {
         horarios={parsearHorarios(rawSettings.horarios_semana)}
         taxConfig={taxConfig}
         paymentMethods={publicPaymentMethods}
+        cuotasInfo={cuotasInfo}
+        envioZonas={publicShippingZones}
       />
     </>
   );

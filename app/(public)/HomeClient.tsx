@@ -12,6 +12,7 @@ import { trackMarketingEvent } from "@/lib/marketing";
 import type { DiaHorario } from "@/lib/horarios";
 import type { TaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
+import type { CuotasInfo, PublicShippingZone } from "@/lib/ventas";
 
 interface PublicGame {
   id: string;
@@ -33,6 +34,7 @@ interface PublicGame {
   nuevo: boolean;
   precioFinalVenta: string;
   descuento: number;
+  envioGratis: boolean;
   disponibleVenta: boolean;
   disponibleMesa: boolean;
 }
@@ -55,6 +57,8 @@ export default function HomeClient(props: {
   horarios: DiaHorario[];
   taxConfig: TaxConfig;
   paymentMethods: PublicPaymentMethod[];
+  cuotasInfo: CuotasInfo;
+  envioZonas: PublicShippingZone[];
 }) {
   return (
     <CartProvider>
@@ -72,6 +76,8 @@ function HomeContent({
   horarios,
   taxConfig,
   paymentMethods,
+  cuotasInfo,
+  envioZonas,
 }: {
   games: PublicGame[];
   categories: Category[];
@@ -81,6 +87,8 @@ function HomeContent({
   horarios: DiaHorario[];
   taxConfig: TaxConfig;
   paymentMethods: PublicPaymentMethod[];
+  cuotasInfo: CuotasInfo;
+  envioZonas: PublicShippingZone[];
 }) {
   const { cartOpen, openCart, closeCart } = useCart();
 
@@ -126,7 +134,8 @@ function HomeContent({
               games={games}
               whatsappNumber={whatsappNumber}
               taxConfig={taxConfig}
-              paymentMethods={paymentMethods}
+              cuotasInfo={cuotasInfo}
+              envioZonas={envioZonas}
             />
           </ErrorBoundary>
         </main>
@@ -137,6 +146,7 @@ function HomeContent({
           onClose={closeCart}
           whatsappNumber={whatsappNumber}
           paymentMethods={paymentMethods}
+          envioZonas={envioZonas}
         />
       </ErrorBoundary>
     </>

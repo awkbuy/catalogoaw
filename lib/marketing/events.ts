@@ -11,6 +11,7 @@ import {
   trackViewCart,
   trackViewItem,
   trackWhatsApp,
+  trackAddPaymentInfo,
 } from "@/lib/analytics/events";
 import {
   ga4TrackAddToCart,
@@ -21,6 +22,7 @@ import {
   ga4TrackShare,
   ga4TrackViewItem,
   ga4TrackWhatsApp,
+  ga4TrackAddPaymentInfo,
 } from "@/lib/analytics/ga4";
 
 export type MarketingEventName =
@@ -30,8 +32,9 @@ export type MarketingEventName =
   | "ViewCategory"
   | "AddToCart"
   | "RemoveFromCart"
-  | "ViewCart"
+  |   "ViewCart"
   | "InitiateCheckout"
+  | "AddPaymentInfo"
   | "ClickWhatsApp"
   | "Share";
 
@@ -131,6 +134,13 @@ function dispatchToGa4(event: MarketingEvent): void {
         items_count: data.quantity,
       });
       break;
+    case "AddPaymentInfo":
+      ga4TrackAddPaymentInfo({
+        value: data.value ?? 0,
+        currency: data.currency || "ARS",
+        items_count: data.quantity,
+      });
+      break;
     case "ClickWhatsApp":
       ga4TrackWhatsApp({ source: data.source || "" });
       break;
@@ -183,6 +193,9 @@ function dispatchToPixel(event: MarketingEvent, eventId: string): void {
       break;
     case "InitiateCheckout":
       metaTrack("InitiateCheckout", base, eventId);
+      break;
+    case "AddPaymentInfo":
+      metaTrack("AddPaymentInfo", base, eventId);
       break;
     case "Share":
       metaTrack("Share", base, eventId);
@@ -252,6 +265,15 @@ function dispatchToOwnAnalytics(event: MarketingEvent): void {
       break;
     case "InitiateCheckout":
       trackBeginCheckout({
+        total: data.value ?? 0,
+        itemsCount: data.quantity ?? 0,
+        gameId: id,
+        gameName: data.content_name,
+        source: data.source,
+      });
+      break;
+    case "AddPaymentInfo":
+      trackAddPaymentInfo({
         total: data.value ?? 0,
         itemsCount: data.quantity ?? 0,
         gameId: id,

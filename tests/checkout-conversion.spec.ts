@@ -37,7 +37,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   test("el modal muestra Compartir y Agregar en dos columnas", async ({ page }) => {
     await page.goto("/");
 
-    await page.getByRole("button", { name: "Ver detalle" }).first().click();
+    await page.locator("article").first().click();
 
     await expect(page.getByRole("button", { name: "Compartir" })).toBeVisible();
     await expect(page.getByRole("button", { name: /Agregar al carrito/ })).toBeVisible();
@@ -49,7 +49,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   }) => {
     await page.goto("/");
 
-    await page.getByRole("button", { name: "Ver detalle" }).first().click();
+    await page.locator("article").first().click();
 
     const contenido = page.locator("div.flex-1.overflow-y-auto");
     await contenido.evaluate((el) => (el.scrollTop = el.scrollHeight));
@@ -63,7 +63,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   }) => {
     await page.goto("/");
 
-    await page.getByRole("button", { name: "Ver detalle" }).first().click();
+    await page.locator("article").first().click();
     await page.getByRole("button", { name: /Agregar al carrito/ }).click();
 
     await expect(page.getByRole("heading", { name: "Detalle del producto" })).toHaveCount(0);
@@ -75,7 +75,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
     await expect(page.getByText("(1 producto)")).toBeVisible();
   });
 
-  test("el carrito mantiene Subtotal y Pedir por WhatsApp fijos abajo al scrollear", async ({
+  test("el carrito es un wizard de 3 pasos y mantiene Subtotal y el CTA fijos abajo", async ({
     page,
   }) => {
     await page.goto("/juegos/catan");
@@ -83,11 +83,23 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
     await page.getByRole("button", { name: "Comprar" }).click();
     await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
 
+    await expect(page.getByText("Paso 1 de 3")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Hacer pedido" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Hacer pedido" }).click();
+    await expect(page.getByText("Paso 2 de 3")).toBeVisible();
+    await page.getByPlaceholder("Juan Pérez").fill("Juan Pérez");
+    await page.getByPlaceholder("261 123 4567").fill("2611234567");
+    await page.getByRole("button", { name: "Continuar" }).click();
+    await expect(page.getByText("Paso 3 de 3")).toBeVisible();
+
     const contenido = page.locator("div.flex-1.overflow-y-auto");
     await contenido.evaluate((el) => (el.scrollTop = el.scrollHeight));
 
     await expect(page.getByText("Subtotal")).toBeInViewport();
-    await expect(page.getByRole("button", { name: /Pedir por WhatsApp/ })).toBeInViewport();
+    await expect(
+      page.getByRole("button", { name: /Confirmar y pedir por WhatsApp/ })
+    ).toBeInViewport();
   });
 
   test("la card muestra Comprar y al clickearlo agrega y abre el carrito", async ({ page }) => {
@@ -131,5 +143,34 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
 
     const stickyBar = page.getByRole("button", { name: "Comprar" }).last();
     await expect(stickyBar).toBeInViewport();
+  });
+});
+
+test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
+  test("la card muestra precio grande, cuotas verdes y envío", async ({ page }) => {
+    await page.goto("/");
+
+    const card = page.locator("article").first();
+    await expect(card.getByText(/3 cuotas de/)).toBeVisible();
+    await expect(card.getByText(/Envío desde/)).toBeVisible();
+    await expect(card.getByText(/Retiro gratis/)).toBeVisible();
+  });
+
+  test("el buy box muestra cuotas y envío bajo el precio", async ({ page }) => {
+    await page.goto("/juegos/catan");
+
+    const buyBox = page.getByRole("complementary");
+    await expect(buyBox.getByText(/3 cuotas de/)).toBeVisible();
+    await expect(buyBox.getByText(/Envío desde/)).toBeVisible();
+    await expect(buyBox.getByText(/Retiro gratis/)).toBeVisible();
+  });
+
+  test("el modal muestra cuotas y envío bajo el precio", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("article").first().click();
+
+    await expect(page.getByText(/3 cuotas de/)).toBeVisible();
+    await expect(page.getByText(/Envío desde/)).toBeVisible();
+    await expect(page.getByText(/Retiro gratis/)).toBeVisible();
   });
 });

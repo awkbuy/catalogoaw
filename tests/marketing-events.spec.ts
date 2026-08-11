@@ -51,15 +51,16 @@ async function waitForHydration(events: OwnEvent[]): Promise<void> {
   await waitForEvent(events, "page_view");
 }
 
-// El quick-add solo existe en tarjetas de juegos disponibles para la compra
-// (2 botones: "Ver detalle" + icono de carrito).
+// El quick-add existe en tarjetas de juegos disponibles para la compra
+// (botón único "Comprar" full-width estilo ML).
 async function clickQuickAdd(page: Page): Promise<void> {
   const cards = page.locator("article");
   const count = await cards.count();
   for (let i = 0; i < count; i++) {
     const card = cards.nth(i);
-    if ((await card.getByRole("button").count()) >= 2) {
-      await card.getByRole("button").last().click();
+    const buy = card.getByRole("button", { name: "Comprar" });
+    if ((await buy.count()) === 1) {
+      await buy.click();
       return;
     }
   }
@@ -99,7 +100,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     const events = setupTracking(page);
     await page.goto("/");
     await waitForHydration(events);
-    await page.getByRole("button", { name: "Ver detalle" }).first().click();
+    await page.locator("article").first().click();
     const evt = await waitForEvent(events, "view_item");
     expect(evt.gameId).toBeTruthy();
   });
@@ -149,22 +150,65 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     expect(evt.gameId).toBeTruthy();
   });
 
-  test("checkout por WhatsApp dispara begin_checkout y whatsapp_click", async ({ page }) => {
+  test("checkout por WhatsApp dispara begin_checkout, add_payment_info y whatsapp_click", async ({
+    page,
+  }) => {
     await spoofIp(page);
     const events = setupTracking(page);
     await page.goto("/");
     await waitForHydration(events);
     await clickQuickAdd(page);
     await page.getByLabel("Abrir carrito").first().click();
+
+    await page.getByRole("button", { name: "Hacer pedido" }).click();
+    const begin = await waitForEvent(events, "begin_checkout");
+    expect(begin.price).toBeGreaterThan(0);
+
     await page.getByPlaceholder("Juan Pérez").fill("Juan Pérez");
     await page.getByPlaceholder("261 123 4567").fill("2611234567");
+    await page.getByRole("button", { name: "Continuar" }).click();
+    const api = await waitForEvent(events, "add_payment_info");
+    expect(api.price).toBeGreaterThan(0);
+
     await page.getByRole("radio", { name: "Lo retiro personalmente" }).check();
     await page.getByRole("radio", { name: "Efectivo" }).check();
-    await page.getByRole("button", { name: /Pedir por WhatsApp/ }).click();
-    const begin = await waitForEvent(events, "begin_checkout");
+    await page.getByRole("button", { name: /Confirmar y pedir por WhatsApp/ }).click();
     const wa = await waitForEvent(events, "whatsapp_click");
-    expect(begin.price).toBeGreaterThan(0);
     expect(wa.source).toBe("cart_drawer");
+  });
+
+  test("pedido con envío por zona arma el mensaje de WhatsApp con zona, costo y total", async ({
+    page,
+  }) => {
+    await spoofIp(page);
+    const events = setupTracking(page);
+    await page.addInitScript(() => {
+      (window as unknown as { __wrWaUrl: string }).__wrWaUrl = "";
+      window.open = (url?: string | URL) => {
+        (window as unknown as { __wrWaUrl: string }).__wrWaUrl = String(url || "");
+        return null;
+      };
+    });
+    await page.goto("/");
+    await waitForHydration(events);
+    await clickQuickAdd(page);
+    await page.getByRole("button", { name: "Hacer pedido" }).click();
+    await page.getByPlaceholder("Juan Pérez").fill("Juan Pérez");
+    await page.getByPlaceholder("261 123 4567").fill("2611234567");
+    await page.getByRole("button", { name: "Continuar" }).click();
+    await page.getByRole("radio", { name: /Necesito que me lo envíen/ }).check();
+    await page.getByRole("radio", { name: /Envío Mendoza/ }).check();
+    await page.getByRole("radio", { name: "Efectivo" }).check();
+    await page.getByRole("button", { name: /Confirmar y pedir por WhatsApp/ }).click();
+
+    const url = await page.evaluate(
+      () => (window as unknown as { __wrWaUrl: string }).__wrWaUrl
+    );
+    expect(url).toContain("https://wa.me/");
+    const decoded = decodeURIComponent(url);
+    expect(decoded).toContain("Envío Mendoza");
+    expect(decoded).toContain("Envío");
+    expect(decoded).toContain("*Total:");
   });
 
   test("click en WhatsApp del dock dispara whatsapp_click", async ({ page }) => {

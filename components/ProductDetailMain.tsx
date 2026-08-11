@@ -16,6 +16,7 @@ export interface ProductDetailGame {
   videoUrl: string;
   precioFinalVenta: string;
   descuento: number;
+  envioGratis: boolean;
   categoria: { nombre: string; icono: string; color: string };
   categorias?: { nombre: string; icono: string; color: string }[];
   jugadoresMin: number;

@@ -25,6 +25,7 @@ export default function StickyPurchaseBar({ game, cantidad }: StickyPurchaseBarP
         precio: game.precioFinalVenta,
         precioNum,
         imagen: game.imagen,
+        envioGratis: game.envioGratis,
       });
     }
     trackMarketingEvent({

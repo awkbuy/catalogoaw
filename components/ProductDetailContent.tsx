@@ -9,6 +9,7 @@ import {
   formatPrecioConDecimales,
   type TaxConfig,
 } from "@/lib/tax";
+import { calcularCuotas, resolverEnvio, type CuotasInfo, type PublicShippingZone } from "@/lib/ventas";
 
 export type { ProductDetailGame } from "./ProductDetailMain";
 
@@ -18,6 +19,8 @@ interface ProductDetailContentProps {
   source: string;
   cantidad: number;
   onCantidadChange: (n: number) => void;
+  cuotasInfo: CuotasInfo;
+  envioZonas: PublicShippingZone[];
 }
 
 export default function ProductDetailContent({
@@ -26,6 +29,8 @@ export default function ProductDetailContent({
   source,
   cantidad,
   onCantidadChange,
+  cuotasInfo,
+  envioZonas,
 }: ProductDetailContentProps) {
   const precioNum = parsePrice(game.precioFinalVenta);
   const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
@@ -36,6 +41,13 @@ export default function ProductDetailContent({
   const precioSinImpuestos = mostrarSinImpuestos
     ? formatPrecioConDecimales(calcularPrecioSinImpuestos(precioFinal, taxConfig))
     : "";
+  const cuotas = cuotasInfo ? calcularCuotas(precioFinal, cuotasInfo) : null;
+  const envio = resolverEnvio({
+    precio: precioFinal,
+    envioGratisDelJuego: game.envioGratis,
+    zonas: envioZonas,
+  });
+  const hayRetiro = envioZonas.some((z) => z.active && z.cost === 0);
 
   return (
     <div>
@@ -63,6 +75,34 @@ export default function ProductDetailContent({
                 </div>
               )}
             </div>
+
+            {cuotas && (
+              <div className="rounded-lg bg-green-50 px-3 py-2">
+                <p className="text-sm font-semibold text-green-600">
+                  {cuotas.cuotas} cuotas de {formatPrice(cuotas.valorCuota)}
+                </p>
+              </div>
+            )}
+
+            {envio && (
+              <div className="rounded-lg bg-green-50 px-3 py-2">
+                {envio.gratis ? (
+                  <p className="text-sm font-semibold text-green-600">Envío gratis</p>
+                ) : (
+                  <p className="text-sm font-semibold text-green-600">
+                    Envío desde {formatPrice(envio.desde || 0)}
+                    {envio.freeFrom
+                      ? ` · gratis desde ${formatPrice(envio.freeFrom)}`
+                      : ""}
+                  </p>
+                )}
+                {hayRetiro && (
+                  <p className="text-xs font-medium text-green-700">
+                    Retiro gratis en Wolfie Room
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-[#1F2937]">Cantidad</span>

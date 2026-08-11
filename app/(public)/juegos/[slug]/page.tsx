@@ -13,6 +13,7 @@ import {
 import { parsearHorarios } from "@/lib/horarios";
 import { parseTaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
+import { getCuotasInfo, type PublicShippingZone } from "@/lib/ventas";
 import JsonLd from "@/components/JsonLd";
 import ProductDetailPage from "@/components/ProductDetailPage";
 import { CartProvider } from "@/lib/cart-context";
@@ -82,13 +83,17 @@ export default async function GamePage({
   const game = await getGameBySlug(slug);
   if (!game) notFound();
 
-  const [settings, paymentMethods, settingsRows] = await Promise.all([
+  const [settings, paymentMethods, settingsRows, shippingZones] = await Promise.all([
     getSeoSettings(),
     prisma.paymentMethod.findMany({
       where: { activo: true },
       orderBy: { orden: "asc" },
     }),
     prisma.setting.findMany(),
+    prisma.shippingZone.findMany({
+      where: { active: true },
+      orderBy: { order: "asc" },
+    }),
   ]);
 
   const rawSettings: Record<string, string> = {};
@@ -101,6 +106,7 @@ export default async function GamePage({
   const logoUrl = rawSettings.logoUrl || null;
   const horarios = parsearHorarios(rawSettings.horarios_semana);
   const taxConfig = parseTaxConfig(rawSettings);
+  const cuotasInfo = getCuotasInfo(rawSettings);
 
   const publicPaymentMethods: PublicPaymentMethod[] = paymentMethods.map((pm) => ({
     id: pm.id,
@@ -108,6 +114,14 @@ export default async function GamePage({
     descripcion: pm.descripcion,
     icono: pm.icono,
     promocional: pm.promocional,
+  }));
+
+  const publicShippingZones: PublicShippingZone[] = shippingZones.map((z) => ({
+    id: z.id,
+    name: z.name,
+    cost: z.cost,
+    freeFrom: z.freeFrom,
+    active: z.active,
   }));
 
   const source = toSeoSource(game);
@@ -152,6 +166,7 @@ export default async function GamePage({
             videoUrl: game.videoUrl,
             precioFinalVenta: game.precioFinalVenta,
             descuento: game.descuento,
+            envioGratis: game.envioGratis,
             disponibleVenta: game.disponibleVenta,
             disponibleMesa: game.disponibleMesa,
           }}
@@ -161,6 +176,8 @@ export default async function GamePage({
           horarios={horarios}
           taxConfig={taxConfig}
           paymentMethods={publicPaymentMethods}
+          cuotasInfo={cuotasInfo}
+          envioZonas={publicShippingZones}
         />
       </CartProvider>
     </>

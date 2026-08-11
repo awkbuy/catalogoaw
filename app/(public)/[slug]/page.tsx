@@ -11,6 +11,7 @@ import {
 import { parsearHorarios } from "@/lib/horarios";
 import { parseTaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
+import { getCuotasInfo, type PublicShippingZone } from "@/lib/ventas";
 import { parseGameIds } from "@/lib/landings";
 import JsonLd from "@/components/JsonLd";
 import LandingPage from "@/components/LandingPage/LandingPage";
@@ -45,7 +46,7 @@ export default async function LandingPageRoute({
 
   const gameIds = parseGameIds(landing.gameIds);
 
-  const [games, settings, paymentMethods, settingsRows] = await Promise.all([
+  const [games, settings, paymentMethods, settingsRows, shippingZones] = await Promise.all([
     gameIds.length > 0
       ? prisma.game.findMany({
           where: { id: { in: gameIds } },
@@ -61,6 +62,10 @@ export default async function LandingPageRoute({
       orderBy: { orden: "asc" },
     }),
     prisma.setting.findMany(),
+    prisma.shippingZone.findMany({
+      where: { active: true },
+      orderBy: { order: "asc" },
+    }),
   ]);
 
   const rawSettings: Record<string, string> = {};
@@ -73,6 +78,15 @@ export default async function LandingPageRoute({
   const logoUrl = rawSettings.logoUrl || null;
   const horarios = parsearHorarios(rawSettings.horarios_semana);
   const taxConfig = parseTaxConfig(rawSettings);
+  const cuotasInfo = getCuotasInfo(rawSettings);
+
+  const publicShippingZones: PublicShippingZone[] = shippingZones.map((z) => ({
+    id: z.id,
+    name: z.name,
+    cost: z.cost,
+    freeFrom: z.freeFrom,
+    active: z.active,
+  }));
 
   const publicPaymentMethods: PublicPaymentMethod[] = paymentMethods.map((pm) => ({
     id: pm.id,
@@ -110,6 +124,7 @@ export default async function LandingPageRoute({
     nuevo: g.nuevo,
     precioFinalVenta: g.precioFinalVenta,
     descuento: g.descuento,
+    envioGratis: g.envioGratis,
     disponibleVenta: g.disponibleVenta,
     disponibleMesa: g.disponibleMesa,
   }));
@@ -138,6 +153,8 @@ export default async function LandingPageRoute({
         horarios={horarios}
         taxConfig={taxConfig}
         paymentMethods={publicPaymentMethods}
+        cuotasInfo={cuotasInfo}
+        envioZonas={publicShippingZones}
       />
     </>
   );

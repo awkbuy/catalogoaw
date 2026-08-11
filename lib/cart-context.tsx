@@ -12,6 +12,7 @@ export interface CartItem {
   precio: string;
   precioNum: number;
   imagen: string;
+  envioGratis: boolean;
   cantidad: number;
   observacion: string;
 }
@@ -48,10 +49,64 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | null>(null);
 
+const CART_STORAGE_KEY = "wr_cart";
+
+function loadPersistedCart(): { items: CartItem[]; coupon: AppliedCoupon | null } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(CART_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as {
+      items?: CartItem[];
+      coupon?: AppliedCoupon | null;
+    };
+    if (!parsed || !Array.isArray(parsed.items)) return null;
+    const items = parsed.items.filter(
+      (i) =>
+        i &&
+        typeof i.gameId === "string" &&
+        typeof i.precioNum === "number" &&
+        Number.isFinite(i.precioNum)
+    );
+    const coupon =
+      parsed.coupon && typeof parsed.coupon === "object"
+        ? (parsed.coupon as AppliedCoupon)
+        : null;
+    return { items, coupon };
+  } catch {
+    return null;
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [coupon, setCoupon] = useState<AppliedCoupon | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // eslint-disable react-hooks/set-state-in-effect -- hidratar carrito desde localStorage en mount: no puede ser lazy (rompería la hidratación SSR del badge)
+  useEffect(() => {
+    const persisted = loadPersistedCart();
+    if (persisted) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hidratación única del carrito desde localStorage en mount
+      setItems(persisted.items);
+      setCoupon(persisted.coupon);
+    }
+    setHydrated(true);
+  }, []);
+  // eslint-enable react-hooks/set-state-in-effect
+
+  useEffect(() => {
+    if (!hydrated || typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(
+        CART_STORAGE_KEY,
+        JSON.stringify({ items, coupon })
+      );
+    } catch {
+      // almacenamiento bloqueado; el carrito sigue vivo en memoria
+    }
+  }, [items, coupon, hydrated]);
 
   const openCart = useCallback(() => setCartOpen(true), []);
   const closeCart = useCallback(() => setCartOpen(false), []);

@@ -106,6 +106,10 @@ async function main() {
       { key: "metaCatalogId", value: "" },
       { key: "clarityProjectId", value: "" },
       { key: "clarityEnabled", value: "false" },
+      { key: "cuotasHabilitadas", value: "true" },
+      { key: "cuotasMax", value: "3" },
+      { key: "cuotasInteresMensual", value: "0" },
+      { key: "cuotasMinimoPrecio", value: "10000" },
     ];
 
     for (const setting of settings) {
@@ -114,6 +118,20 @@ async function main() {
     console.log("✅ Settings seeded");
   } else {
     console.log("ℹ️  Settings already exist, skipping");
+  }
+
+  const cuotasDefaults: Array<{ key: string; value: string }> = [
+    { key: "cuotasHabilitadas", value: "true" },
+    { key: "cuotasMax", value: "3" },
+    { key: "cuotasInteresMensual", value: "0" },
+    { key: "cuotasMinimoPrecio", value: "10000" },
+  ];
+  for (const { key, value } of cuotasDefaults) {
+    const existing = await prisma.setting.findUnique({ where: { key } });
+    if (!existing) {
+      await prisma.setting.create({ data: { key, value } });
+      console.log(`✅ Setting ${key} seeded`);
+    }
   }
 
   const existingPayments = await prisma.paymentMethod.count();
@@ -183,6 +201,40 @@ async function main() {
     console.log("✅ Payment methods seeded");
   } else {
     console.log("ℹ️  Payment methods already exist, skipping");
+  }
+
+  const existingZones = await prisma.shippingZone.count();
+  if (existingZones === 0) {
+    const zones = [
+      {
+        name: "Retiro en local",
+        cost: 0,
+        freeFrom: 0,
+        active: true,
+        order: 1,
+      },
+      {
+        name: "Envío Mendoza",
+        cost: 3000,
+        freeFrom: 60000,
+        active: true,
+        order: 2,
+      },
+      {
+        name: "Envío Nacional",
+        cost: 8000,
+        freeFrom: 100000,
+        active: true,
+        order: 3,
+      },
+    ];
+
+    for (const zone of zones) {
+      await prisma.shippingZone.create({ data: zone });
+    }
+    console.log("✅ Shipping zones seeded");
+  } else {
+    console.log("ℹ️  Shipping zones already exist, skipping");
   }
 
   console.log("✅ Database seeded successfully!");

@@ -39,6 +39,12 @@ export interface Ga4WhatsAppParams {
   source: string;
 }
 
+export interface Ga4AddPaymentInfoParams {
+  value: number;
+  currency?: string;
+  items_count?: number;
+}
+
 export interface Ga4ShareParams {
   content_type?: string;
   item_id?: string;
@@ -120,6 +126,14 @@ export function ga4TrackBeginCheckout(params: Ga4BeginCheckoutParams): void {
 export function ga4TrackWhatsApp(params: Ga4WhatsAppParams): void {
   push("click_whatsapp", {
     source: params.source,
+  });
+}
+
+export function ga4TrackAddPaymentInfo(params: Ga4AddPaymentInfoParams): void {
+  push("add_payment_info", {
+    value: params.value,
+    currency: params.currency || "ARS",
+    ...(params.items_count !== undefined ? { items_count: params.items_count } : {}),
   });
 }
 
