@@ -198,6 +198,10 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await page.getByRole("button", { name: "Continuar" }).click();
     await page.getByRole("radio", { name: /Necesito que me lo envíen/ }).check();
     await page.getByRole("radio", { name: /Envío Mendoza/ }).check();
+    await page.getByPlaceholder("Calle y número").fill("Av. San Martín 1234");
+    await page.getByPlaceholder("Ciudad / Localidad").fill("Mendoza");
+    await page.getByPlaceholder("Provincia").fill("Mendoza");
+    await page.getByPlaceholder("Código postal").fill("5500");
     await page.getByRole("radio", { name: "Efectivo" }).check();
     await page.getByRole("button", { name: /Confirmar y pedir por WhatsApp/ }).click();
 

@@ -1,4 +1,48 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
+
+interface OwnEvent {
+  eventType: string;
+  [key: string]: unknown;
+}
+
+// El tracking propio prefiere navigator.sendBeacon, que Playwright no puede
+// interceptar. Al deshabilitarlo, el servicio cae al fallback fetch() y los
+// eventos quedan visibles para page.on("request").
+function setupTracking(page: Page): OwnEvent[] {
+  const events: OwnEvent[] = [];
+  void page.addInitScript(() => {
+    try {
+      Object.defineProperty(navigator, "sendBeacon", {
+        value: undefined,
+        configurable: true,
+      });
+    } catch {
+      // navegadores sin soporte: el fallback a fetch ya cubre el caso
+    }
+  });
+  page.on("request", (req) => {
+    if (!req.url().includes("/api/analytics/event")) return;
+    if (req.method() !== "POST") return;
+    const post = req.postData();
+    if (!post) return;
+    try {
+      events.push(JSON.parse(post) as OwnEvent);
+    } catch {
+      // payload malformado: se ignora
+    }
+  });
+  return events;
+}
+
+// En CI el dev server hidrata la home lentamente (bundle enorme en modo dev sobre
+// un runner chico). Un click sobre el HTML del SSR antes de que React adjunte los
+// listeners se pierde en silencio. El page_view se dispara en un useEffect al
+// completarse la hidratación, así que esperarlo garantiza listeners activos.
+async function waitForHydration(events: OwnEvent[]): Promise<void> {
+  await expect
+    .poll(() => events.some((e) => e.eventType === "page_view"))
+    .toBe(true);
+}
 
 test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   test("la ficha muestra el buy box con Comprar, Agregar, condición y medios de pago", async ({
@@ -35,7 +79,9 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   });
 
   test("el modal muestra Compartir y Agregar en dos columnas", async ({ page }) => {
+    const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
 
     await page.locator("article").first().click();
 
@@ -47,7 +93,9 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   test("el modal mantiene Compartir y Agregar fijos abajo al scrollear el contenido", async ({
     page,
   }) => {
+    const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
 
     await page.locator("article").first().click();
 
@@ -61,7 +109,9 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   test("modal: Agregar al carrito cierra el modal, no abre el checkout y muestra Ver carrito", async ({
     page,
   }) => {
+    const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
 
     await page.locator("article").first().click();
     await page.getByRole("button", { name: /Agregar al carrito/ }).click();
@@ -103,7 +153,9 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   });
 
   test("la card muestra Comprar y al clickearlo agrega y abre el carrito", async ({ page }) => {
+    const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
 
     await page.getByRole("button", { name: "Comprar" }).first().click();
 
@@ -166,11 +218,14 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
   });
 
   test("el modal muestra cuotas y envío bajo el precio", async ({ page }) => {
+    const events = setupTracking(page);
     await page.goto("/");
+    await waitForHydration(events);
     await page.locator("article").first().click();
 
-    await expect(page.getByText(/3 cuotas de/)).toBeVisible();
-    await expect(page.getByText(/Envío desde/)).toBeVisible();
-    await expect(page.getByText(/Retiro gratis/)).toBeVisible();
+    const modal = page.locator(".max-w-lg");
+    await expect(modal.getByText(/3 cuotas de/).first()).toBeVisible();
+    await expect(modal.getByText(/Envío desde/)).toBeVisible();
+    await expect(modal.getByText(/Retiro gratis/)).toBeVisible();
   });
 });

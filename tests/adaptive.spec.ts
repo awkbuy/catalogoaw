@@ -38,8 +38,8 @@ test.describe("Rendimiento adaptativo", () => {
     const firstName = (await page.locator("#catalogo h3").first().textContent())?.trim();
     expect(firstName).toBeTruthy();
 
-    const quickAdd = page.locator("#catalogo button svg.lucide-shopping-cart").first();
-    // El click de "agregar al carrito" puede perderse si React aún no hidrató
+    const quickAdd = page.locator("#catalogo").getByRole("button", { name: "Comprar" }).first();
+    // El click de "Comprar" puede perderse si React aún no hidrató
     // el handler. Se reintenta hasta que el badge del carrito refleje el item.
     await expect(async () => {
       await quickAdd.click();
