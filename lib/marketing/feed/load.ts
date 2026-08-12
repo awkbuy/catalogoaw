@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 import { feedFinalPrice, type FeedGame } from "./utils";
 
 export interface FeedQuery {
@@ -9,6 +9,7 @@ export interface FeedQuery {
 }
 
 export async function loadFeedGames(query: FeedQuery = {}): Promise<FeedGame[]> {
+  const prisma = await getTenantDb();
   const where: Record<string, unknown> = {};
   if (query.merchantOnly) where.showInMerchant = true;
   if (query.metaOnly) where.showInMetaCommerce = true;

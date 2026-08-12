@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 
 export interface MarketingTotals {
   uniqueVisitors: number;
@@ -159,6 +159,7 @@ function parseMetadataDeviceBrowser(raw: string | null): {
 }
 
 export async function getMarketingDashboard(days: number): Promise<MarketingDashboardData> {
+  const prisma = await getTenantDb();
   const safeDays = (MARKETING_DAYS_OPTIONS as readonly number[]).includes(days)
     ? days
     : 30;

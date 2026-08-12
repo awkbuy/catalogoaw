@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 import type { ClientMarketingConfig } from "./config";
 
 export interface MarketingConfig extends ClientMarketingConfig {
@@ -19,6 +19,7 @@ function toBool(value: string | undefined, fallback: boolean): boolean {
 }
 
 export const getMarketingConfig = cache(async (): Promise<MarketingConfig> => {
+  const prisma = await getTenantDb();
   const rows = await prisma.setting.findMany();
   const s: Record<string, string> = {};
   for (const r of rows) {

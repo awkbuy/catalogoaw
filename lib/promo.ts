@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 
 export interface PromoConfig {
   popupEnabled: boolean;
@@ -23,6 +23,7 @@ function toNumber(value: string | undefined, fallback: number): number {
 }
 
 export const getPromoConfig = cache(async (): Promise<PromoConfig> => {
+  const prisma = await getTenantDb();
   const rows = await prisma.setting.findMany();
   const s: Record<string, string> = {};
   for (const r of rows) {

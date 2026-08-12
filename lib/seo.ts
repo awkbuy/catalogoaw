@@ -1,6 +1,6 @@
 import { cache } from "react";
 import type { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 import { parsePrice } from "@/lib/format";
 
 export const DEFAULT_SITE_URL = "https://wolfiesroom.com";
@@ -49,6 +49,7 @@ export interface SeoSettings {
 }
 
 export const getSeoSettings = cache(async (): Promise<SeoSettings> => {
+  const prisma = await getTenantDb();
   const rows = await prisma.setting.findMany();
   const s: Record<string, string> = {};
   for (const r of rows) {
