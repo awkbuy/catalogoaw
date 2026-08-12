@@ -1,12 +1,13 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
+import { getTenantDb } from "@/lib/tenant";
 
 export async function getPublicBrand(): Promise<{
   nombreNegocio: string;
   logoUrl: string | null;
 }> {
+  const prisma = await getTenantDb();
   const [nombreNegocio, logoUrl] = await Promise.all([
     prisma.setting.findUnique({ where: { key: "nombreNegocio" } }),
     prisma.setting.findUnique({ where: { key: "logoUrl" } }),
@@ -19,6 +20,7 @@ export async function getPublicBrand(): Promise<{
 
 export async function getSettings(): Promise<Record<string, string>> {
   await requireAuth();
+  const prisma = await getTenantDb();
   
   const settings = await prisma.setting.findMany();
   const result: Record<string, string> = {};
@@ -30,6 +32,7 @@ export async function getSettings(): Promise<Record<string, string>> {
 
 export async function updateSettings(data: Record<string, string>) {
   await requireAuth();
+  const prisma = await getTenantDb();
 
   const updates = Object.entries(data).map(([key, value]) =>
     prisma.setting.upsert({

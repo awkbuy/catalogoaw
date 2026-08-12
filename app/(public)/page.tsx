@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getTenantDbOrNull } from "@/lib/tenant";
 import HomeClient from "./HomeClient";
 import JsonLd from "@/components/JsonLd";
 import { parsearHorarios } from "@/lib/horarios";
@@ -14,6 +14,17 @@ import {
 export const revalidate = 300;
 
 export default async function Home() {
+  const prisma = await getTenantDbOrNull();
+  
+  // Si no hay tenant resuelto, mostrar página vacía (dev local sin subdominio)
+  if (!prisma) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Accedé desde tu subdominio para ver el catálogo.</p>
+      </div>
+    );
+  }
+
   const [games, categories, paymentMethods, settings, shippingZones] = await Promise.all([
     prisma.game.findMany({
       include: {

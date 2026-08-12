@@ -1,7 +1,7 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { getTenantDbOrNull } from "@/lib/tenant";
 import {
   getSeoSettings,
   buildGameMetadata,
@@ -20,19 +20,7 @@ import { CartProvider } from "@/lib/cart-context";
 
 export const dynamic = "force-dynamic";
 
-const getGameBySlug = cache(async (slug: string) => {
-  return prisma.game.findUnique({
-    where: { slug },
-    include: {
-      categoria: { select: { nombre: true, icono: true, color: true } },
-      categorias: { select: { nombre: true, icono: true, color: true } },
-    },
-  });
-});
-
-type GameWithCategoria = NonNullable<Awaited<ReturnType<typeof getGameBySlug>>>;
-
-function toSeoSource(game: GameWithCategoria): GameSeoSource {
+function toSeoSource(game: NonNullable<Awaited<ReturnType<typeof getGameBySlug>>>): GameSeoSource {
   return {
     nombre: game.nombre,
     slug: game.slug,
@@ -62,6 +50,18 @@ function toSeoSource(game: GameWithCategoria): GameSeoSource {
   };
 }
 
+const getGameBySlug = cache(async (slug: string) => {
+  const prisma = await getTenantDbOrNull();
+  if (!prisma) return null;
+  return prisma.game.findUnique({
+    where: { slug },
+    include: {
+      categoria: { select: { nombre: true, icono: true, color: true } },
+      categorias: { select: { nombre: true, icono: true, color: true } },
+    },
+  });
+});
+
 export async function generateMetadata({
   params,
 }: {
@@ -82,6 +82,9 @@ export default async function GamePage({
   const { slug } = await params;
   const game = await getGameBySlug(slug);
   if (!game) notFound();
+
+  const prisma = await getTenantDbOrNull();
+  if (!prisma) notFound();
 
   const [settings, paymentMethods, settingsRows, shippingZones] = await Promise.all([
     getSeoSettings(),

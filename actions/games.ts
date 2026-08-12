@@ -1,7 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
+import { getTenantDb } from "@/lib/tenant";
 
 function slugify(text: string): string {
   return text
@@ -19,6 +19,7 @@ export async function getGames(filters?: {
   nuevo?: boolean;
   estado?: string;
 }) {
+  const prisma = await getTenantDb();
   const where: Record<string, unknown> = {};
 
   if (filters?.categoriaId) where.categoriaId = filters.categoriaId;
@@ -40,6 +41,7 @@ export async function getGames(filters?: {
 }
 
 export async function getGameBySlug(slug: string) {
+  const prisma = await getTenantDb();
   return prisma.game.findUnique({
     where: { slug },
     include: { categoria: true },
@@ -48,6 +50,7 @@ export async function getGameBySlug(slug: string) {
 
 export async function createGame(formData: FormData) {
   await requireAuth();
+  const prisma = await getTenantDb();
 
   const nombre = formData.get("nombre") as string;
   const slug = slugify(nombre);
@@ -85,6 +88,7 @@ export async function createGame(formData: FormData) {
 
 export async function updateGame(id: string, formData: FormData) {
   await requireAuth();
+  const prisma = await getTenantDb();
 
   const nombre = formData.get("nombre") as string;
   const newSlug = slugify(nombre);
@@ -123,11 +127,13 @@ export async function updateGame(id: string, formData: FormData) {
 
 export async function deleteGame(id: string) {
   await requireAuth();
+  const prisma = await getTenantDb();
   return prisma.game.delete({ where: { id } });
 }
 
 export async function duplicateGame(id: string) {
   await requireAuth();
+  const prisma = await getTenantDb();
 
   const original = await prisma.game.findUnique({ where: { id } });
   if (!original) throw new Error("Juego no encontrado");

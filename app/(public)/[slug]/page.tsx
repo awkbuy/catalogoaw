@@ -1,7 +1,7 @@
 import { cache } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { getTenantDbOrNull } from "@/lib/tenant";
 import {
   getSeoSettings,
   buildLandingMetadata,
@@ -20,6 +20,8 @@ import type { PublicGame } from "@/components/Catalog/Catalog";
 export const dynamic = "force-dynamic";
 
 const getLandingBySlug = cache(async (slug: string) => {
+  const prisma = await getTenantDbOrNull();
+  if (!prisma) return null;
   return prisma.landingPage.findUnique({ where: { slug } });
 });
 
@@ -43,6 +45,9 @@ export default async function LandingPageRoute({
   const { slug } = await params;
   const landing = await getLandingBySlug(slug);
   if (!landing || !landing.isActive) notFound();
+
+  const prisma = await getTenantDbOrNull();
+  if (!prisma) notFound();
 
   const gameIds = parseGameIds(landing.gameIds);
 

@@ -1,9 +1,10 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
+import { getTenantDb } from "@/lib/tenant";
 
 export async function getCategories() {
+  const prisma = await getTenantDb();
   return prisma.category.findMany({
     include: { _count: { select: { games: true } } },
     orderBy: { orden: "asc" },
@@ -12,6 +13,7 @@ export async function getCategories() {
 
 export async function createCategory(formData: FormData) {
   await requireAuth();
+  const prisma = await getTenantDb();
 
   const nombre = formData.get("nombre") as string;
   if (!nombre) throw new Error("El nombre es requerido");
@@ -33,6 +35,7 @@ export async function createCategory(formData: FormData) {
 
 export async function updateCategory(id: string, formData: FormData) {
   await requireAuth();
+  const prisma = await getTenantDb();
 
   const nombre = formData.get("nombre") as string;
   if (!nombre) throw new Error("El nombre es requerido");
@@ -55,6 +58,7 @@ export async function updateCategory(id: string, formData: FormData) {
 
 export async function deleteCategory(id: string) {
   await requireAuth();
+  const prisma = await getTenantDb();
 
   const category = await prisma.category.findUnique({
     where: { id },

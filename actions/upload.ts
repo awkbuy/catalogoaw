@@ -1,12 +1,13 @@
 "use server";
 
 import { requireAuth } from "@/lib/auth";
+import { requireTenantId } from "@/lib/tenant";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
-import sharp from "sharp";
 
 export async function uploadImage(formData: FormData) {
   await requireAuth();
+  const tenantId = await requireTenantId();
 
   const file = formData.get("image") as File | null;
   if (!file) throw new Error("No se proporcionó ningún archivo");
@@ -28,11 +29,13 @@ export async function uploadImage(formData: FormData) {
   }
 
   const filename = `${crypto.randomUUID()}.webp`;
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
+  // Uploads por tenant: public/uploads/<tenantId>/
+  const uploadsDir = path.join(process.cwd(), "public", "uploads", tenantId || "default");
   await mkdir(uploadsDir, { recursive: true });
 
   let processed: Buffer;
   try {
+    const sharp = (await import("sharp")).default;
     processed = await sharp(buffer).webp({ quality: 85 }).toBuffer();
   } catch {
     throw new Error("Contenido de archivo inválido");
@@ -40,5 +43,5 @@ export async function uploadImage(formData: FormData) {
 
   await writeFile(path.join(uploadsDir, filename), processed);
 
-  return { path: `/uploads/${filename}` };
+  return { path: `/uploads/${tenantId || "default"}/${filename}` };
 }

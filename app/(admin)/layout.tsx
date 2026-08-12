@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { requireAuth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 import { getAdminPath } from "@/lib/admin-path";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { AdminPathProvider } from "@/components/admin/AdminPathProvider";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const prisma = await getTenantDb();
   const setting = await prisma.setting.findUnique({ where: { key: "nombreNegocio" } });
   const nombre = setting?.value || "Wolfie Room";
   return {
@@ -19,7 +20,8 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { userId, tenantId } = await requireAuth();
+  await requireAuth();
+  const prisma = await getTenantDb();
 
   const settingsRows = await prisma.setting.findMany();
   const settingsMap: Record<string, string> = {};
