@@ -19,7 +19,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireAuth();
+  const { userId, tenantId } = await requireAuth();
 
   const settingsRows = await prisma.setting.findMany();
   const settingsMap: Record<string, string> = {};

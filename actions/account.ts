@@ -1,16 +1,18 @@
 "use server";
 
 import { requireAuth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getPlatformPrisma } from "@/lib/prisma";
 import { hashSync, compareSync } from "bcryptjs";
 
 export async function changePassword(
   currentPassword: string,
   newPassword: string
 ): Promise<{ success?: boolean; error?: string }> {
-  const userId = await requireAuth();
+  const { userId } = await requireAuth();
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const platformDb = await getPlatformPrisma();
+
+  const user = await platformDb.tenantUser.findUnique({ where: { id: userId } });
   if (!user) {
     return { error: "Usuario no encontrado" };
   }
@@ -24,7 +26,7 @@ export async function changePassword(
     return { error: "La nueva contraseña debe tener al menos 8 caracteres" };
   }
 
-  await prisma.user.update({
+  await platformDb.tenantUser.update({
     where: { id: userId },
     data: { passwordHash: hashSync(newPassword, 10) },
   });

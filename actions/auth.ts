@@ -3,10 +3,10 @@
 import { redirect } from "next/navigation";
 import { compareSync } from "bcryptjs";
 import { headers } from "next/headers";
-import { prisma } from "@/lib/prisma";
 import { createSession, deleteSession } from "@/lib/auth";
 import { adminHref } from "@/lib/admin-path";
 import { rateLimit } from "@/lib/rate-limit";
+import { getTenantFromHeaders } from "@/lib/tenant";
 
 export async function loginAction(
   _prevState: { error: string } | null,
@@ -32,17 +32,35 @@ export async function loginAction(
     return { error: "Email y contraseña son requeridos" };
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
+  // Resolver tenant actual desde los headers
+  const tenantCtx = await getTenantFromHeaders();
+  if (!tenantCtx) {
+    return { error: "No se pudo resolver el tenant. Accedé desde tu subdominio." };
+  }
+
+  // Buscar TenantUser en la DB de plataforma
+  const { getPlatformPrisma } = await import("@/lib/prisma");
+  const platformDb = await getPlatformPrisma();
+
+  const tenantUser = await platformDb.tenantUser.findUnique({
+    where: {
+      tenantId_email: {
+        tenantId: tenantCtx.tenantId,
+        email,
+      },
+    },
+  });
+
+  if (!tenantUser) {
     return { error: "Credenciales inválidas" };
   }
 
-  const valid = compareSync(password, user.passwordHash);
+  const valid = compareSync(password, tenantUser.passwordHash);
   if (!valid) {
     return { error: "Credenciales inválidas" };
   }
 
-  await createSession(user.id);
+  await createSession(tenantUser.id, tenantCtx.tenantId);
   redirect(adminHref("/dashboard"));
 }
 
