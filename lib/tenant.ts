@@ -1,12 +1,12 @@
 import { headers } from "next/headers";
-import { getTenantPrisma } from "./prisma";
+import { getTenantPrisma, prisma } from "./prisma";
 import type { PrismaClient } from "@prisma/client";
 
 const HEADER_TENANT_ID = "x-tenant-id";
 const HEADER_TENANT_SLUG = "x-tenant-slug";
 
 /**
- * Resuelve el tenant actual desde los headers seteados por el middleware.
+ * Resuelve el tenant actual desde los headers seteados por el proxy.
  * Retorna { tenantId, tenantSlug } o null si no hay tenant.
  */
 export async function getTenantFromHeaders(): Promise<{
@@ -47,11 +47,20 @@ export async function requireTenantSlug(): Promise<string> {
 
 /**
  * Retorna un PrismaClient apuntando a la DB del tenant actual.
- * Útil para server components y server actions que necesitan datos del catálogo.
+ * En dev mode sin subdominio, retorna el prisma por defecto (dev.db).
  */
 export async function getTenantDb(): Promise<PrismaClient> {
-  const tenantId = await requireTenantId();
-  return getTenantPrisma(tenantId);
+  const ctx = await getTenantFromHeaders();
+  if (ctx) {
+    return getTenantPrisma(ctx.tenantId);
+  }
+  // Fallback en dev: usar la DB por defecto (dev.db)
+  if (process.env.NODE_ENV !== "production") {
+    return prisma;
+  }
+  throw new Error(
+    "No se resolvió el tenant. Accedé desde un subdominio de tenant."
+  );
 }
 
 /**
@@ -60,6 +69,12 @@ export async function getTenantDb(): Promise<PrismaClient> {
  */
 export async function getTenantDbOrNull(): Promise<PrismaClient | null> {
   const ctx = await getTenantFromHeaders();
-  if (!ctx) return null;
+  if (!ctx) {
+    // En dev, retornar el prisma por defecto
+    if (process.env.NODE_ENV !== "production") {
+      return prisma;
+    }
+    return null;
+  }
   return getTenantPrisma(ctx.tenantId);
 }
