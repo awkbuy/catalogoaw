@@ -17,6 +17,8 @@ import {
 import Image from "next/image";
 import { sileo } from "sileo";
 import { useProgress } from "@/lib/progress-context";
+import { adminHref } from "@/lib/admin-path";
+import { useAdminPath } from "@/components/admin/AdminPathProvider";
 
 interface Juego {
   id: string;
@@ -38,6 +40,7 @@ interface Categoria {
 
 export default function GamesPage() {
   const router = useRouter();
+  const adminPath = useAdminPath();
   const { start, done } = useProgress();
   const [juegos, setJuegos] = useState<Juego[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -139,7 +142,7 @@ export default function GamesPage() {
           </p>
         </div>
         <Link
-          href="/games/new"
+          href={adminHref("/games/new", adminPath)}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#31D3A9] text-[#0B3B30] text-sm font-medium hover:bg-[#2bc49b] transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -288,7 +291,7 @@ export default function GamesPage() {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() =>
-                          router.push(`/games/${juego.id}/edit`)
+                          router.push(adminHref(`/games/${juego.id}/edit`, adminPath))
                         }
                         className="w-8 h-8 rounded-lg hover:bg-[#E5E7EB]/50 flex items-center justify-center text-[#6B7280] hover:text-[#31D3A9] transition-colors"
                         title="Editar"
@@ -365,7 +368,7 @@ export default function GamesPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <button
-                            onClick={() => router.push(`/games/${juego.id}/edit`)}
+                            onClick={() => router.push(adminHref(`/games/${juego.id}/edit`, adminPath))}
                     className="w-8 h-8 rounded-lg hover:bg-[#E5E7EB]/50 flex items-center justify-center text-[#6B7280]"
                   >
                     <Pencil className="w-4 h-4" />

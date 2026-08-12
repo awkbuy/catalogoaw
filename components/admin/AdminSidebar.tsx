@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { logoutAction } from "@/actions/auth";
+import { adminHref } from "@/lib/admin-path";
+import { useAdminPath } from "@/components/admin/AdminPathProvider";
 import {
   LayoutDashboard,
   Gamepad2,
@@ -43,15 +45,10 @@ const navLinks = [
   { href: "/settings", label: "Configuración", icon: Settings },
 ];
 
-const bottomTabs = navLinks.map((link) => ({
-  id: link.href,
-  label: link.label,
-  icon: <link.icon size={20} className="text-current" />,
-}));
-
 interface SidebarContentProps {
   collapsed: boolean;
   pathname: string;
+  adminPath: string;
   settings?: Settings | null;
   onToggleCollapse: () => void;
 }
@@ -59,6 +56,7 @@ interface SidebarContentProps {
 function SidebarContent({
   collapsed,
   pathname,
+  adminPath,
   settings,
   onToggleCollapse,
 }: SidebarContentProps) {
@@ -67,7 +65,7 @@ function SidebarContent({
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-4 border-b border-[#E5E7EB]">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link href={adminHref("/dashboard", adminPath)} className="flex items-center gap-3">
           <Image
             src={settings?.logoUrl || "/images/logo.png"}
             alt={settings?.nombre || "Wolfie Room"}
@@ -95,11 +93,12 @@ function SidebarContent({
       <nav className="flex-1 p-3 space-y-1">
         {navLinks.map((link) => {
           const Icon = link.icon;
-          const active = isActive(link.href);
+          const href = adminHref(link.href, adminPath);
+          const active = isActive(href);
           return (
             <Link
               key={link.href}
-              href={link.href}
+              href={href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 active
                   ? "bg-[#31D3A9]/10 text-[#31D3A9]"
@@ -115,7 +114,7 @@ function SidebarContent({
 
       <div className="p-3 border-t border-[#E5E7EB]">
         <Link
-          href="/account"
+          href={adminHref("/account", adminPath)}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#6B7280] hover:bg-[#E5E7EB]/50 hover:text-[#1F2937] transition-all ${collapsed ? "justify-center" : ""}`}
         >
           <User className="w-5 h-5 flex-shrink-0" />
@@ -136,14 +135,24 @@ function SidebarContent({
 function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const adminPath = useAdminPath();
 
-  const activeTab = navLinks.find(
-    (l) => pathname === l.href || pathname.startsWith(l.href + "/")
-  )?.href || "/dashboard";
+  const links = navLinks.map((link) => ({
+    href: adminHref(link.href, adminPath),
+    label: link.label,
+    icon: <link.icon size={20} className="text-current" />,
+  }));
 
-  const tabsWithAction = bottomTabs.map((tab) => ({
-    ...tab,
-    onClick: () => router.push(tab.id),
+  const activeTab =
+    links.find(
+      (l) => pathname === l.href || pathname.startsWith(l.href + "/")
+    )?.href || links[0].href;
+
+  const tabsWithAction = links.map((tab) => ({
+    id: tab.href,
+    label: tab.label,
+    icon: tab.icon,
+    onClick: () => router.push(tab.href),
   }));
 
   return <AppleDock tabs={tabsWithAction} activeTab={activeTab} hideOn="lg:hidden" />;
@@ -158,6 +167,7 @@ export default function AdminSidebar({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const adminPath = useAdminPath();
 
   const handleToggleCollapse = useCallback(() => setCollapsed((c) => !c), []);
 
@@ -171,6 +181,7 @@ export default function AdminSidebar({
         <SidebarContent
           collapsed={collapsed}
           pathname={pathname}
+          adminPath={adminPath}
           settings={settings}
           onToggleCollapse={handleToggleCollapse}
         />

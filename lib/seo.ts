@@ -260,9 +260,7 @@ function truncate(text: string, max = 158): string {
 
 export function autoSeoTitle(game: GameSeoSource): string {
   if (game.seoTitle.trim()) return game.seoTitle.trim();
-  return `${game.nombre} | Juego de mesa ${game.categoriaNombre.toLowerCase()} en ${
-    DEFAULT_SITE_NAME
-  }`;
+  return `${game.nombre} | Juego de mesa ${game.categoriaNombre.toLowerCase()}`;
 }
 
 export function autoSeoDescription(game: GameSeoSource): string {

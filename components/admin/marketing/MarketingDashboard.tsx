@@ -10,6 +10,7 @@ import {
   Package,
   Search,
   Plug,
+  Mail,
 } from "lucide-react";
 import type { MarketingDashboardData } from "@/lib/marketing/dashboard";
 import DateRangeSelector from "./DateRangeSelector";
@@ -21,6 +22,7 @@ import WhatsAppStats from "./WhatsAppStats";
 import SearchStats from "./SearchStats";
 import TrafficStats from "./TrafficStats";
 import IntegrationsStatus from "./IntegrationsStatus";
+import LeadsTable from "./LeadsTable";
 
 type TabId =
   | "general"
@@ -29,7 +31,8 @@ type TabId =
   | "whatsapp"
   | "busquedas"
   | "trafico"
-  | "integraciones";
+  | "integraciones"
+  | "leads";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "general", label: "General" },
@@ -39,6 +42,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "busquedas", label: "Búsquedas" },
   { id: "trafico", label: "Tráfico" },
   { id: "integraciones", label: "Integraciones" },
+  { id: "leads", label: "Leads" },
 ];
 
 const TAB_ICONS: Record<TabId, React.ReactNode> = {
@@ -49,6 +53,7 @@ const TAB_ICONS: Record<TabId, React.ReactNode> = {
   busquedas: <Search className="w-4 h-4" />,
   trafico: <Globe className="w-4 h-4" />,
   integraciones: <Plug className="w-4 h-4" />,
+  leads: <Mail className="w-4 h-4" />,
 };
 
 export default function MarketingDashboard({
@@ -156,6 +161,12 @@ export default function MarketingDashboard({
       {tab === "integraciones" && (
         <div className="space-y-6">
           <IntegrationsStatus integrations={data.integrations} />
+        </div>
+      )}
+
+      {tab === "leads" && (
+        <div className="space-y-6">
+          <LeadsTable />
         </div>
       )}
     </div>

@@ -32,6 +32,7 @@ async function createGame(
       descripcion: "Juego de prueba para SEO",
       categoriaId,
       showInMerchant: true,
+      disponibleVenta: true,
       canonical: opts.canonical || "",
     },
   });
@@ -124,6 +125,9 @@ test.describe("SEO - canonical e indexación", () => {
 
       const robots = await (await page.request.get("/robots.txt")).text();
       expect(robots).toContain("Allow: /");
+      expect(robots).toContain("Disallow: /login");
+      expect(robots).toContain("Disallow: /dashboard");
+      expect(robots).toContain("Disallow: /api/");
       expect(robots).toContain(`Sitemap: ${SITE_URL}/sitemap.xml`);
     } finally {
       await deleteGame(page, created.id);

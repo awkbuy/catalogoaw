@@ -64,6 +64,8 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPopupImage, setUploadingPopupImage] = useState(false);
+  const popupImageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch("/api/admin/settings")
@@ -98,6 +100,28 @@ export default function SettingsPage() {
       }
     } finally {
       setUploadingLogo(false);
+      done();
+    }
+  };
+
+  const handlePopupImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingPopupImage(true);
+    start();
+    try {
+      const result = await uploadImage(file);
+      if ("url" in result) {
+        setSettings((prev) => ({ ...prev, popupImage: result.url }));
+      } else {
+        sileo.error({
+          title: "Error al subir la imagen del popup",
+          description: result.error,
+        });
+      }
+    } finally {
+      setUploadingPopupImage(false);
       done();
     }
   };
@@ -371,6 +395,164 @@ export default function SettingsPage() {
                 </span>{" "}
                 en verde bajo el precio.
               </p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
+            <h3 className="text-sm font-semibold text-[#1F2937] mb-1">
+              Popup de captura
+            </h3>
+            <p className="text-[11px] text-[#9CA3AF] mb-4">
+              Pide el email una vez por semana. Los leads quedan guardados en
+              Marketing y disparan un email de bienvenida (Resend).
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
+                  Activar popup
+                  {settings.popupEnabled === "true" ? <ConfiguredBadge /> : null}
+                </label>
+                <ToggleButtons
+                  value={settings.popupEnabled || "false"}
+                  onTrue={() => handleChange("popupEnabled", "true")}
+                  onFalse={() => handleChange("popupEnabled", "false")}
+                />
+              </div>
+              <div>
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
+                  Título
+                </label>
+                <input
+                  type="text"
+                  value={settings.popupTitle || ""}
+                  onChange={(e) => handleChange("popupTitle", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="Ej. ¡Novedades en Wolfie Room!"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Texto
+                </label>
+                <textarea
+                  value={settings.popupText || ""}
+                  onChange={(e) => handleChange("popupText", e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all resize-none"
+                  placeholder="Dejanos tu email y recibí novedades y ofertas."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Tiempo antes de aparecer (segundos)
+                </label>
+                <input
+                  type="number"
+                  value={settings.popupDelaySeconds || "10"}
+                  onChange={(e) => handleChange("popupDelaySeconds", e.target.value)}
+                  min={0}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="10"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Imagen (opcional)
+                </label>
+                <input
+                  ref={popupImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePopupImageUpload}
+                  className="hidden"
+                />
+                {settings.popupImage ? (
+                  <div className="relative">
+                    <div className="w-full h-40 rounded-xl overflow-hidden bg-[#E5E7EB]">
+                      <ImageWithProgress
+                        src={settings.popupImage}
+                        alt="Imagen del popup"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        onClick={() => popupImageInputRef.current?.click()}
+                        disabled={uploadingPopupImage}
+                        className="flex-1 py-2 rounded-xl border border-[#E5E7EB] text-xs font-medium text-[#1F2937] hover:bg-[#FAFAFA] transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        {uploadingPopupImage ? (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <Upload className="w-3 h-3" />
+                        )}
+                        Cambiar
+                      </button>
+                      <button
+                        onClick={() => handleChange("popupImage", "")}
+                        className="py-2 px-3 rounded-xl border border-[#E5E7EB] text-xs font-medium text-red-500 hover:bg-red-50 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => popupImageInputRef.current?.click()}
+                    disabled={uploadingPopupImage}
+                    className="w-full h-24 rounded-xl border-2 border-dashed border-[#E5E7EB] hover:border-[#31D3A9]/50 flex flex-col items-center justify-center gap-1.5 transition-colors"
+                  >
+                    {uploadingPopupImage ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-[#31D3A9]" />
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 text-[#6B7280]" />
+                        <span className="text-xs text-[#6B7280]">Subir imagen</span>
+                      </>
+                    )}
+                  </button>
+                )}
+                <p className="mt-1.5 text-[11px] text-[#9CA3AF]">
+                  Sin imagen, el popup muestra título y texto con el ícono de
+                  correo.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5">
+            <h3 className="text-sm font-semibold text-[#1F2937] mb-1">
+              Cintillo
+            </h3>
+            <p className="text-[11px] text-[#9CA3AF] mb-4">
+              Texto promocional debajo del header en todas las páginas
+              públicas. Se oculta al hacer scroll.
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center justify-between text-sm font-medium text-[#1F2937] mb-1.5">
+                  Activar cintillo
+                  {settings.announcementEnabled === "true" ? <ConfiguredBadge /> : null}
+                </label>
+                <ToggleButtons
+                  value={settings.announcementEnabled || "false"}
+                  onTrue={() => handleChange("announcementEnabled", "true")}
+                  onFalse={() => handleChange("announcementEnabled", "false")}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
+                  Texto
+                </label>
+                <input
+                  type="text"
+                  value={settings.announcementText || ""}
+                  onChange={(e) => handleChange("announcementText", e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
+                  placeholder="Ej. Envíos gratis desde $40.000"
+                />
+              </div>
             </div>
           </div>
 

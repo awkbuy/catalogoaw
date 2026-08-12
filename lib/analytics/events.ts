@@ -81,6 +81,10 @@ export interface TrackShareParams {
   source?: string;
 }
 
+export interface TrackEmailSubscribeParams {
+  source?: string;
+}
+
 interface EventPayload {
   eventType: AnalyticsEventType;
   gameId?: string;
@@ -306,6 +310,13 @@ export function trackShare(params: TrackShareParams): void {
     gameName: params.gameName,
     categoryId: params.categoryId,
     categoryName: params.categoryName,
+    source: params.source,
+  });
+}
+
+export function trackEmailSubscribe(params: TrackEmailSubscribeParams): void {
+  send({
+    eventType: "email_subscribe",
     source: params.source,
   });
 }

@@ -4,6 +4,7 @@ import fs from "fs";
 
 const PORT = process.env.SECURITY_PORT || "3100";
 const BASE_URL = `http://localhost:${PORT}`;
+const ADMIN_PATH = "panel-test";
 const ADMIN_PASSWORD = process.env.SECURITY_ADMIN_PASSWORD || "securityTestPass123!";
 
 export const ADMIN_STATE = path.resolve(
@@ -27,7 +28,7 @@ export default async function globalSetup() {
     route.continue({ headers });
   });
 
-  await page.goto(`${BASE_URL}/login`);
+  await page.goto(`${BASE_URL}/${ADMIN_PATH}/login`);
   await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
   await page.locator('input[name="password"]').fill(ADMIN_PASSWORD);
   await page.getByRole("button", { name: /Iniciar sesión/i }).click();

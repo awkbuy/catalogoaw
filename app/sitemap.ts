@@ -8,6 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [settings, games, landings] = await Promise.all([
     getSeoSettings(),
     prisma.game.findMany({
+      where: { disponibleVenta: true, estado: "Disponible" },
       select: { slug: true, updatedAt: true },
       orderBy: { updatedAt: "desc" },
     }),

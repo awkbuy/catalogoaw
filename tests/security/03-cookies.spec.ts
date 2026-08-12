@@ -1,10 +1,10 @@
 import { test, expect, spoofIp, randomIp } from "./fixtures";
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from "./fixtures";
+import { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_PATH } from "./fixtures";
 
 test.describe("03 · Cookies — atributos de seguridad", () => {
   test("la cookie de sesión es HttpOnly, Secure, SameSite=Lax y expira en 7 días", async ({ page }) => {
     await spoofIp(page, randomIp());
-    await page.goto("/login");
+    await page.goto(`/${ADMIN_PATH}/login`);
     await page.getByLabel(/Email/i).fill(ADMIN_EMAIL);
     await page.locator('input[name="password"]').fill(ADMIN_PASSWORD);
     await page.getByRole("button", { name: /Iniciar sesión/i }).click();

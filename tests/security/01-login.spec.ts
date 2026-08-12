@@ -1,8 +1,8 @@
 import { test, expect, spoofIp, randomIp, assertNoLeak } from "./fixtures";
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from "./fixtures";
+import { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_PATH } from "./fixtures";
 
 async function goToLogin(page: import("@playwright/test").Page) {
-  await page.goto("/login");
+  await page.goto(`/${ADMIN_PATH}/login`);
   await expect(page.getByLabel(/Email/i)).toBeVisible();
   await expect(page.locator('input[name="password"]')).toBeVisible();
 }

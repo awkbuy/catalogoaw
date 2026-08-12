@@ -5,6 +5,7 @@ import { compareSync } from "bcryptjs";
 import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { createSession, deleteSession } from "@/lib/auth";
+import { adminHref } from "@/lib/admin-path";
 import { rateLimit } from "@/lib/rate-limit";
 
 export async function loginAction(
@@ -42,10 +43,10 @@ export async function loginAction(
   }
 
   await createSession(user.id);
-  redirect("/dashboard");
+  redirect(adminHref("/dashboard"));
 }
 
 export async function logoutAction(): Promise<never> {
   await deleteSession();
-  redirect("/login");
+  redirect(adminHref("/login"));
 }

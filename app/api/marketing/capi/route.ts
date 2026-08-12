@@ -15,6 +15,7 @@ const ALLOWED_EVENTS = new Set([
   "AddPaymentInfo",
   "ClickWhatsApp",
   "Share",
+  "EmailSubscribe",
 ]);
 
 const MAX_STRING_LEN = 200;

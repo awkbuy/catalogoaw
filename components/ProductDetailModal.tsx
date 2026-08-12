@@ -26,14 +26,14 @@ interface ProductDetailModalProps {
 
 export default function ProductDetailModal({ game, open, onClose, taxConfig, cuotasInfo, envioZonas, businessName }: ProductDetailModalProps) {
   const { isLite } = useAdaptive();
-  const { addItem, showCartToast } = useCart();
+  const { addItem, showCartToast, openCart } = useCart();
   const [cantidad, setCantidad] = useState(1);
 
   if (!game) return null;
 
   const comprable = game.disponibleVenta && !!game.precioFinalVenta;
 
-  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const addToCart = (e: React.MouseEvent<HTMLButtonElement>, abrirCarrito: boolean) => {
     if (!game) return;
     const precioNum = parsePrice(game.precioFinalVenta);
     const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
@@ -65,10 +65,14 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig, cuo
       from: e.currentTarget,
       onComplete: () => {
         onClose();
-        showCartToast();
+        if (abrirCarrito) openCart();
+        else showCartToast();
       },
     });
   };
+
+  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => addToCart(e, false);
+  const handleComprar = (e: React.MouseEvent<HTMLButtonElement>) => addToCart(e, true);
 
   return (
     <AnimatePresence>
@@ -114,19 +118,28 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig, cuo
             </div>
 
             {comprable && (
-              <div className="grid grid-cols-2 gap-3 border-t border-[#E5E7EB] p-4">
-                <ShareButton
-                  game={game}
-                  source="product_modal"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#1F2937] shadow-sm transition-all hover:border-[#31D3A9]/30 hover:shadow-md"
-                />
+              <div className="space-y-3 border-t border-[#E5E7EB] p-4">
                 <button
-                  onClick={handleAdd}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#31D3A9] px-4 py-3 text-sm font-semibold text-[#0B3B30] shadow-lg shadow-[#31D3A9]/20 hover:bg-[#2bc49b] hover:shadow-xl hover:shadow-[#31D3A9]/30 active:scale-[0.98] transition-all"
+                  onClick={handleComprar}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#31D3A9] px-5 py-3 text-sm font-semibold text-[#0B3B30] shadow-lg shadow-[#31D3A9]/20 hover:bg-[#2bc49b] hover:shadow-xl hover:shadow-[#31D3A9]/30 active:scale-[0.98] transition-all"
                 >
                   <ShoppingCart size={16} />
-                  Agregar al carrito {cantidad > 1 && `(${cantidad} unidades)`}
+                  Comprar {cantidad > 1 && `(${cantidad} unidades)`}
                 </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <ShareButton
+                    game={game}
+                    source="product_modal"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#1F2937] shadow-sm transition-all hover:border-[#31D3A9]/30 hover:shadow-md"
+                  />
+                  <button
+                    onClick={handleAdd}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#1F2937] shadow-sm transition-all hover:border-[#31D3A9]/30 hover:shadow-md"
+                  >
+                    <ShoppingCart size={16} />
+                    Agregar al carrito {cantidad > 1 && `(${cantidad} unidades)`}
+                  </button>
+                </div>
               </div>
             )}
           </Motion.div>

@@ -52,6 +52,10 @@ export interface Ga4ShareParams {
   source?: string;
 }
 
+export interface Ga4EmailSubscribeParams {
+  source?: string;
+}
+
 function push(eventName: string, params?: Record<string, unknown>): void {
   if (typeof window === "undefined") return;
   if (typeof window.gtag === "function") {
@@ -142,6 +146,12 @@ export function ga4TrackShare(params: Ga4ShareParams): void {
     content_type: params.content_type,
     item_id: params.item_id,
     item_name: params.item_name,
+    source: params.source,
+  });
+}
+
+export function ga4TrackEmailSubscribe(params: Ga4EmailSubscribeParams): void {
+  push("email_subscribe", {
     source: params.source,
   });
 }

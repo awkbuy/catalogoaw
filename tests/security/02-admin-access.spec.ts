@@ -1,4 +1,5 @@
 import { test, expect, assertNoLeak, readBody } from "./fixtures";
+import { ADMIN_PATH } from "./fixtures";
 
 const ADMIN_PAGES = [
   "/dashboard",
@@ -25,13 +26,23 @@ const ADMIN_APIS = [
 
 test.describe("02 · Panel admin — acceso sin autenticación", () => {
   for (const path of ADMIN_PAGES) {
-    test(`página ${path} sin sesión → redirige a /login sin entregar datos`, async ({ page }) => {
-      await page.goto(path, { waitUntil: "domcontentloaded" });
-      // page.goto() sigue el redirect: el assertion clave es que se termina en /login
-      // y que no se entrega ningún dato del panel (no existe 200 con contenido admin).
-      await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });
+    test(`página ${path} sin prefijo (ADMIN_PATH activo) → 404 sin entregar datos`, async ({ page }) => {
+      const response = await page.goto(path, { waitUntil: "domcontentloaded" });
+      expect(response?.status() ?? 0).toBe(404);
       const html = await page.content();
       // el contenido admin no debe estar presente
+      expect(html).not.toContain("Dashboard");
+      expect(html).not.toContain("Total Juegos");
+    });
+
+    test(`página ${ADMIN_PATH}${path} sin sesión → redirige al login del prefijo sin datos`, async ({ page }) => {
+      await page.goto(`/${ADMIN_PATH}${path}`, { waitUntil: "domcontentloaded" });
+      // page.goto() sigue el redirect: el assertion clave es que se termina en el
+      // login del prefijo y que no se entrega ningún dato del panel.
+      await expect(page).toHaveURL(new RegExp(`/${ADMIN_PATH}/login`), {
+        timeout: 10_000,
+      });
+      const html = await page.content();
       expect(html).not.toContain("Dashboard");
       expect(html).not.toContain("Total Juegos");
     });

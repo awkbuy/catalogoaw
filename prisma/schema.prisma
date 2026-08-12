@@ -132,6 +132,18 @@ model ShippingZone {
   @@index([order])
 }
 
+model EmailLead {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  source       String   @default("popup")
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model AnalyticsEvent {
   id           String   @id @default(cuid())
   eventType    String

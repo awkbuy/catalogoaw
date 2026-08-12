@@ -103,6 +103,15 @@ const ALLOWED_SETTINGS_KEYS = [
   "cuotasMax",
   "cuotasInteresMensual",
   "cuotasMinimoPrecio",
+  // Popup de captura de email (Fase 4)
+  "popupEnabled",
+  "popupImage",
+  "popupTitle",
+  "popupText",
+  "popupDelaySeconds",
+  // Cintillo (Fase 5)
+  "announcementEnabled",
+  "announcementText",
 ];
 
 export async function GET() {

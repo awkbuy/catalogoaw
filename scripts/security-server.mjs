@@ -19,6 +19,8 @@ const env = {
     process.env.SECURITY_SESSION_SECRET ||
     "security-test-secret-0f2b9d1e4a7c3b8f-6a5d4c3b2a1f9e8d",
   ADMIN_PASSWORD: process.env.SECURITY_ADMIN_PASSWORD || "securityTestPass123!",
+  ADMIN_PATH: process.env.SECURITY_ADMIN_PATH || "panel-test",
+  NEXT_PUBLIC_ADMIN_PATH: process.env.SECURITY_ADMIN_PATH || "panel-test",
   NODE_ENV: "production",
   PORT: port,
   NEXT_PUBLIC_SITE_URL: `http://localhost:${port}`,

@@ -1,5 +1,5 @@
 import { test, expect, spoofIp, randomIp, assertNoLeak, readBody } from "./fixtures";
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from "./fixtures";
+import { ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_PATH } from "./fixtures";
 
 test.describe("09 · Rate limiting — fuerza bruta y abuso mitigados", () => {
   test("validación de cupones: 10 intentos por IP → el 11º recibe 429", async ({ publicApi }) => {
@@ -36,7 +36,7 @@ test.describe("09 · Rate limiting — fuerza bruta y abuso mitigados", () => {
   test("login: tras 5 fallos, la contraseña correcta también queda bloqueada", async ({ page }) => {
     const ip = randomIp();
     await spoofIp(page, ip);
-    await page.goto("/login");
+    await page.goto(`/${ADMIN_PATH}/login`);
     for (let i = 0; i < 5; i++) {
       await page.getByLabel(/Email/i).fill(ADMIN_EMAIL);
       await page.locator('input[name="password"]').fill("wrong-password");
@@ -55,7 +55,7 @@ test.describe("09 · Rate limiting — fuerza bruta y abuso mitigados", () => {
 
   test("login con IP limpia sí funciona (no hay bloqueo global)", async ({ page }) => {
     await spoofIp(page, randomIp());
-    await page.goto("/login");
+    await page.goto(`/${ADMIN_PATH}/login`);
     await page.getByLabel(/Email/i).fill(ADMIN_EMAIL);
     await page.locator('input[name="password"]').fill(ADMIN_PASSWORD);
     await page.getByRole("button", { name: /Iniciar sesión/i }).click();

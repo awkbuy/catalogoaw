@@ -3,6 +3,7 @@ export interface ClientMarketingConfig {
   metaPixelEnabled: boolean;
   metaCapiEnabled: boolean;
   metaPixelId: string;
+  clarityEnabled: boolean;
 }
 
 export const DEFAULT_CLIENT_MARKETING_CONFIG: ClientMarketingConfig = {
@@ -10,6 +11,7 @@ export const DEFAULT_CLIENT_MARKETING_CONFIG: ClientMarketingConfig = {
   metaPixelEnabled: false,
   metaCapiEnabled: false,
   metaPixelId: "",
+  clarityEnabled: false,
 };
 
 declare global {

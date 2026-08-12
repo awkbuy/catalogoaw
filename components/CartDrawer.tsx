@@ -99,10 +99,13 @@ export default function CartDrawer({
   const [telefono, setTelefono] = useState(() => getCheckoutDatos().telefono || "");
   const [entrega, setEntrega] = useState<Entrega>(() => {
     const e = getCheckoutDatos().entrega;
-    return e === "retiro" || e === "envio" ? e : "";
+    return e === "retiro" || e === "envio" ? e : "retiro";
   });
   const [zonaId, setZonaId] = useState(() => getCheckoutDatos().zonaId || "");
-  const [pago, setPago] = useState(() => getCheckoutDatos().pago || "");
+  const [pago, setPago] = useState(() => {
+    const p = getCheckoutDatos().pago;
+    return paymentOptions.some((o) => o.value === p) ? p : paymentOptions[0].value;
+  });
   const [cupon, setCupon] = useState("");
   const [aplicandoCupon, setAplicandoCupon] = useState(false);
   const [direccion, setDireccion] = useState(() => getCheckoutDatos().direccion || "");

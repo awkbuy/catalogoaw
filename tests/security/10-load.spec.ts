@@ -1,4 +1,5 @@
 import { test, expect, randomIp } from "./fixtures";
+import { ADMIN_PATH } from "./fixtures";
 
 test.describe("10 · Carga — el servidor no se cae bajo ráfagas de ataque", () => {
   test("ráfaga de 40 requests públicos concurrentes → todos 200", async ({ publicApi }) => {
@@ -31,7 +32,7 @@ test.describe("10 · Carga — el servidor no se cae bajo ráfagas de ataque", (
     expect(res.status()).toBe(200);
 
     // la página pública sigue cargando
-    await page.goto("/login");
+    await page.goto(`/${ADMIN_PATH}/login`);
     await expect(page.getByRole("heading", { name: /Admin Panel/i })).toBeVisible();
     await expect(page.getByLabel(/Email/i)).toBeVisible();
   });

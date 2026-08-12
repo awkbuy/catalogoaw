@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import { requireAuth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getAdminPath } from "@/lib/admin-path";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import { AdminPathProvider } from "@/components/admin/AdminPathProvider";
 
 export async function generateMetadata(): Promise<Metadata> {
   const setting = await prisma.setting.findUnique({ where: { key: "nombreNegocio" } });
   const nombre = setting?.value || "Wolfie Room";
-  return { title: `Admin - ${nombre}` };
+  return {
+    title: `Admin - ${nombre}`,
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function AdminLayout({
@@ -23,10 +28,12 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      <AdminSidebar settings={settingsMap}>
-        {children}
-      </AdminSidebar>
-    </div>
+    <AdminPathProvider adminPath={getAdminPath()}>
+      <div className="min-h-screen bg-[#FAFAFA]">
+        <AdminSidebar settings={settingsMap}>
+          {children}
+        </AdminSidebar>
+      </div>
+    </AdminPathProvider>
   );
 }

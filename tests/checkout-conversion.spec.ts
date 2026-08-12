@@ -125,6 +125,33 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
     await expect(page.getByText("(1 producto)")).toBeVisible();
   });
 
+  test("modal: Comprar agrega y abre el checkout directo", async ({ page }) => {
+    const events = setupTracking(page);
+    await page.goto("/");
+    await waitForHydration(events);
+
+    await page.locator("article").first().click();
+    await page.locator(".max-w-lg").getByRole("button", { name: "Comprar" }).click();
+
+    await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
+    await expect(page.getByText("(1 producto)")).toBeVisible();
+  });
+
+  test("primera compra: retiro y efectivo vienen preseleccionados", async ({ page }) => {
+    await page.goto("/juegos/catan");
+
+    await page.getByRole("button", { name: "Comprar" }).click();
+    await page.getByRole("button", { name: "Hacer pedido" }).click();
+    await page.getByPlaceholder("Juan Pérez").fill("Juan Pérez");
+    await page.getByPlaceholder("261 123 4567").fill("2611234567");
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    await expect(
+      page.getByRole("radio", { name: /Lo retiro personalmente/ })
+    ).toBeChecked();
+    await expect(page.getByRole("radio", { name: "Efectivo" })).toBeChecked();
+  });
+
   test("el carrito es un wizard de 3 pasos y mantiene Subtotal y el CTA fijos abajo", async ({
     page,
   }) => {

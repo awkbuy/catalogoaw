@@ -8,6 +8,8 @@ import ImageWithProgress from "@/components/ImageWithProgress";
 import { sileo } from "sileo";
 import { uploadImage } from "@/lib/upload-image";
 import { useProgress } from "@/lib/progress-context";
+import { adminHref } from "@/lib/admin-path";
+import { useAdminPath } from "@/components/admin/AdminPathProvider";
 
 interface Categoria {
   id: string;
@@ -124,6 +126,7 @@ export default function GameForm({
   mode,
 }: GameFormProps) {
   const router = useRouter();
+  const adminPath = useAdminPath();
   const { start, done } = useProgress();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<GameData>(() =>
@@ -238,7 +241,7 @@ export default function GameForm({
         throw new Error(data.error || "Error al guardar");
       }
 
-      router.push("/games");
+      router.push(adminHref("/games", adminPath));
       router.refresh();
     } catch (err: unknown) {
       sileo.error({ title: err instanceof Error ? err.message : "Error al guardar el juego" });

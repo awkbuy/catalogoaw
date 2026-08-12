@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import crypto from "crypto";
 import { prisma } from "./prisma";
+import { adminHref } from "./admin-path";
 
 const COOKIE_NAME = "session_token";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
@@ -86,7 +87,7 @@ export async function deleteSession() {
 export async function requireAuth(): Promise<string> {
   const userId = await getSession();
   if (!userId) {
-    redirect("/login");
+    redirect(adminHref("/login"));
   }
   return userId;
 }

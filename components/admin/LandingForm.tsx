@@ -8,6 +8,8 @@ import { sileo } from "sileo";
 import { uploadImage } from "@/lib/upload-image";
 import { useProgress } from "@/lib/progress-context";
 import { slugifyLanding, parseGameIds } from "@/lib/landings";
+import { adminHref } from "@/lib/admin-path";
+import { useAdminPath } from "@/components/admin/AdminPathProvider";
 
 interface GameOption {
   id: string;
@@ -97,6 +99,7 @@ export default function LandingForm({
   mode,
 }: LandingFormProps) {
   const router = useRouter();
+  const adminPath = useAdminPath();
   const { start, done } = useProgress();
   const [form, setForm] = useState<LandingData>(() =>
     initialData
@@ -202,7 +205,7 @@ export default function LandingForm({
         throw new Error(data.error || "Error al guardar");
       }
 
-      router.push("/landings");
+      router.push(adminHref("/landings", adminPath));
       router.refresh();
     } catch (err: unknown) {
       sileo.error({

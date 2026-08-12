@@ -100,7 +100,7 @@ export default function ProductDetailMain({
 
         <div>
           <div className="flex items-start justify-between gap-3">
-            <h3 className="text-2xl font-bold text-[#1F2937]">{game.nombre}</h3>
+            <h1 className="text-2xl font-bold text-[#1F2937]">{game.nombre}</h1>
             {showShareButton && <ShareButton game={game} source={source} />}
           </div>
           {game.descripcion && (

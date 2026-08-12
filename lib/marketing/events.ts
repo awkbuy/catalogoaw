@@ -1,5 +1,6 @@
 import { getClientMarketingConfig } from "./config";
 import { metaTrack } from "./meta";
+import { clarityEvent } from "./clarity";
 import {
   trackAddToCart,
   trackBeginCheckout,
@@ -11,11 +12,13 @@ import {
   trackViewCart,
   trackViewItem,
   trackWhatsApp,
+  trackEmailSubscribe,
   trackAddPaymentInfo,
 } from "@/lib/analytics/events";
 import {
   ga4TrackAddToCart,
   ga4TrackBeginCheckout,
+  ga4TrackEmailSubscribe,
   ga4TrackPageView,
   ga4TrackRemoveFromCart,
   ga4TrackSearch,
@@ -36,7 +39,8 @@ export type MarketingEventName =
   | "InitiateCheckout"
   | "AddPaymentInfo"
   | "ClickWhatsApp"
-  | "Share";
+  | "Share"
+  | "EmailSubscribe";
 
 export interface MarketingEventData {
   content_ids?: string[];
@@ -152,6 +156,9 @@ function dispatchToGa4(event: MarketingEvent): void {
         source: data.source || "",
       });
       break;
+    case "EmailSubscribe":
+      ga4TrackEmailSubscribe({ source: data.source || "" });
+      break;
     default:
       break;
   }
@@ -199,6 +206,16 @@ function dispatchToPixel(event: MarketingEvent, eventId: string): void {
       break;
     case "Share":
       metaTrack("Share", base, eventId);
+      break;
+    case "EmailSubscribe":
+      metaTrack(
+        "Lead",
+        {
+          content_name: data.content_name,
+          content_category: data.content_category,
+        },
+        eventId
+      );
       break;
     default:
       break;
@@ -297,6 +314,9 @@ function dispatchToOwnAnalytics(event: MarketingEvent): void {
         source: data.source,
       });
       break;
+    case "EmailSubscribe":
+      trackEmailSubscribe({ source: data.source || "" });
+      break;
   }
 }
 
@@ -332,6 +352,7 @@ export function trackMarketingEvent(event: MarketingEvent): void {
   const config = getClientMarketingConfig();
   const eventId = event.event_id || generateEventId();
 
+  if (config.clarityEnabled) clarityEvent(event.event);
   if (config.ga4Enabled) dispatchToGa4(event);
   if (config.metaPixelEnabled && config.metaPixelId) dispatchToPixel(event, eventId);
   dispatchToOwnAnalytics(event);

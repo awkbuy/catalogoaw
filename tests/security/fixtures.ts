@@ -5,6 +5,7 @@ import { ADMIN_STATE } from "./global-setup";
 
 const PORT = process.env.SECURITY_PORT || "3100";
 export const BASE_URL = `http://localhost:${PORT}`;
+export const ADMIN_PATH = "panel-test";
 export const ADMIN_PASSWORD =
   process.env.SECURITY_ADMIN_PASSWORD || "securityTestPass123!";
 export const ADMIN_EMAIL = "admin@wolfieroom.com";

@@ -12,6 +12,7 @@ export const ANALYTICS_EVENT_TYPES = [
   "begin_checkout",
   "add_payment_info",
   "share",
+  "email_subscribe",
 ] as const;
 
 export type AnalyticsEventType = (typeof ANALYTICS_EVENT_TYPES)[number];

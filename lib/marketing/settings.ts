@@ -45,5 +45,6 @@ export function toClientConfig(config: MarketingConfig): ClientMarketingConfig {
     metaPixelEnabled: config.metaPixelEnabled,
     metaCapiEnabled: config.metaCapiEnabled,
     metaPixelId: config.metaPixelId,
+    clarityEnabled: config.clarityEnabled,
   };
 }
