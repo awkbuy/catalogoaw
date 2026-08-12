@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { requireTenantId } from "@/lib/tenant";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import sharp from "sharp";
@@ -15,6 +16,8 @@ const ALLOWED_MIME_TYPES = [
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const tenantId = await requireTenantId();
 
   const formData = await req.formData();
   const file = formData.get("file") as File;
@@ -43,7 +46,7 @@ export async function POST(req: NextRequest) {
   }
 
   const filename = `${crypto.randomUUID()}.webp`;
-  const uploadDir = join(process.cwd(), "public", "uploads");
+  const uploadDir = join(process.cwd(), "public", "uploads", tenantId);
 
   try {
     await mkdir(uploadDir, { recursive: true });
@@ -52,5 +55,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Save failed" }, { status: 500 });
   }
 
-  return NextResponse.json({ url: `/uploads/${filename}` });
+  return NextResponse.json({ url: `/uploads/${tenantId}/${filename}` });
 }

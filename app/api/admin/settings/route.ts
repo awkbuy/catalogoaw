@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 import { parseJsonBody } from "@/lib/errors";
 
 const ALLOWED_SETTINGS_KEYS = [
@@ -115,6 +115,7 @@ const ALLOWED_SETTINGS_KEYS = [
 ];
 
 export async function GET() {
+  const prisma = await getTenantDb();
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -128,6 +129,7 @@ export async function GET() {
 }
 
 export async function PUT(req: NextRequest) {
+  const prisma = await getTenantDb();
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

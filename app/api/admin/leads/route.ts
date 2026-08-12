@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 
 const MAX_LIMIT = 500;
 
@@ -12,6 +12,7 @@ function sanitizeInt(value: unknown, fallback: number, max: number): number {
 }
 
 export async function GET(req: NextRequest) {
+  const prisma = await getTenantDb();
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
