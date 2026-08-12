@@ -26,6 +26,7 @@ public/uploads/
 # Prisma client generado
 /app/generated/prisma
 node_modules/.prisma
+node_modules/.prisma/platform-client
 
 # Logs
 *.log

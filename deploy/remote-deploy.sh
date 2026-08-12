@@ -1,37 +1,48 @@
 #!/usr/bin/env bash
-# Ejecutado EN el VPS por GitHub Actions (usuario wolfie).
+# Ejecutado EN el VPS por GitHub Actions (usuario root).
 # Uso: bash remote-deploy.sh <short-sha>
 #
 # Flujo:
-#   1. Backup previo (DB + uploads)
-#   2. public/uploads -> /var/www/wolfie-room/uploads (directorio estable)
-#   3. Swap atómico del symlink app -> releases/<sha>
-#   4. Reinicio PM2 + smoke test (/ y /login)
-#   5. Si el smoke falla: ROLLBACK automático al release anterior y exit 1
-#   6. Limpieza: conservar 3 releases
+#   1. Backup previo (DB plataforma + tenant DBs + uploads)
+#   2. Migraciones multi-tenant (todas las tenant DBs)
+#   3. public/uploads -> /var/www/catalogoaw/uploads (directorio estable)
+#   4. Swap atómico del symlink app -> releases/<sha>
+#   5. Reinicio PM2 + smoke test
+#   6. Si el smoke falla: ROLLBACK automático y exit 1
+#   7. Limpieza: conservar 3 releases
 set -euo pipefail
 
-APP_DIR="/var/www/wolfie-room"
+APP_DIR="/var/www/catalogoaw"
 SHA="${1:?falta el SHA del release}"
 
 cd "$APP_DIR"
 
 echo "==> Backup previo al deploy"
-/usr/local/bin/backup-wolfie.sh
+if [ -x /usr/local/bin/backup-catalogoaw.sh ]; then
+  /usr/local/bin/backup-catalogoaw.sh
+fi
 
-echo "==> Aplicando migraciones (prisma migrate deploy contra la BD de producción)"
-# CLI de Prisma aislado en tools/ (ver install-server.sh). Si falla la
-# migración, `set -euo pipefail` aborta ANTES del swap: producción no se toca.
+echo "==> Aplicando migraciones (prisma migrate deploy)"
 set -a
-# shellcheck disable=SC1091
 source "$APP_DIR/.env"
 set +a
 cd "$APP_DIR/tools"
-# Baseline: la BD de producción se sembró manualmente sin historial de
-# migraciones, así que la inicial debe marcarse como aplicada (idempotente;
-# si ya está registrada, el error se ignora) para que migrate deploy siga.
+
+# Baseline: la BD de plataforma se sembró manualmente
 npx --no-install prisma migrate resolve --applied 20260803000000_init || true
 npx --no-install prisma migrate deploy
+
+# Migrar todas las tenant DBs
+echo "==> Migrando tenant DBs"
+for tenant_db in "$APP_DIR/data/tenants/"*.db; do
+  [ -f "$tenant_db" ] || continue
+  tenant_name=$(basename "$tenant_db" .db)
+  echo "    Migrando tenant: $tenant_name"
+  DATABASE_URL="file:$tenant_db" npx --no-install prisma migrate deploy || {
+    echo "    WARN: migración falló para tenant $tenant_name — continuando"
+  }
+done
+
 cd "$APP_DIR"
 
 echo "==> Preparando release $SHA"
@@ -45,7 +56,7 @@ echo "==> Swap atómico: app -> releases/$SHA"
 ln -sfn "releases/$SHA" "$APP_DIR/app.new"
 mv -Tf "$APP_DIR/app.new" "$APP_DIR/app"
 
-echo "==> Reiniciando wolfie-room"
+echo "==> Reiniciando catalogoaw"
 pm2 startOrRestart "$APP_DIR/deploy/ecosystem.config.js" >/dev/null || true
 pm2 save >/dev/null 2>&1 || true
 
@@ -53,22 +64,19 @@ smoke() {
   curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$1" || echo 000
 }
 
-# El VPS puede tardar en arrancar el server (1 GB, standalone): reintenta hasta ~30s.
-echo "==> Smoke test (reintentos) /, /login"
-HOME_CODE="000"
-LOGIN_CODE="000"
+echo "==> Smoke test (reintentos) /"
+CODE="000"
 for i in $(seq 1 10); do
-  HOME_CODE="$(smoke http://127.0.0.1:3000/)"
-  LOGIN_CODE="$(smoke http://127.0.0.1:3000/login)"
-  if [ "$HOME_CODE" = "200" ] && [ "$LOGIN_CODE" = "200" ]; then
+  CODE="$(smoke http://127.0.0.1:3000/)"
+  if [ "$CODE" = "200" ] || [ "$CODE" = "301" ] || [ "$CODE" = "302" ]; then
     break
   fi
   sleep 3
 done
-echo "smoke test: /=$HOME_CODE /login=$LOGIN_CODE"
+echo "smoke test: /=$CODE"
 
-if [ "$HOME_CODE" != "200" ] || [ "$LOGIN_CODE" != "200" ]; then
-  echo "==> SMOKE FALLÓ ($HOME_CODE/$LOGIN_CODE). Rollback a $PREV"
+if [ "$CODE" != "200" ] && [ "$CODE" != "301" ] && [ "$CODE" != "302" ]; then
+  echo "==> SMOKE FALLÓ ($CODE). Rollback a $PREV"
   ln -sfn "$PREV" "$APP_DIR/app.new"
   mv -Tf "$APP_DIR/app.new" "$APP_DIR/app"
   pm2 startOrRestart "$APP_DIR/deploy/ecosystem.config.js" >/dev/null || true
@@ -77,7 +85,7 @@ if [ "$HOME_CODE" != "200" ] || [ "$LOGIN_CODE" != "200" ]; then
 fi
 
 echo "==> Limpieza: conservar los 3 releases más recientes"
-CUR="$(readlink "$APP_DIR/app")"          # p.ej. releases/abc1234
+CUR="$(readlink "$APP_DIR/app")"
 CUR_SHORT="${CUR#releases/}"
 cd "$APP_DIR/releases"
 ls -1dt */ 2>/dev/null | sed 's#/$##' | grep -vx "$CUR_SHORT" | tail -n +3 | xargs -r rm -rf

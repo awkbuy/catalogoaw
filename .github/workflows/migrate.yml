@@ -40,14 +40,14 @@ jobs:
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
           ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            "$VPS_USER@$VPS_HOST" 'bash /usr/local/bin/backup-wolfie.sh'
+            "$VPS_USER@$VPS_HOST" 'bash /usr/local/bin/backup-catalogoaw.sh'
 
       - name: Sync prisma (schema + migraciones)
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/id_ed25519 -p $VPS_SSH_PORT -o StrictHostKeyChecking=no" \
-            prisma/ "$VPS_USER@$VPS_HOST:/var/www/wolfie-room/prisma/"
+            prisma/ "$VPS_USER@$VPS_HOST:/var/www/catalogoaw/prisma/"
 
       - name: Aplicar migraciones (prisma migrate deploy en el VPS)
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
@@ -55,8 +55,8 @@ jobs:
           ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
             "$VPS_USER@$VPS_HOST" '
             set -euo pipefail
-            cd /var/www/wolfie-room/tools
-            DATABASE_URL="file:/var/www/wolfie-room/data/dev.db" npx prisma migrate deploy
+            cd /var/www/catalogoaw/tools
+            DATABASE_URL="file:/var/www/catalogoaw/data/platform.db" npx prisma migrate deploy
           '
 
       - name: Verificar + reiniciar app
@@ -66,9 +66,9 @@ jobs:
             "$VPS_USER@$VPS_HOST" '
             set -euo pipefail
             echo "Migraciones aplicadas:"
-            sqlite3 /var/www/wolfie-room/data/dev.db \
+            sqlite3 /var/www/catalogoaw/data/platform.db \
               "select migration_name from _prisma_migrations order by finished_at desc limit 5;"
-            cd /var/www/wolfie-room
+            cd /var/www/catalogoaw
             pm2 startOrRestart deploy/ecosystem.config.js >/dev/null || true
             pm2 save >/dev/null 2>&1 || true
             sleep 3

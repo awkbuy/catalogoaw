@@ -54,8 +54,7 @@ jobs:
 
       # ─────────────────────────────────────────────────────────────
       # GATE DE PRUEBAS: no se despliega si falla la suite funcional
-      # o la suite de seguridad. Ambos gates abortan el job (fail-fast)
-      # antes de cualquier paso de SSH/rsync hacia producción.
+      # o la suite de seguridad.
       # ─────────────────────────────────────────────────────────────
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -88,6 +87,9 @@ jobs:
           retention-days: 5
           if-no-files-found: ignore
 
+      # ─────────────────────────────────────────────────────────────
+      # DEPLOY (solo si los secrets del VPS están configurados)
+      # ─────────────────────────────────────────────────────────────
       - name: Prepare SSH key
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
@@ -100,21 +102,21 @@ jobs:
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
           ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            "$VPS_USER@$VPS_HOST" 'bash /usr/local/bin/backup-wolfie.sh'
+            "$VPS_USER@$VPS_HOST" 'bash /usr/local/bin/backup-catalogoaw.sh'
 
-      - name: Sync config de deploy (scripts, ecosystem, nginx, env example)
+      - name: Sync config de deploy (scripts, ecosystem, env example)
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/id_ed25519 -p $VPS_SSH_PORT -o StrictHostKeyChecking=no" \
-            deploy/ "$VPS_USER@$VPS_HOST:/var/www/wolfie-room/deploy/"
+            deploy/ "$VPS_USER@$VPS_HOST:/var/www/catalogoaw/deploy/"
 
       - name: Sync prisma (schema + migraciones)
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
           rsync -avz \
             -e "ssh -i ~/.ssh/id_ed25519 -p $VPS_SSH_PORT -o StrictHostKeyChecking=no" \
-            prisma/ "$VPS_USER@$VPS_HOST:/var/www/wolfie-room/prisma/"
+            prisma/ "$VPS_USER@$VPS_HOST:/var/www/catalogoaw/prisma/"
 
       - name: Deploy release versionado (rsync a releases/<sha>)
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
@@ -122,10 +124,10 @@ jobs:
           set -euo pipefail
           SHA="$(git rev-parse --short HEAD)"
           ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            "$VPS_USER@$VPS_HOST" "mkdir -p /var/www/wolfie-room/releases/$SHA"
+            "$VPS_USER@$VPS_HOST" "mkdir -p /var/www/catalogoaw/releases/$SHA"
           rsync -avz --delete --exclude='public/uploads/' \
             -e "ssh -i ~/.ssh/id_ed25519 -p $VPS_SSH_PORT -o StrictHostKeyChecking=no" \
-            dist/app/ "$VPS_USER@$VPS_HOST:/var/www/wolfie-room/releases/$SHA/"
+            dist/app/ "$VPS_USER@$VPS_HOST:/var/www/catalogoaw/releases/$SHA/"
 
       - name: Swap symlink, restart, smoke test (rollback automático)
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
@@ -133,15 +135,15 @@ jobs:
           set -euo pipefail
           SHA="$(git rev-parse --short HEAD)"
           ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            "$VPS_USER@$VPS_HOST" "bash /var/www/wolfie-room/deploy/remote-deploy.sh $SHA"
+            "$VPS_USER@$VPS_HOST" "bash /var/www/catalogoaw/deploy/remote-deploy.sh $SHA"
 
       - name: Verify (estado final)
         if: ${{ env.VPS_HOST != '' && env.VPS_USER != '' && env.VPS_SSH_KEY != '' && env.VPS_SSH_PORT != '' }}
         run: |
           ssh -p "$VPS_SSH_PORT" -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
             "$VPS_USER@$VPS_HOST" '
-            cd /var/www/wolfie-room
+            cd /var/www/catalogoaw
             echo "app -> $(readlink app)"
-            pm2 status wolfie-room
+            pm2 status catalogoaw
             echo "releases:"; ls -1 releases
           '
