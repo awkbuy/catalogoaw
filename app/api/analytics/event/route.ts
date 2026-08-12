@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { isAnalyticsEventType } from "@/lib/analytics";
 
@@ -33,7 +33,7 @@ function dayKey(date: Date): Date {
   return d;
 }
 
-async function bumpDailyMetrics(date: Date, patch: Record<string, number>) {
+async function bumpDailyMetrics(prisma: Awaited<ReturnType<typeof getTenantDb>>, date: Date, patch: Record<string, number>) {
   const base = dayKey(date);
   const existing = await prisma.dailyMetrics.findUnique({ where: { date: base } });
   const increments: Record<string, { increment: number }> = {};
@@ -52,6 +52,7 @@ async function bumpDailyMetrics(date: Date, patch: Record<string, number>) {
 }
 
 export async function POST(req: NextRequest) {
+  const prisma = await getTenantDb();
   const ip = getClientIp(req);
   const rateLimitResult = rateLimit(`analytics:${ip}`, {
     windowMs: 60 * 1000,
@@ -147,7 +148,7 @@ export async function POST(req: NextRequest) {
       });
       if (!alreadyTracked) dailyPatch.sessions = 1;
     }
-    await bumpDailyMetrics(new Date(), dailyPatch);
+    await bumpDailyMetrics(prisma, new Date(), dailyPatch);
   }
 
   await prisma.analyticsEvent.create({

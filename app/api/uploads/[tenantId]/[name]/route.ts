@@ -15,12 +15,18 @@ const MIME_TYPES: Record<string, string> = {
 
 export async function GET(
   _req: Request,
-  { params }: { params: Promise<{ name: string }> }
+  { params }: { params: Promise<{ tenantId: string; name: string }> }
 ) {
-  const { name } = await params;
+  const { tenantId, name } = await params;
 
   if (
+    !tenantId ||
     !name ||
+    tenantId.includes("/") ||
+    tenantId.includes("\\") ||
+    tenantId.includes("..") ||
+    tenantId.includes("%") ||
+    tenantId.includes("\0") ||
     name.includes("/") ||
     name.includes("\\") ||
     name.includes("..") ||
@@ -30,7 +36,7 @@ export async function GET(
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const filePath = join(process.cwd(), "public", "uploads", name);
+  const filePath = join(process.cwd(), "public", "uploads", tenantId, name);
   const mime = MIME_TYPES[extname(name).toLowerCase()] ?? "application/octet-stream";
 
   try {

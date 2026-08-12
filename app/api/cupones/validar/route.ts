@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 import { formatPrice } from "@/lib/format";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const prisma = await getTenantDb();
   const ip = getClientIp(req);
   const rateLimitResult = rateLimit(`coupon:${ip}`, {
     windowMs: 60 * 1000,

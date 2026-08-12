@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getTenantDb } from "@/lib/tenant";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { sendWelcomeEmail } from "@/lib/email";
 import { getSeoSettings } from "@/lib/seo";
@@ -22,6 +22,7 @@ function sanitizeUtm(value: unknown): string | undefined {
 }
 
 export async function POST(req: NextRequest) {
+  const prisma = await getTenantDb();
   const ip = getClientIp(req);
   const rateLimitResult = rateLimit(`leads:${ip}`, {
     windowMs: 60 * 1000,
