@@ -151,7 +151,7 @@ export default function ProductDetailPage({
           </div>
 
           {esComprable && (
-            <aside className="hidden lg:block">
+            <aside aria-label="Panel de compra" className="hidden lg:block">
               <div className="lg:sticky lg:top-24">
                 <PurchasePanel
                   product={product}

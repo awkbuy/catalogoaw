@@ -214,7 +214,7 @@ async function main() {
         order: 1,
       },
       {
-        name: "Envío Local",
+        name: "Envío Mendoza",
         cost: 3000,
         freeFrom: 60000,
         active: true,
