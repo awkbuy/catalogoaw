@@ -5,7 +5,7 @@ const ANNOUNCEMENT = "Envíos gratis desde $40.000";
 
 async function loginAdmin(page: Page) {
   await page.goto("/login");
-  await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+  await page.getByLabel(/Email/i).fill("admin@catalogoapp.com");
   await page.locator('input[name="password"]').fill("admin123");
   await page.getByRole("button", { name: /Iniciar sesión/i }).click();
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
@@ -65,9 +65,9 @@ test.describe.serial("Cintillo promocional", () => {
     await expect(bar).toBeVisible({ timeout: 5000 });
   });
 
-  test("aparece también en el detalle de un juego", async ({ page }) => {
+  test("aparece también en el detalle de un producto", async ({ page }) => {
     await spoofIp(page);
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
     const bar = page.getByTestId("announcement-bar");
     await expect(bar).toBeVisible({ timeout: 15000 });
     await expect(bar).toContainText(ANNOUNCEMENT);

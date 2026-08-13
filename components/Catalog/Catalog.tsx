@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
-import GameCard from "./GameCard";
+import ProductCard from "./ProductCard";
 import ProductDetailModal from "@/components/ProductDetailModal";
 import { trackMarketingEvent } from "@/lib/marketing";
 import { parsePrice } from "@/lib/format";
@@ -25,18 +25,13 @@ function getTextOnColor(hex: string) {
   return luminance > 0.2 ? "text-[#0B3B30]" : "text-white";
 }
 
-export interface PublicGame {
+export interface PublicProduct {
   id: string;
   nombre: string;
   slug: string;
   descripcion: string;
   categoria: { nombre: string; icono: string; color: string };
   categorias?: { nombre: string; icono: string; color: string }[];
-  jugadoresMin: number;
-  jugadoresMax: number;
-  duracion: string;
-  edad: string;
-  dificultad: string;
   imagen: string;
   integrarVideo: boolean;
   videoUrl: string;
@@ -47,11 +42,10 @@ export interface PublicGame {
   descuento: number;
   envioGratis: boolean;
   disponibleVenta: boolean;
-  disponibleMesa: boolean;
 }
 
 interface CatalogProps {
-  games: PublicGame[];
+  products: PublicProduct[];
   whatsappNumber: string;
   taxConfig: TaxConfig;
   cuotasInfo: CuotasInfo;
@@ -59,11 +53,11 @@ interface CatalogProps {
   businessName?: string;
 }
 
-export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, envioZonas, businessName }: CatalogProps) {
+export default function Catalog({ products, whatsappNumber, taxConfig, cuotasInfo, envioZonas, businessName }: CatalogProps) {
   const { isLite } = useAdaptive();
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("Todos");
-  const [selectedGame, setSelectedGame] = useState<PublicGame | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<PublicProduct | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const catalogRef = useRef<HTMLElement>(null);
 
@@ -86,10 +80,10 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
 
   const categories = useMemo(() => {
     const map = new Map<string, { nombre: string; color: string; icono: string }>();
-    for (const game of games) {
-      const cats = game.categorias && game.categorias.length > 0
-        ? game.categorias
-        : [game.categoria];
+    for (const product of products) {
+      const cats = product.categorias && product.categorias.length > 0
+        ? product.categorias
+        : [product.categoria];
       for (const c of cats) {
         if (!map.has(c.nombre)) {
           map.set(c.nombre, c);
@@ -97,30 +91,30 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
       }
     }
     return [{ nombre: "Todos", color: "#31D3A9", icono: "🎲" }, ...map.values()];
-  }, [games]);
+  }, [products]);
 
-  const filteredGames = useMemo(() => {
+  const filteredProducts = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return games.filter((game) => {
-      const gameCats =
-        game.categorias && game.categorias.length > 0
-          ? game.categorias
-          : [game.categoria];
+    return products.filter((product) => {
+      const productCats =
+        product.categorias && product.categorias.length > 0
+          ? product.categorias
+          : [product.categoria];
       const matchesCategory =
         activeCategory === "Todos" ||
-        gameCats.some((c) => c.nombre === activeCategory);
+        productCats.some((c) => c.nombre === activeCategory);
       const matchesQuery =
         !q ||
-        game.nombre.toLowerCase().includes(q) ||
-        game.descripcion.toLowerCase().includes(q);
+        product.nombre.toLowerCase().includes(q) ||
+        product.descripcion.toLowerCase().includes(q);
       return matchesCategory && matchesQuery;
     });
-  }, [games, query, activeCategory]);
+  }, [products, query, activeCategory]);
 
-  const filteredGamesRef = useRef(0);
+  const filteredProductsRef = useRef(0);
   useEffect(() => {
-    filteredGamesRef.current = filteredGames.length;
-  }, [filteredGames.length]);
+    filteredProductsRef.current = filteredProducts.length;
+  }, [filteredProducts.length]);
 
   useEffect(() => {
     const q = query.trim();
@@ -130,7 +124,7 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
         event: "Search",
         data: {
           search_term: q,
-          quantity: filteredGamesRef.current,
+          quantity: filteredProductsRef.current,
           source: "catalog_search",
         },
       });
@@ -138,16 +132,16 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
     return () => clearTimeout(timer);
   }, [query]);
 
-  const openDetail = (game: PublicGame) => {
-    setSelectedGame(game);
+  const openDetail = (product: PublicProduct) => {
+    setSelectedProduct(product);
     setModalOpen(true);
     trackMarketingEvent({
       event: "ViewContent",
       data: {
-        content_ids: [game.id],
-        content_name: game.nombre,
-        content_category: game.categoria.nombre,
-        value: parsePrice(game.precioFinalVenta),
+        content_ids: [product.id],
+        content_name: product.nombre,
+        content_category: product.categoria.nombre,
+        value: parsePrice(product.precioFinalVenta),
         currency: "ARS",
         source: "catalog_card",
       },
@@ -163,10 +157,10 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-text sm:text-4xl">
-            Catálogo de juegos
+            Catálogo
           </h1>
           <p className="mx-auto mt-3 max-w-lg text-text-secondary">
-            Buscá el juego ideal por nombre, descripción o categoría
+            Buscá el producto ideal por nombre, descripción o categoría
           </p>
 
           <div className="relative mx-auto mt-6 max-w-md">
@@ -178,7 +172,7 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar juego..."
+              placeholder="Buscar producto..."
               className="w-full rounded-xl border border-border bg-card py-3 pl-11 pr-4 text-sm text-text shadow-sm outline-none transition-all placeholder:text-text-secondary focus:border-primary/40 focus:ring-2 focus:ring-primary/20"
             />
           </div>
@@ -195,19 +189,19 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
                   key={cat.nombre}
                   onClick={() => {
                     if (cat.nombre !== "Todos") {
-                      const categoryGames = games.filter((game) => {
-                        const gameCats =
-                          game.categorias && game.categorias.length > 0
-                            ? game.categorias
-                            : [game.categoria];
-                        return gameCats.some((c) => c.nombre === cat.nombre);
+                      const categoryProducts = products.filter((product) => {
+                        const productCats =
+                          product.categorias && product.categorias.length > 0
+                            ? product.categorias
+                            : [product.categoria];
+                        return productCats.some((c) => c.nombre === cat.nombre);
                       });
                       trackMarketingEvent({
                         event: "ViewCategory",
                         data: {
-                          content_ids: categoryGames.map((g) => g.id),
+                          content_ids: categoryProducts.map((p) => p.id),
                           content_category: cat.nombre,
-                          quantity: categoryGames.length,
+                          quantity: categoryProducts.length,
                           source: "catalog_category",
                         },
                       });
@@ -229,18 +223,18 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
           </div>
         </div>
 
-        {filteredGames.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <div className="py-20 text-center">
             <p className="text-2xl">🎲</p>
             <p className="mt-3 text-lg font-semibold text-text">
-              No encontramos juegos con ese filtro
+              No encontramos productos con ese filtro
             </p>
             <p className="mt-1 text-sm text-text-secondary">
               Probá con otra búsqueda o categoría
             </p>
             {whatsappNumber && (
               <a
-                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola, estoy buscando un juego en particular.")}`}
+                href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hola, estoy buscando un producto en particular.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() =>
@@ -258,10 +252,10 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
         ) : (
           <Motion.div layout className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6">
             <AnimatePresence mode={isLite ? undefined : "popLayout"}>
-              {filteredGames.map((game, index) => (
-                <GameCard
-                  key={game.id}
-                  game={game}
+              {filteredProducts.map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
                   index={index}
                   taxConfig={taxConfig}
                   cuotasInfo={cuotasInfo}
@@ -276,7 +270,7 @@ export default function Catalog({ games, whatsappNumber, taxConfig, cuotasInfo, 
       </div>
 
       <ProductDetailModal
-        game={selectedGame}
+        product={selectedProduct}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         taxConfig={taxConfig}

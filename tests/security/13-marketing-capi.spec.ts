@@ -11,7 +11,7 @@ test.describe("13 · Marketing CAPI — rate limit, robustez y no-filtración", 
           event_id: `evt-rate-${i}`,
           data: {
             content_ids: ["cmsg69pvo0007s0cl1te2fewi"],
-            content_name: "Catan",
+            content_name: "Smartwatch Deportivo",
             value: 50000,
             currency: "ARS",
           },

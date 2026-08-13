@@ -26,7 +26,7 @@ test.describe("Admin login", () => {
     await spoofIp(page);
     await page.goto("/login");
 
-    await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+    await page.getByLabel(/Email/i).fill("admin@catalogoapp.com");
     await page.locator('input[name="password"]').fill("admin123");
     await page.getByRole("button", { name: /Iniciar sesión/i }).click();
 

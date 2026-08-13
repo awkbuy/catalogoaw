@@ -3,7 +3,7 @@
 import { Eye, Zap, Truck } from "lucide-react";
 import Image from "next/image";
 import ImageWithProgress from "@/components/ImageWithProgress";
-import type { PublicGame } from "./Catalog";
+import type { PublicProduct } from "./Catalog";
 import { Motion } from "@/components/motion-wrapper";
 import { useAdaptive } from "@/lib/adaptive-context";
 import { useCart } from "@/lib/cart-context";
@@ -19,10 +19,6 @@ import {
 import { calcularCuotas, resolverEnvio, type CuotasInfo, type PublicShippingZone } from "@/lib/ventas";
 
 const tagConfig: Record<string, { label: string; className: string }> = {
-  jugar: {
-    label: "🟢 Para jugar",
-    className: "bg-primary/10 text-primary",
-  },
   recomendado: {
     label: "⭐ Recomendado",
     className: "bg-amber-50 text-amber-600",
@@ -37,24 +33,24 @@ const tagConfig: Record<string, { label: string; className: string }> = {
   },
 };
 
-interface GameCardProps {
-  game: PublicGame;
+interface ProductCardProps {
+  product: PublicProduct;
   index: number;
   taxConfig: TaxConfig;
   cuotasInfo: CuotasInfo;
   envioZonas: PublicShippingZone[];
   businessName?: string;
-  onViewDetail?: (game: PublicGame) => void;
+  onViewDetail?: (product: PublicProduct) => void;
 }
 
-export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZonas, businessName = "Wolfie Room", onViewDetail }: GameCardProps) {
+export default function ProductCard({ product, index, taxConfig, cuotasInfo, envioZonas, businessName = "Catalogo App", onViewDetail }: ProductCardProps) {
   const { isLite } = useAdaptive();
   const { addItem, openCart } = useCart();
-  const isAvailable = game.estado === "Disponible";
+  const isAvailable = product.estado === "Disponible";
 
-  const precioNum = parsePrice(game.precioFinalVenta);
-  const hasDescuento = game.descuento > 0 && game.disponibleVenta;
-  const precioDescuento = hasDescuento ? precioNum * (1 - game.descuento / 100) : precioNum;
+  const precioNum = parsePrice(product.precioFinalVenta);
+  const hasDescuento = product.descuento > 0 && product.disponibleVenta;
+  const precioDescuento = hasDescuento ? precioNum * (1 - product.descuento / 100) : precioNum;
   const precioFinal = hasDescuento ? precioDescuento : precioNum;
   const mostrarSinImpuestos =
     taxConfig.activoCalculoAutomatico &&
@@ -63,11 +59,11 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
   const precioSinImpuestos = mostrarSinImpuestos
     ? formatPrecioConDecimales(calcularPrecioSinImpuestos(precioFinal, taxConfig))
     : "";
-  const cuotas = game.disponibleVenta && cuotasInfo ? calcularCuotas(precioFinal, cuotasInfo) : null;
-  const envio = game.disponibleVenta
+  const cuotas = product.disponibleVenta && cuotasInfo ? calcularCuotas(precioFinal, cuotasInfo) : null;
+  const envio = product.disponibleVenta
     ? resolverEnvio({
         precio: precioFinal,
-        envioGratisDelJuego: game.envioGratis,
+        envioGratisDelProducto: product.envioGratis,
         zonas: envioZonas,
       })
     : null;
@@ -76,19 +72,19 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     addItem({
-      gameId: game.id,
-      nombre: game.nombre,
+      productId: product.id,
+      nombre: product.nombre,
       precio: formatPrice(hasDescuento ? precioDescuento : precioNum),
       precioNum: hasDescuento ? precioDescuento : precioNum,
-      imagen: game.imagen,
-      envioGratis: game.envioGratis,
+      imagen: product.imagen,
+      envioGratis: product.envioGratis,
     });
     trackMarketingEvent({
       event: "AddToCart",
       data: {
-        content_ids: [game.id],
-        content_name: game.nombre,
-        content_category: game.categoria.nombre,
+        content_ids: [product.id],
+        content_name: product.nombre,
+        content_category: product.categoria.nombre,
         value: hasDescuento ? precioDescuento : precioNum,
         currency: "ARS",
         quantity: 1,
@@ -96,16 +92,15 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
       },
     });
     flyToCart({
-      image: game.imagen,
+      image: product.imagen,
       from: e.currentTarget as HTMLElement,
       onComplete: openCart,
     });
   };
 
   const tags: string[] = [];
-  if (game.disponibleMesa) tags.push("jugar");
-  if (game.destacado) tags.push("recomendado");
-  if (game.nuevo) tags.push("novedad");
+  if (product.destacado) tags.push("recomendado");
+  if (product.nuevo) tags.push("novedad");
   if (hasDescuento) tags.push("descuento");
 
   return (
@@ -116,14 +111,14 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, delay: isLite ? 0 : index * 0.05 }}
       whileHover={isLite ? undefined : { y: -4 }}
-      onClick={() => onViewDetail?.(game)}
+      onClick={() => onViewDetail?.(product)}
       className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg hover:shadow-black/5"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-        {game.imagen ? (
+        {product.imagen ? (
           <ImageWithProgress
-            src={game.imagen}
-            alt={game.nombre}
+            src={product.imagen}
+            alt={product.nombre}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             loading={index === 0 ? "eager" : "lazy"}
@@ -134,11 +129,11 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 text-3xl">
-              {game.categoria.icono &&
-              (game.categoria.icono.startsWith("/") || game.categoria.icono.startsWith("http")) ? (
-                <Image src={game.categoria.icono} alt="" width={40} height={40} className="object-contain" />
+              {product.categoria.icono &&
+              (product.categoria.icono.startsWith("/") || product.categoria.icono.startsWith("http")) ? (
+                <Image src={product.categoria.icono} alt="" width={40} height={40} className="object-contain" />
               ) : (
-                game.categoria.icono || "🎲"
+                product.categoria.icono || "🎲"
               )}
             </div>
           </div>
@@ -157,31 +152,31 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
                 isAvailable ? "bg-primary" : "bg-secondary"
               }`}
             />
-            {game.estado}
+            {product.estado}
           </span>
         </div>
 
         {hasDescuento && (
           <div className="absolute top-3 left-3 z-10">
             <span className="inline-flex items-center rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-bold text-white shadow-lg">
-              -{game.descuento}%
+              -{product.descuento}%
             </span>
           </div>
         )}
 
         <div className="absolute bottom-3 left-3">
           <span className="rounded-full bg-white/90 backdrop-blur-sm px-3 py-1 text-xs font-medium text-text shadow-sm">
-            {game.categoria.nombre}
+            {product.categoria.nombre}
           </span>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="mb-1 truncate text-lg font-bold text-text">{game.nombre}</h3>
+        <h3 className="mb-1 truncate text-lg font-bold text-text">{product.nombre}</h3>
 
-        {game.descripcion && (
+        {product.descripcion && (
           <p className="mb-3 line-clamp-2 text-sm text-text-secondary">
-            {game.descripcion}
+            {product.descripcion}
           </p>
         )}
 
@@ -201,7 +196,7 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
           </div>
         )}
 
-        {game.disponibleVenta && (
+        {product.disponibleVenta && (
           <div className="mt-auto mb-4">
             <div className="flex flex-wrap items-baseline gap-2">
               {hasDescuento ? (
@@ -265,7 +260,7 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
           </div>
         )}
 
-        {game.disponibleVenta ? (
+        {product.disponibleVenta ? (
           <button
             onClick={handleQuickAdd}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-[#0B3B30] shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98]"
@@ -277,7 +272,7 @@ export default function GameCard({ game, index, taxConfig, cuotasInfo, envioZona
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onViewDetail?.(game);
+              onViewDetail?.(product);
             }}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-white px-4 py-3 text-sm font-semibold text-text shadow-sm transition-all hover:border-primary/30 hover:shadow-md active:scale-[0.98]"
           >

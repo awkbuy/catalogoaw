@@ -8,7 +8,7 @@ export const BASE_URL = `http://localhost:${PORT}`;
 export const ADMIN_PATH = "panel-test";
 export const ADMIN_PASSWORD =
   process.env.SECURITY_ADMIN_PASSWORD || "securityTestPass123!";
-export const ADMIN_EMAIL = "admin@wolfieroom.com";
+export const ADMIN_EMAIL = "admin@catalogoapp.com";
 
 export const test = base.extend<{
   adminApi: APIRequestContext;

@@ -8,22 +8,22 @@ test.describe("Compartir en detalle de producto", () => {
   test("el botón Compartir copia el enlace completo del producto", async ({
     page,
   }) => {
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     await page.getByRole("button", { name: "Compartir" }).click();
 
     await expect(page.getByText("Enlace copiado")).toBeVisible();
 
     const clipboard = await page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboard).toBe("http://localhost:3000/juegos/catan");
+    expect(clipboard).toBe("http://localhost:3000/productos/smartwatch-deportivo");
   });
 
   test("el enlace copiado corresponde al producto abierto", async ({ page }) => {
-    await page.goto("/juegos/ticket-to-ride");
+    await page.goto("/productos/smartwatch-deportivo");
 
     await page.getByRole("button", { name: "Compartir" }).click();
 
     const clipboard = await page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboard).toBe("http://localhost:3000/juegos/ticket-to-ride");
+    expect(clipboard).toBe("http://localhost:3000/productos/smartwatch-deportivo");
   });
 });

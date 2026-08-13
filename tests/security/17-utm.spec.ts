@@ -2,10 +2,10 @@ import { test, expect, randomIp, assertNoLeak, readBody } from "./fixtures";
 
 const VALID_EVENT = {
   eventType: "view_item",
-  gameId: "cmsg69pvo0007s0cl1te2fewi",
-  gameName: "Catan",
+  productId: "cmsg69pvo0007s0cl1te2fewi",
+  productName: "Smartwatch Deportivo",
   categoryId: "cmsg69pro0001s0clpiu8w7jf",
-  categoryName: "Estrategia",
+  categoryName: "Tecnología",
 };
 
 test.describe("17 · UTM — validación, truncado y no-filtración", () => {

@@ -6,7 +6,7 @@ import { getTenantDb } from "@/lib/tenant";
 export async function getCategories() {
   const prisma = await getTenantDb();
   return prisma.category.findMany({
-    include: { _count: { select: { games: true } } },
+    include: { _count: { select: { products: true } } },
     orderBy: { orden: "asc" },
   });
 }
@@ -62,13 +62,13 @@ export async function deleteCategory(id: string) {
 
   const category = await prisma.category.findUnique({
     where: { id },
-    include: { _count: { select: { games: true } } },
+    include: { _count: { select: { products: true } } },
   });
 
   if (!category) throw new Error("Categoría no encontrada");
-  if (category._count.games > 0) {
+  if (category._count.products > 0) {
     throw new Error(
-      "No se puede eliminar una categoría que tiene juegos asociados"
+      "No se puede eliminar una categoría que tiene productos asociados"
     );
   }
 

@@ -34,6 +34,20 @@ export async function loginAction(
 
   // Resolver tenant actual desde los headers
   const tenantCtx = await getTenantFromHeaders();
+
+  // ── Dev fallback: sin tenant, usar User table directa ──
+  if (!tenantCtx && process.env.NODE_ENV !== "production") {
+    const { prisma: defaultPrisma } = await import("@/lib/prisma");
+    const user = await defaultPrisma.user.findUnique({ where: { email } });
+    if (!user) return { error: "Credenciales inválidas" };
+
+    const valid = compareSync(password, user.passwordHash);
+    if (!valid) return { error: "Credenciales inválidas" };
+
+    await createSession(user.id, "");
+    redirect(adminHref("/dashboard"));
+  }
+
   if (!tenantCtx) {
     return { error: "No se pudo resolver el tenant. Accedé desde tu subdominio." };
   }

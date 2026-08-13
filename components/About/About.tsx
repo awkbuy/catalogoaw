@@ -8,14 +8,14 @@ interface AboutProps {
 }
 
 export default function About({ whatsappNumber }: AboutProps) {
-  const WHATSAPP_RESERVA = `https://wa.me/${whatsappNumber}?text=Hola.%20Quisiera%20consultar%20para%20reservar%20una%20mesa%20en%20Wolfie%20Room.`;
+  const WHATSAPP_RESERVA = `https://wa.me/${whatsappNumber}?text=Hola.%20Quisiera%20hacer%20una%20consulta.`;
 
   const actions = [
     {
       icon: Dice5,
-      title: "Jugá",
+      title: "Explorá",
       description:
-        "Reservá una mesa y disfrutá de nuestra ludoteca con amigos o familia.",
+        "Navegá nuestro catálogo y descubrí todo lo que tenemos para ofrecerte.",
       gradient: "from-primary/10 to-primary/5",
       iconColor: "text-primary",
     },
@@ -23,15 +23,15 @@ export default function About({ whatsappNumber }: AboutProps) {
       icon: ShoppingBag,
       title: "Comprá",
       description:
-        "Encontrá una selección de juegos de mesa para llevar a casa.",
+        "Encontrá una selección de productos seleccionados para llevar a casa.",
       gradient: "from-secondary/10 to-secondary/5",
       iconColor: "text-secondary",
     },
     {
       icon: CalendarDays,
-      title: "Reservá",
+      title: "Consultá",
       description:
-        "Escribinos por WhatsApp para reservar tu lugar y consultar disponibilidad.",
+        "Escribinos por WhatsApp para consultar por productos y disponibilidad.",
       gradient: "from-primary/10 to-secondary/5",
       iconColor: "text-primary",
       link: WHATSAPP_RESERVA,
@@ -51,11 +51,11 @@ export default function About({ whatsappNumber }: AboutProps) {
           className="mb-14 text-center"
         >
           <h2 className="mb-3 text-3xl font-bold tracking-tight text-text sm:text-4xl">
-            ¿Qué podés hacer en Wolfie Room?
+            ¿Qué podés hacer?
           </h2>
           <p className="mx-auto max-w-lg text-text-secondary">
-            Más que una tienda, somos un punto de encuentro para los amantes de
-            los juegos de mesa.
+            Más que una tienda, un lugar pensado para que encuentres lo que
+            buscás.
           </p>
         </motion.div>
 

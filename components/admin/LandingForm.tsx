@@ -7,11 +7,11 @@ import ImageWithProgress from "@/components/ImageWithProgress";
 import { sileo } from "sileo";
 import { uploadImage } from "@/lib/upload-image";
 import { useProgress } from "@/lib/progress-context";
-import { slugifyLanding, parseGameIds } from "@/lib/landings";
+import { slugifyLanding, parseProductIds } from "@/lib/landings";
 import { adminHref } from "@/lib/admin-path";
 import { useAdminPath } from "@/components/admin/AdminPathProvider";
 
-interface GameOption {
+interface ProductOption {
   id: string;
   nombre: string;
   imagen: string;
@@ -31,14 +31,14 @@ interface LandingData {
   seoDescription: string;
   seoKeywords: string;
   canonical: string;
-  gameIds: string;
+  productIds: string;
   isActive: boolean;
   sortOrder: string;
 }
 
 interface LandingFormProps {
   initialData?: LandingData;
-  games: GameOption[];
+  products: ProductOption[];
   mode: "create" | "edit";
 }
 
@@ -54,7 +54,7 @@ const defaultData: LandingData = {
   seoDescription: "",
   seoKeywords: "",
   canonical: "",
-  gameIds: "[]",
+  productIds: "[]",
   isActive: true,
   sortOrder: "0",
 };
@@ -95,7 +95,7 @@ const inputClass =
 
 export default function LandingForm({
   initialData,
-  games,
+  products,
   mode,
 }: LandingFormProps) {
   const router = useRouter();
@@ -109,9 +109,9 @@ export default function LandingForm({
   const [autoSlug, setAutoSlug] = useState(!initialData);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [gameSearch, setGameSearch] = useState("");
+  const [productSearch, setProductSearch] = useState("");
 
-  const selectedIds = parseGameIds(form.gameIds);
+  const selectedIds = parseProductIds(form.productIds);
   const selectedSet = new Set(selectedIds);
 
   const handleChange = (
@@ -131,13 +131,13 @@ export default function LandingForm({
     });
   };
 
-  const toggleGame = (id: string) => {
+  const toggleProduct = (id: string) => {
     setForm((prev) => {
-      const current = parseGameIds(prev.gameIds);
+      const current = parseProductIds(prev.productIds);
       const next = current.includes(id)
-        ? current.filter((g) => g !== id)
+        ? current.filter((p) => p !== id)
         : [...current, id];
-      return { ...prev, gameIds: JSON.stringify(next) };
+      return { ...prev, productIds: JSON.stringify(next) };
     });
   };
 
@@ -162,10 +162,10 @@ export default function LandingForm({
     }
   };
 
-  const filteredGames = games.filter(
-    (g) =>
-      !gameSearch.trim() ||
-      g.nombre.toLowerCase().includes(gameSearch.toLowerCase())
+  const filteredProducts = products.filter(
+    (p) =>
+      !productSearch.trim() ||
+      p.nombre.toLowerCase().includes(productSearch.toLowerCase())
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -232,7 +232,7 @@ export default function LandingForm({
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                placeholder="Ej: Cyber Monday Wolfie Room"
+                placeholder="Ej: Cyber Monday Catalogo App"
                 className={inputClass}
                 required
               />
@@ -296,7 +296,7 @@ export default function LandingForm({
                   name="heroDescription"
                   value={form.heroDescription}
                   onChange={handleChange}
-                  placeholder="Ej: Los mejores juegos de mesa al mejor precio"
+                  placeholder="Ej: Los mejores productos al mejor precio"
                   className={inputClass}
                 />
               </Field>
@@ -419,35 +419,35 @@ export default function LandingForm({
 
           <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 space-y-5">
             <h2 className="text-base font-bold text-[#1F2937]">
-              Juegos de la landing
+              Productos de la landing
             </h2>
             <p className="text-sm text-[#6B7280]">
-              {selectedIds.length} juego{selectedIds.length !== 1 ? "s" : ""}{" "}
+              {selectedIds.length} producto{selectedIds.length !== 1 ? "s" : ""}{" "}
               seleccionado{selectedIds.length !== 1 ? "s" : ""}
             </p>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
               <input
                 type="text"
-                value={gameSearch}
-                onChange={(e) => setGameSearch(e.target.value)}
-                placeholder="Buscar juegos para agregar..."
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                placeholder="Buscar productos para agregar..."
                 className={`${inputClass} pl-9`}
               />
             </div>
             <div className="max-h-72 overflow-y-auto border border-[#E5E7EB] rounded-xl divide-y divide-[#E5E7EB]/50">
-              {filteredGames.length === 0 && (
+              {filteredProducts.length === 0 && (
                 <div className="py-8 text-center text-sm text-[#6B7280]">
-                  No se encontraron juegos
+                  No se encontraron productos
                 </div>
               )}
-              {filteredGames.map((game) => {
-                const checked = selectedSet.has(game.id);
+              {filteredProducts.map((product) => {
+                const checked = selectedSet.has(product.id);
                 return (
                   <button
-                    key={game.id}
+                    key={product.id}
                     type="button"
-                    onClick={() => toggleGame(game.id)}
+                    onClick={() => toggleProduct(product.id)}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
                       checked ? "bg-[#31D3A9]/5" : "hover:bg-[#FAFAFA]"
                     }`}
@@ -461,11 +461,11 @@ export default function LandingForm({
                     >
                       {checked && <Check className="w-3.5 h-3.5" />}
                     </span>
-                    {game.imagen ? (
+                    {product.imagen ? (
                       <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#E5E7EB] flex-shrink-0">
                         <ImageWithProgress
-                          src={game.imagen}
-                          alt={game.nombre}
+                          src={product.imagen}
+                          alt={product.nombre}
                           width={40}
                           height={40}
                           imgClassName="object-cover"
@@ -478,10 +478,10 @@ export default function LandingForm({
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-[#1F2937] truncate">
-                        {game.nombre}
+                        {product.nombre}
                       </p>
                       <p className="text-xs text-[#6B7280]">
-                        {game.categoria.nombre}
+                        {product.categoria.nombre}
                       </p>
                     </div>
                   </button>
@@ -553,7 +553,7 @@ export default function LandingForm({
               </div>
               <div className="p-3 bg-white">
                 <p className="text-xs text-[#6B7280]">
-                  {selectedIds.length} juego
+                  {selectedIds.length} producto
                   {selectedIds.length !== 1 ? "s" : ""} en la landing
                 </p>
               </div>

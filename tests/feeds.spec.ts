@@ -3,7 +3,7 @@ import { spoofIp } from "./helpers";
 
 async function login(page: Page): Promise<void> {
   await page.goto("/login");
-  await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+  await page.getByLabel(/Email/i).fill("admin@catalogoapp.com");
   await page.locator('input[name="password"]').fill("admin123");
   await page.getByRole("button", { name: /Iniciar sesión/i }).click();
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
@@ -26,17 +26,15 @@ interface CreateGameOptions {
   descripcion?: string;
 }
 
-async function createGame(page: Page, opts: CreateGameOptions): Promise<{ id: string }> {
-  const juegos = await (await page.request.get("/api/admin/juegos")).json();
-  const categoriaId = juegos[0].categoriaId;
-  const res = await page.request.post("/api/admin/juegos", {
+async function createProduct(page: Page, opts: CreateGameOptions): Promise<{ id: string }> {
+  const productos = await (await page.request.get("/api/admin/productos")).json();
+  const categoriaId = productos[0].categoriaId;
+  const res = await page.request.post("/api/admin/productos", {
     data: {
       nombre: opts.nombre,
       slug: opts.slug,
-      descripcion: opts.descripcion || "Juego de prueba para feeds",
+      descripcion: opts.descripcion || "Producto de prueba para feeds",
       categoriaId,
-      jugadoresMin: 2,
-      jugadoresMax: 4,
       showInMerchant: opts.showInMerchant ?? false,
       showInMetaCommerce: opts.showInMetaCommerce ?? false,
       disponibleVenta: opts.disponibleVenta ?? true,
@@ -44,7 +42,7 @@ async function createGame(page: Page, opts: CreateGameOptions): Promise<{ id: st
       descuento: opts.descuento ?? 0,
       gtin: opts.gtin ?? "",
       mpn: opts.mpn ?? "",
-      brand: opts.brand ?? "Wolfie Room",
+      brand: opts.brand ?? "Catalogo App",
       condition: opts.condition ?? "new",
       googleProductCategory: opts.googleProductCategory ?? "",
       metaProductCategory: opts.metaProductCategory ?? "",
@@ -54,8 +52,8 @@ async function createGame(page: Page, opts: CreateGameOptions): Promise<{ id: st
   return (await res.json()) as { id: string };
 }
 
-async function deleteGame(page: Page, id: string): Promise<void> {
-  await page.request.delete(`/api/admin/juegos/${id}`);
+async function deleteProduct(page: Page, id: string): Promise<void> {
+  await page.request.delete(`/api/admin/productos/${id}`);
 }
 
 test.describe("Feeds de productos", () => {
@@ -64,9 +62,9 @@ test.describe("Feeds de productos", () => {
     await login(page);
   });
 
-  test("google/xml incluye juegos con showInMerchant y precio, con formato válido", async ({ page }) => {
+  test("google/xml incluye productos con showInMerchant y precio, con formato válido", async ({ page }) => {
     const slug = `feed-google-${Date.now()}`;
-    const created = await createGame(page, {
+    const created = await createProduct(page, {
       nombre: "Feed Google Test",
       slug,
       showInMerchant: true,
@@ -74,7 +72,7 @@ test.describe("Feeds de productos", () => {
       precioFinalVenta: "25000",
       gtin: "0702217114061",
       mpn: "WR-FEED-001",
-      googleProductCategory: "Toys & Games > Games > Board Games",
+      googleProductCategory: "Electronics > Wearable Technology",
     });
     try {
       const res = await page.request.get("/api/feeds/google/xml");
@@ -87,22 +85,22 @@ test.describe("Feeds de productos", () => {
       expect(xml).toContain("<g:price>25000.00 ARS</g:price>");
       expect(xml).toContain("<g:availability>in stock</g:availability>");
       expect(xml).toContain("<g:condition>new</g:condition>");
-      expect(xml).toContain(`<g:link>https://wolfiesroom.com/juegos/${slug}</g:link>`);
+      expect(xml).toContain(`<g:link>https://catalogo.app/productos/${slug}</g:link>`);
       expect(xml).toContain("<g:gtin>0702217114061</g:gtin>");
       expect(xml).toContain("<g:mpn>WR-FEED-001</g:mpn>");
-      expect(xml).toContain("<g:google_product_category>Toys &amp; Games &gt; Games &gt; Board Games</g:google_product_category>");
+      expect(xml).toContain("<g:google_product_category>Electronics &gt; Wearable Technology</g:google_product_category>");
     } finally {
-      await deleteGame(page, created.id);
+      await deleteProduct(page, created.id);
     }
   });
 
-  test("meta/xml y meta/csv incluyen juegos con showInMetaCommerce", async ({ page }) => {
+  test("meta/xml y meta/csv incluyen productos con showInMetaCommerce", async ({ page }) => {
     const slug = `feed-meta-${Date.now()}`;
-    const created = await createGame(page, {
+    const created = await createProduct(page, {
       nombre: "Feed Meta Test",
       slug,
       showInMetaCommerce: true,
-      metaProductCategory: "Juegos de mesa",
+      metaProductCategory: "Tecnología",
     });
     try {
       const xmlRes = await page.request.get("/api/feeds/meta/xml");
@@ -110,7 +108,7 @@ test.describe("Feeds de productos", () => {
       const xml = await xmlRes.text();
       expect(xml).toContain(`<g:id>${created.id}</g:id>`);
       expect(xml).toContain("<g:title>Feed Meta Test</g:title>");
-      expect(xml).toContain("<g:product_type>Juegos de mesa</g:product_type>");
+      expect(xml).toContain("<g:product_type>Tecnología</g:product_type>");
 
       const csvRes = await page.request.get("/api/feeds/meta/csv");
       expect(csvRes.status()).toBe(200);
@@ -122,13 +120,13 @@ test.describe("Feeds de productos", () => {
       expect(csv).toContain(`${created.id},Feed Meta Test`);
       expect(csv).toContain("25000.00 ARS");
     } finally {
-      await deleteGame(page, created.id);
+      await deleteProduct(page, created.id);
     }
   });
 
-  test("juego sin flags de feed no aparece en ningún feed", async ({ page }) => {
+  test("producto sin flags de feed no aparece en ningún feed", async ({ page }) => {
     const slug = `feed-excluido-${Date.now()}`;
-    const created = await createGame(page, {
+    const created = await createProduct(page, {
       nombre: "Feed Excluido Test",
       slug,
       showInMerchant: false,
@@ -145,13 +143,13 @@ test.describe("Feeds de productos", () => {
       expect(metaCsv).not.toContain(created.id);
       expect(json.some((g: { id: string }) => g.id === created.id)).toBe(false);
     } finally {
-      await deleteGame(page, created.id);
+      await deleteProduct(page, created.id);
     }
   });
 
-  test("juego sin stock se incluye como out of stock", async ({ page }) => {
+  test("producto sin stock se incluye como out of stock", async ({ page }) => {
     const slug = `feed-sinstock-${Date.now()}`;
-    const created = await createGame(page, {
+    const created = await createProduct(page, {
       nombre: "Feed Sin Stock Test",
       slug,
       showInMerchant: true,
@@ -163,13 +161,13 @@ test.describe("Feeds de productos", () => {
       expect(xml).toContain(`<g:id>${created.id}</g:id>`);
       expect(xml).toContain("<g:availability>out of stock</g:availability>");
     } finally {
-      await deleteGame(page, created.id);
+      await deleteProduct(page, created.id);
     }
   });
 
-  test("juego sin precio se excluye del feed de Google", async ({ page }) => {
+  test("producto sin precio se excluye del feed de Google", async ({ page }) => {
     const slug = `feed-sinprecio-${Date.now()}`;
-    const created = await createGame(page, {
+    const created = await createProduct(page, {
       nombre: "Feed Sin Precio Test",
       slug,
       showInMerchant: true,
@@ -180,21 +178,21 @@ test.describe("Feeds de productos", () => {
       const xml = await (await page.request.get("/api/feeds/google/xml")).text();
       expect(xml).not.toContain(created.id);
     } finally {
-      await deleteGame(page, created.id);
+      await deleteProduct(page, created.id);
     }
   });
 
   test("products/json expone campos de marketing", async ({ page }) => {
     const slug = `feed-json-${Date.now()}`;
-    const created = await createGame(page, {
+    const created = await createProduct(page, {
       nombre: "Feed JSON Test",
       slug,
       showInMerchant: true,
       precioFinalVenta: "30000",
       descuento: 10,
       gtin: "0123456789012",
-      brand: "Wolfie Room",
-      googleProductCategory: "Toys & Games",
+      brand: "Catalogo App",
+      googleProductCategory: "Electronics > Wearable Technology",
     });
     try {
       const json = await (await page.request.get("/api/feeds/products/json")).json();
@@ -207,10 +205,10 @@ test.describe("Feeds de productos", () => {
       expect(item.showInMerchant).toBe(true);
       expect(item.showInMetaCommerce).toBe(false);
       expect(item.gtin).toBe("0123456789012");
-      expect(item.brand).toBe("Wolfie Room");
-      expect(item.url).toContain(`/juegos/${slug}`);
+      expect(item.brand).toBe("Catalogo App");
+      expect(item.url).toContain(`/productos/${slug}`);
     } finally {
-      await deleteGame(page, created.id);
+      await deleteProduct(page, created.id);
     }
   });
 });

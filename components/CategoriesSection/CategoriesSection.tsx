@@ -9,7 +9,7 @@ interface Category {
   nombre: string;
   icono: string | null;
   color: string;
-  _count: { games: number };
+  _count: { products: number };
 }
 
 interface CategoriesSectionProps {
@@ -46,7 +46,7 @@ export default function CategoriesSection({ categories }: CategoriesSectionProps
               Categorías
             </h2>
             <p className="mx-auto max-w-lg text-text-secondary">
-              Encontrá juegos por categoría y descubrí nuevos favoritos
+              Encontrá productos por categoría y descubrí nuevos favoritos
             </p>
           </InView>
         </div>
@@ -76,7 +76,7 @@ export default function CategoriesSection({ categories }: CategoriesSectionProps
                 {cat.nombre}
               </span>
               <span className="text-xs text-text-secondary">
-                {cat._count.games} juego{cat._count.games !== 1 ? "s" : ""}
+                {cat._count.products} producto{cat._count.products !== 1 ? "s" : ""}
               </span>
             </button>
           ))}

@@ -16,7 +16,7 @@ test.describe("Rendimiento adaptativo", () => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", { name: /Catálogo de juegos/i })
+      page.getByRole("heading", { name: /Catálogo/i })
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: /Explorá por categoría/i })
@@ -73,7 +73,7 @@ test.describe("Rendimiento adaptativo", () => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", { name: /Catálogo de juegos/i })
+      page.getByRole("heading", { name: /Catálogo/i })
     ).toBeVisible();
     expect(await getProfile(page)).toBe("premium");
 

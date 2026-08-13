@@ -5,18 +5,18 @@ const XSS_NAME = `<script>alert("feed")</script>`;
 const XSS_DESC = `<img src=x onerror=alert(1)>, producto;' OR '1'='1`;
 
 async function getCategoriaId(api: APIRequestContext): Promise<string> {
-  const res = await api.get("/api/admin/juegos");
-  const juegos = await res.json();
-  return juegos[0].categoriaId;
+  const res = await api.get("/api/admin/productos");
+  const productos = await res.json();
+  return productos[0].categoriaId;
 }
 
-async function createFeedGame(
+async function createFeedProduct(
   api: APIRequestContext,
   overrides: Record<string, unknown> = {}
 ): Promise<{ id: string; slug: string }> {
   const categoriaId = await getCategoriaId(api);
   const slug = `feed-sec-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-  const res = await api.post("/api/admin/juegos", {
+  const res = await api.post("/api/admin/productos", {
     data: {
       nombre: XSS_NAME,
       slug,
@@ -27,7 +27,7 @@ async function createFeedGame(
       disponibleVenta: true,
       precioFinalVenta: "25000",
       brand: `<b>&amp;</b>`,
-      gtin: `'; DROP TABLE Game;--`,
+      gtin: `'; DROP TABLE Product;--`,
       googleProductCategory: "Toys & Games",
       ...overrides,
     },
@@ -68,7 +68,7 @@ function parseCsvRow(line: string): string[] {
 
 test.describe("14 · Feeds — escape de payloads, headers y no-filtración", () => {
   test("XML de Google/Meta escapa payloads XSS (nunca raw <script>)", async ({ adminApi, publicApi }) => {
-    const game = await createFeedGame(adminApi);
+    const product = await createFeedProduct(adminApi);
     try {
       for (const path of ["/api/feeds/google/xml", "/api/feeds/meta/xml"]) {
         const res = await publicApi.get(path);
@@ -79,17 +79,17 @@ test.describe("14 · Feeds — escape de payloads, headers y no-filtración", ()
         expect(xml).not.toContain("<script>alert");
         expect(xml).not.toContain("<img src=x");
         expect(xml).toContain("&lt;script&gt;alert(&quot;feed&quot;)&lt;/script&gt;");
-        expect(xml).toContain("&apos;; DROP TABLE Game;--");
+        expect(xml).toContain("&apos;; DROP TABLE Product;--");
         expect(xml).toContain("Toys &amp; Games");
-        expect(xml).toContain(`<g:id>${game.id}</g:id>`);
+        expect(xml).toContain(`<g:id>${product.id}</g:id>`);
       }
     } finally {
-      await adminApi.delete(`/api/admin/juegos/${game.id}`);
+      await adminApi.delete(`/api/admin/productos/${product.id}`);
     }
   });
 
   test("CSV de Meta escapa comillas y separadores sin romper columnas", async ({ adminApi, publicApi }) => {
-    const game = await createFeedGame(adminApi, {
+    const product = await createFeedProduct(adminApi, {
       descripcion: `texto, con "comillas"`,
     });
     try {
@@ -99,7 +99,7 @@ test.describe("14 · Feeds — escape de payloads, headers y no-filtración", ()
       const csv = await res.text();
 
       expect(csv).toContain(`"texto, con ""comillas"""`);
-      const row = csv.split("\n").find((l) => l.startsWith(`${game.id},`));
+      const row = csv.split("\n").find((l) => l.startsWith(`${product.id},`));
       expect(row).toBeTruthy();
       const fields = parseCsvRow(row!);
       expect(fields).toHaveLength(13);
@@ -107,12 +107,12 @@ test.describe("14 · Feeds — escape de payloads, headers y no-filtración", ()
       expect(fields[2]).toBe(`texto, con "comillas"`);
       assertNoLeak(csv, "CSV feeds");
     } finally {
-      await adminApi.delete(`/api/admin/juegos/${game.id}`);
+      await adminApi.delete(`/api/admin/productos/${product.id}`);
     }
   });
 
   test("products/json devuelve JSON válido sin inyectar HTML en los campos", async ({ adminApi, publicApi }) => {
-    const game = await createFeedGame(adminApi);
+    const product = await createFeedProduct(adminApi);
     try {
       const res = await publicApi.get("/api/feeds/products/json");
       expect(res.status()).toBe(200);
@@ -120,19 +120,19 @@ test.describe("14 · Feeds — escape de payloads, headers y no-filtración", ()
       const json = await res.json();
 
       expect(Array.isArray(json)).toBe(true);
-      const item = json.find((g: { id: string }) => g.id === game.id);
+      const item = json.find((p: { id: string }) => p.id === product.id);
       expect(item).toBeTruthy();
       expect(item.nombre).toBe(XSS_NAME);
       assertNoLeak(JSON.stringify(json), "JSON feeds");
     } finally {
-      await adminApi.delete(`/api/admin/juegos/${game.id}`);
+      await adminApi.delete(`/api/admin/productos/${product.id}`);
     }
   });
 
-  test("juego no opt-in no se filtra en ningún feed", async ({ adminApi, publicApi }) => {
+  test("producto no opt-in no se filtra en ningún feed", async ({ adminApi, publicApi }) => {
     const categoriaId = await getCategoriaId(adminApi);
     const slug = `feed-sec-noopt-${Date.now()}`;
-    const res = await adminApi.post("/api/admin/juegos", {
+    const res = await adminApi.post("/api/admin/productos", {
       data: {
         nombre: "No Opt-In Secret",
         slug,
@@ -154,11 +154,11 @@ test.describe("14 · Feeds — escape de payloads, headers y no-filtración", ()
         const feedRes = await publicApi.get(path);
         expect(feedRes.status(), path).toBe(200);
         const body = await feedRes.text();
-        expect(body, `${path}: no filtra el juego no opt-in`).not.toContain(created.id);
-        expect(body, `${path}: no filtra datos del juego no opt-in`).not.toContain("contenido confidencial");
+        expect(body, `${path}: no filtra el producto no opt-in`).not.toContain(created.id);
+        expect(body, `${path}: no filtra datos del producto no opt-in`).not.toContain("contenido confidencial");
       }
     } finally {
-      await adminApi.delete(`/api/admin/juegos/${created.id}`);
+      await adminApi.delete(`/api/admin/productos/${created.id}`);
     }
   });
 });

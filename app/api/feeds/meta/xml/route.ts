@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { getSeoSettings } from "@/lib/seo";
-import { buildMetaFeedXml, loadFeedGames } from "@/lib/marketing/feed";
+import { buildMetaFeedXml, loadFeedProducts } from "@/lib/marketing/feed";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const [settings, games] = await Promise.all([
+  const [settings, products] = await Promise.all([
     getSeoSettings(),
-    loadFeedGames({ metaOnly: true, withPriceOnly: true }),
+    loadFeedProducts({ metaOnly: true, withPriceOnly: true }),
   ]);
-  const xml = buildMetaFeedXml(settings, games);
+  const xml = buildMetaFeedXml(settings, products);
   return new NextResponse(xml, {
     headers: {
       "Content-Type": "application/xml; charset=utf-8",

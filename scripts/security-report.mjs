@@ -59,7 +59,7 @@ const passed = stats.expected;
 const failed = stats.unexpected;
 const verdict = failed === 0 ? "🟢 Aprobado" : `🔴 Rechazado (${failed} fallas)`;
 
-console.log("Informe de seguridad — Wolfie Room");
+console.log("Informe de seguridad — Catalogo App");
 console.log("=".repeat(48));
 lines.forEach((l) => console.log(l));
 console.log("-".repeat(48));

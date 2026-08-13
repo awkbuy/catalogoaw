@@ -4,8 +4,8 @@ import { ADMIN_PATH } from "./fixtures";
 const ADMIN_PAGES = [
   "/dashboard",
   "/marketing",
-  "/games",
-  "/games/new",
+  "/productos",
+  "/productos/new",
   "/categories",
   "/cupones",
   "/pagos",
@@ -18,7 +18,7 @@ const ADMIN_PAGES = [
 const ADMIN_APIS = [
   "/api/admin/settings",
   "/api/admin/pagos",
-  "/api/admin/juegos",
+  "/api/admin/productos",
   "/api/admin/cupones",
   "/api/admin/categorias",
   "/api/admin/marketing/dashboard",
@@ -32,7 +32,7 @@ test.describe("02 · Panel admin — acceso sin autenticación", () => {
       const html = await page.content();
       // el contenido admin no debe estar presente
       expect(html).not.toContain("Dashboard");
-      expect(html).not.toContain("Total Juegos");
+      expect(html).not.toContain("Total Productos");
     });
 
     test(`página ${ADMIN_PATH}${path} sin sesión → redirige al login del prefijo sin datos`, async ({ page }) => {
@@ -44,18 +44,18 @@ test.describe("02 · Panel admin — acceso sin autenticación", () => {
       });
       const html = await page.content();
       expect(html).not.toContain("Dashboard");
-      expect(html).not.toContain("Total Juegos");
+      expect(html).not.toContain("Total Productos");
     });
   }
 
-  test("rutas /admin, /admin/juegos y /admin/configuracion no exponen panel", async ({ page }) => {
-    for (const path of ["/admin", "/admin/juegos", "/admin/configuracion"]) {
+  test("rutas /admin, /admin/productos y /admin/configuracion no exponen panel", async ({ page }) => {
+    for (const path of ["/admin", "/admin/productos", "/admin/configuracion"]) {
       const response = await page.goto(path, { waitUntil: "domcontentloaded" });
       const status = response?.status() ?? 0;
       // 404 (no existe) o redirect; nunca 200 con contenido admin
       expect([307, 308, 404]).toContain(status);
       const html = await page.content();
-      expect(html).not.toContain("Total Juegos");
+      expect(html).not.toContain("Total Productos");
     }
   });
 
@@ -88,14 +88,14 @@ test.describe("02 · Panel admin — acceso sin autenticación", () => {
   });
 
   test("API admin DELETE sin sesión → 401", async ({ publicApi }) => {
-    const res = await publicApi.delete("/api/admin/juegos/inexistente");
+    const res = await publicApi.delete("/api/admin/productos/inexistente");
     expect(res.status()).toBe(401);
   });
 
   test("API admin con ID en URL sin sesión → 401 (no revela existencia)", async ({ publicApi }) => {
     // cada ruta [id] soporta métodos distintos; sin sesión todas deben dar 401
     const cases: [string, string][] = [
-      ["/api/admin/juegos/cualquier-id", "GET"],
+      ["/api/admin/productos/cualquier-id", "GET"],
       ["/api/admin/categorias/cualquier-id", "PUT"],
       ["/api/admin/cupones/cualquier-id", "PUT"],
       ["/api/admin/pagos/cualquier-id", "PUT"],

@@ -20,7 +20,7 @@ export default function ProductsTable({ products }: { products: MarketingProduct
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-[#6B7280] text-xs uppercase tracking-wide border-b border-[#E5E7EB]">
-              <th className="px-5 py-3 font-medium">Juego</th>
+              <th className="px-5 py-3 font-medium">Producto</th>
               <th className="px-5 py-3 font-medium">Categoría</th>
               <th className="px-5 py-3 font-medium text-right">Vistas</th>
               <th className="px-5 py-3 font-medium text-right">+Carrito</th>
@@ -31,8 +31,8 @@ export default function ProductsTable({ products }: { products: MarketingProduct
           </thead>
           <tbody>
             {products.map((p) => (
-              <tr key={p.gameId} className="border-b border-[#E5E7EB]/60 last:border-0 hover:bg-[#FAFAFA]">
-                <td className="px-5 py-3 font-medium text-[#1F2937]">{p.gameName}</td>
+              <tr key={p.productId} className="border-b border-[#E5E7EB]/60 last:border-0 hover:bg-[#FAFAFA]">
+                <td className="px-5 py-3 font-medium text-[#1F2937]">{p.productName}</td>
                 <td className="px-5 py-3 text-[#6B7280]">{p.categoryName || "—"}</td>
                 <td className="px-5 py-3 text-right text-[#1F2937]">{p.totalViews}</td>
                 <td className="px-5 py-3 text-right text-[#1F2937]">{p.totalCartAdds}</td>

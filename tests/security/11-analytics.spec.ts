@@ -2,10 +2,10 @@ import { test, expect, randomIp, assertNoLeak, readBody } from "./fixtures";
 
 const VALID_EVENT = {
   eventType: "view_item",
-  gameId: "cmsg69pvo0007s0cl1te2fewi",
-  gameName: "Catan",
+  productId: "cmsg69pvo0007s0cl1te2fewi",
+  productName: "Smartwatch Deportivo",
   categoryId: "cmsg69pro0001s0clpiu8w7jf",
-  categoryName: "Estrategia",
+  categoryName: "Tecnología",
 };
 
 test.describe("11 · API Analytics — validación, abuso y no-filtración", () => {
@@ -30,7 +30,7 @@ test.describe("11 · API Analytics — validación, abuso y no-filtración", () 
       const res = await publicApi.post("/api/analytics/event", {
         data: {
           ...VALID_EVENT,
-          gameName: payload,
+          productName: payload,
           categoryName: payload,
           searchTerm: payload,
         },
@@ -45,7 +45,7 @@ test.describe("11 · API Analytics — validación, abuso y no-filtración", () 
     const res = await publicApi.post("/api/analytics/event", {
       data: {
         ...VALID_EVENT,
-        gameName: "A".repeat(50_000),
+        productName: "A".repeat(50_000),
         source: "B".repeat(50_000),
       },
     });
@@ -69,7 +69,7 @@ test.describe("11 · API Analytics — validación, abuso y no-filtración", () 
     const headers = { "x-forwarded-for": ip };
     for (let i = 0; i < 60; i++) {
       const res = await publicApi.post("/api/analytics/event", {
-        data: { ...VALID_EVENT, gameId: `${VALID_EVENT.gameId}${i}` },
+        data: { ...VALID_EVENT, productId: `${VALID_EVENT.productId}${i}` },
         headers,
       });
       expect(res.status(), `evento ${i + 1} permitido`).toBe(200);

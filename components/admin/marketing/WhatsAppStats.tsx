@@ -30,9 +30,9 @@ function TopProducts({ products }: { products: MarketingWhatsAppTopProduct[] }) 
         .filter((p) => p.totalWhatsapp > 0)
         .slice(0, 5)
         .map((p) => (
-          <li key={p.gameId}>
+          <li key={p.productId}>
             <div className="flex items-center justify-between text-sm mb-1">
-              <span className="text-[#1F2937] font-medium truncate">{p.gameName}</span>
+              <span className="text-[#1F2937] font-medium truncate">{p.productName}</span>
               <span className="text-[#6B7280] tabular-nums">{p.totalWhatsapp}</span>
             </div>
             <div className="h-1.5 bg-[#F3F4F6] rounded-full overflow-hidden">

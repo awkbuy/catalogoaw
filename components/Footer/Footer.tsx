@@ -58,8 +58,8 @@ export default function Footer({ whatsappNumber, instagramUrl, businessName, dir
               </span>
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-text-secondary">
-              Jugá, descubrí y llevate tu próximo juego favorito. Tu punto de
-              encuentro de juegos de mesa en Mendoza.
+              Explorá, descubrí y llevate tu próximo producto favorito. Tu punto
+              de encuentro para encontrar lo que buscás.
             </p>
           </div>
 

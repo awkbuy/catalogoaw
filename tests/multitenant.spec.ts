@@ -24,7 +24,7 @@ test.describe("Multi-tenant isolation", () => {
 
   test("API admin routes return 401 without session", async ({ request }) => {
     const endpoints = [
-      "/api/admin/juegos",
+      "/api/admin/productos",
       "/api/admin/categorias",
       "/api/admin/cupones",
       "/api/admin/pagos",

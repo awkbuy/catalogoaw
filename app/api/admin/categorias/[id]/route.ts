@@ -48,10 +48,10 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    const count = await prisma.game.count({ where: { categoriaId: id } });
+    const count = await prisma.product.count({ where: { categoriaId: id } });
     if (count > 0) {
       return NextResponse.json(
-        { error: `No se puede eliminar: hay ${count} juegos asignados a esta categoría` },
+        { error: `No se puede eliminar: hay ${count} productos asignados a esta categoría` },
         { status: 400 }
       );
     }

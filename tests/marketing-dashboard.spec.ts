@@ -3,7 +3,7 @@ import { spoofIp, randomIp } from "./helpers";
 
 async function loginAdmin(page: Page) {
   await page.goto("/login");
-  await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+  await page.getByLabel(/Email/i).fill("admin@catalogoapp.com");
   await page.locator('input[name="password"]').fill("admin123");
   await page.getByRole("button", { name: /Iniciar sesión/i }).click();
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
@@ -83,7 +83,7 @@ test.describe("Dashboard Marketing", () => {
     await clickUntil(
       page,
       () => page.getByTestId("tab-productos").click(),
-      async () => (await page.getByRole("columnheader", { name: "Juego" }).count()) > 0
+        async () => (await page.getByRole("columnheader", { name: "Producto" }).count()) > 0
     );
     await expect(page.getByRole("columnheader", { name: "Vistas" })).toBeVisible();
 
@@ -147,11 +147,11 @@ test.describe("Dashboard Marketing", () => {
     expect(cats.length).toBeGreaterThan(0);
     const categoriaId = cats[0].id;
 
-    const createRes = await page.request.post("/api/admin/juegos", {
+    const createRes = await page.request.post("/api/admin/productos", {
       data: {
         nombre,
         slug,
-        descripcion: "Juego creado para testear el dashboard de marketing.",
+        descripcion: "Producto creado para testear el dashboard de marketing.",
         categoriaId,
         categoriaIds: [categoriaId],
         jugadoresMin: 2,
@@ -193,8 +193,8 @@ test.describe("Dashboard Marketing", () => {
       for (let i = 0; i < 5; i++) {
         const ev = await postEvent({
           eventType: "view_item",
-          gameId: created.id,
-          gameName: nombre,
+          productId: created.id,
+          productName: nombre,
           categoryName: "Test",
           metadata: { clientId: `dash-view-${suffix}-${i}` },
         });
@@ -205,13 +205,13 @@ test.describe("Dashboard Marketing", () => {
       expect(afterRes.status()).toBe(200);
       const after: {
         totals: { pageViews: number; productViews: number };
-        products: { gameId: string; totalViews: number }[];
+        products: { productId: string; totalViews: number }[];
       } = await afterRes.json();
 
       expect(after.totals.pageViews).toBeGreaterThanOrEqual(before.totals.pageViews + 3);
       expect(after.totals.productViews).toBeGreaterThanOrEqual(5);
-      const product = after.products.find((p) => p.gameId === created.id);
-      expect(product, "el juego con view_item debería aparecer en el top de productos").toBeTruthy();
+      const product = after.products.find((p) => p.productId === created.id);
+      expect(product, "el producto con view_item debería aparecer en el top de productos").toBeTruthy();
       expect(product!.totalViews).toBeGreaterThanOrEqual(5);
 
       await page.goto("/marketing", { waitUntil: "domcontentloaded" });
@@ -222,7 +222,7 @@ test.describe("Dashboard Marketing", () => {
       );
       await expect(page.getByRole("cell", { name: nombre })).toBeVisible();
     } finally {
-      await page.request.delete(`/api/admin/juegos/${created.id}`);
+      await page.request.delete(`/api/admin/productos/${created.id}`);
     }
   });
 });

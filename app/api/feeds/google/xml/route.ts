@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { getSeoSettings } from "@/lib/seo";
-import { buildGoogleFeedXml, loadFeedGames } from "@/lib/marketing/feed";
+import { buildGoogleFeedXml, loadFeedProducts } from "@/lib/marketing/feed";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const [settings, games] = await Promise.all([
+  const [settings, products] = await Promise.all([
     getSeoSettings(),
-    loadFeedGames({ merchantOnly: true, withPriceOnly: true }),
+    loadFeedProducts({ merchantOnly: true, withPriceOnly: true }),
   ]);
-  const xml = buildGoogleFeedXml(settings, games);
+  const xml = buildGoogleFeedXml(settings, products);
   return new NextResponse(xml, {
     headers: {
       "Content-Type": "application/xml; charset=utf-8",

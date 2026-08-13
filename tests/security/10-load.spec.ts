@@ -28,7 +28,7 @@ test.describe("10 · Carga — el servidor no se cae bajo ráfagas de ataque", (
 
   test("tras las ráfagas el servidor sigue estable (login y admin OK)", async ({ page, adminApi }) => {
     // la sesión admin sigue válida
-    const res = await adminApi.get("/api/admin/juegos");
+    const res = await adminApi.get("/api/admin/productos");
     expect(res.status()).toBe(200);
 
     // la página pública sigue cargando

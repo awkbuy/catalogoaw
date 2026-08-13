@@ -4,7 +4,7 @@ import LandingForm from "@/components/admin/LandingForm";
 
 export const dynamic = "force-dynamic";
 
-interface GameOption {
+interface ProductOption {
   id: string;
   nombre: string;
   imagen: string;
@@ -18,9 +18,9 @@ export default async function EditLandingPage({
 }) {
   const { id } = await params;
 
-  const [landing, games] = await Promise.all([
+  const [landing, products] = await Promise.all([
     prisma.landingPage.findUnique({ where: { id } }),
-    prisma.game.findMany({
+    prisma.product.findMany({
       orderBy: { nombre: "asc" },
       select: {
         id: true,
@@ -46,7 +46,7 @@ export default async function EditLandingPage({
     seoDescription: landing.seoDescription,
     seoKeywords: landing.seoKeywords,
     canonical: landing.canonical,
-    gameIds: landing.gameIds,
+    productIds: landing.productIds,
     isActive: landing.isActive,
     sortOrder: String(landing.sortOrder),
   };
@@ -59,7 +59,7 @@ export default async function EditLandingPage({
       </div>
       <LandingForm
         initialData={landingData}
-        games={games as GameOption[]}
+        products={products as ProductOption[]}
         mode="edit"
       />
     </div>

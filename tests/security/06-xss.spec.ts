@@ -4,7 +4,7 @@ import { ADMIN_STATE, BASE_URL } from "./fixtures";
 
 const MARKERS = [1, 2, 3, 4, 5, 6, 7, 8];
 
-const XSS_GAME = {
+const XSS_PRODUCT = {
   nombre: `Juego <img src=x onerror="window.__xss=1"> ${Date.now()}`,
   descripcion: `<script>window.__xss=2</script>`,
   seoTitle: `<iframe onload="window.__xss=3"></iframe>`,
@@ -15,7 +15,7 @@ const XSS_GAME = {
 };
 
 test.describe("06 · XSS — inyección nunca se ejecuta", () => {
-  const created = { gameId: "", gameSlug: "", categoryId: "" };
+  const created = { productId: "", productSlug: "", categoryId: "" };
   let originalSettings: Record<string, string> = {};
 
   test.beforeAll(async () => {
@@ -24,7 +24,7 @@ test.describe("06 · XSS — inyección nunca se ejecuta", () => {
     await ctx.dispose();
   });
 
-  test("crea juego y categoría con payloads XSS vía API (se almacenan literales)", async ({ adminApi }) => {
+  test("crea producto y categoría con payloads XSS vía API (se almacenan literales)", async ({ adminApi }) => {
     const cats = await (await adminApi.get("/api/admin/categorias")).json();
     expect(cats.length).toBeGreaterThan(0);
     const catId = cats[0].id;
@@ -40,9 +40,9 @@ test.describe("06 · XSS — inyección nunca se ejecuta", () => {
     expect(catBody).toContain("onload");
     assertNoLeak(catBody, "categoría XSS");
 
-    const gameRes = await adminApi.post("/api/admin/juegos", {
+    const productRes = await adminApi.post("/api/admin/productos", {
       data: {
-        ...XSS_GAME,
+        ...XSS_PRODUCT,
         slug: `xss-test-${Date.now()}`,
         categoriaId: catId,
         jugadoresMin: 2,
@@ -54,17 +54,17 @@ test.describe("06 · XSS — inyección nunca se ejecuta", () => {
         disponibleMesa: true,
       },
     });
-    expect(gameRes.status()).toBe(200);
-    const game = await gameRes.json();
-    created.gameId = game.id;
-    created.gameSlug = game.slug;
-    const gameBody = await readBody(gameRes);
-    expect(gameBody).toContain("<script>window.__xss=2</script>");
-    expect(gameBody).toContain("onload");
-    assertNoLeak(gameBody, "juego XSS");
+    expect(productRes.status()).toBe(200);
+    const product = await productRes.json();
+    created.productId = product.id;
+    created.productSlug = product.slug;
+    const productBody = await readBody(productRes);
+    expect(productBody).toContain("<script>window.__xss=2</script>");
+    expect(productBody).toContain("onload");
+    assertNoLeak(productBody, "producto XSS");
   });
 
-  test("home + detalle del juego: los payloads XSS no se ejecutan", async ({ page }) => {
+  test("home + detalle del producto: los payloads XSS no se ejecutan", async ({ page }) => {
     const fired: string[] = [];
     page.on("dialog", async (d) => {
       fired.push("dialog");
@@ -83,8 +83,8 @@ test.describe("06 · XSS — inyección nunca se ejecuta", () => {
     }
     expect(fired.length).toBe(0);
 
-    if (created.gameSlug) {
-      await page.goto(`/juegos/${created.gameSlug}`, { waitUntil: "domcontentloaded" });
+    if (created.productSlug) {
+      await page.goto(`/productos/${created.productSlug}`, { waitUntil: "domcontentloaded" });
       for (const m of MARKERS) {
         const v = await page.evaluate(
           () => (window as unknown as Record<string, unknown>)["__xss"]
@@ -132,8 +132,8 @@ test.describe("06 · XSS — inyección nunca se ejecuta", () => {
 
   test.afterAll(async () => {
     const ctx = await pwRequest.newContext({ baseURL: BASE_URL, storageState: ADMIN_STATE });
-    if (created.gameId) {
-      await ctx.delete(`/api/admin/juegos/${created.gameId}`).catch(() => {});
+    if (created.productId) {
+      await ctx.delete(`/api/admin/productos/${created.productId}`).catch(() => {});
     }
     if (created.categoryId) {
       await ctx.delete(`/api/admin/categorias/${created.categoryId}`).catch(() => {});

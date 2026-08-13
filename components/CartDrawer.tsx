@@ -76,7 +76,7 @@ export default function CartDrawer({
   whatsappNumber,
   paymentMethods,
   envioZonas = [],
-  businessName = "Wolfie Room",
+  businessName = "Catalogo App",
 }: CartDrawerProps) {
   const { start, done } = useProgress();
   const { isLite } = useAdaptive();
@@ -280,7 +280,7 @@ export default function CartDrawer({
       trackMarketingEvent({
         event: "InitiateCheckout",
         data: {
-          content_ids: items.map((i) => i.gameId),
+          content_ids: items.map((i) => i.productId),
           content_name: items[0]?.nombre,
           value: finalTotal,
           currency: "ARS",
@@ -294,7 +294,7 @@ export default function CartDrawer({
       trackMarketingEvent({
         event: "AddPaymentInfo",
         data: {
-          content_ids: items.map((i) => i.gameId),
+          content_ids: items.map((i) => i.productId),
           content_name: items[0]?.nombre,
           value: totalConEnvio,
           currency: "ARS",
@@ -445,7 +445,7 @@ export default function CartDrawer({
                   {step === 1 && (
                     <>
                       {items.map((item) => (
-                        <div key={item.gameId} className="flex gap-3 bg-[#FAFAFA] rounded-xl p-3">
+                        <div key={item.productId} className="flex gap-3 bg-[#FAFAFA] rounded-xl p-3">
                           <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-[#F3F4F6] flex items-center justify-center">
                             {item.imagen ? (
                               <ImageWithProgress
@@ -465,7 +465,7 @@ export default function CartDrawer({
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
                               <h4 className="text-sm font-semibold text-[#1F2937] truncate">{item.nombre}</h4>
-                              <button onClick={() => removeItem(item.gameId)} aria-label={`Quitar ${item.nombre} del carrito`} className="shrink-0">
+                              <button onClick={() => removeItem(item.productId)} aria-label={`Quitar ${item.nombre} del carrito`} className="shrink-0">
                                 <Trash2 size={14} className="text-[#9CA3AF] hover:text-red-500 transition-colors" />
                               </button>
                             </div>
@@ -473,7 +473,7 @@ export default function CartDrawer({
                             <div className="flex items-center justify-between mt-2">
                               <div className="flex items-center gap-2">
                                 <button
-                                  onClick={() => updateCantidad(item.gameId, -1)}
+                                  onClick={() => updateCantidad(item.productId, -1)}
                                   aria-label="Disminuir cantidad"
                                   className="w-6 h-6 rounded border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors"
                                 >
@@ -481,7 +481,7 @@ export default function CartDrawer({
                                 </button>
                                 <span className="text-sm font-semibold text-[#1F2937] w-5 text-center">{item.cantidad}</span>
                                 <button
-                                  onClick={() => updateCantidad(item.gameId, 1)}
+                                  onClick={() => updateCantidad(item.productId, 1)}
                                   aria-label="Aumentar cantidad"
                                   className="w-6 h-6 rounded border border-[#E5E7EB] flex items-center justify-center hover:bg-white transition-colors"
                                 >
@@ -494,7 +494,7 @@ export default function CartDrawer({
                             </div>
                             <textarea
                               value={item.observacion}
-                              onChange={(e) => updateObservacion(item.gameId, e.target.value)}
+                              onChange={(e) => updateObservacion(item.productId, e.target.value)}
                               placeholder="Observación..."
                               rows={1}
                               maxLength={200}

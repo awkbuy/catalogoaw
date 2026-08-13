@@ -51,7 +51,7 @@ async function waitForHydration(events: OwnEvent[]): Promise<void> {
   await waitForEvent(events, "page_view");
 }
 
-// El quick-add existe en tarjetas de juegos disponibles para la compra
+// El quick-add existe en tarjetas de productos disponibles para la compra
 // (botón único "Comprar" full-width estilo ML).
 async function clickQuickAdd(page: Page): Promise<void> {
   const cards = page.locator("article");
@@ -76,23 +76,23 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     expect(evt.source).toBeTruthy();
   });
 
-  test("la página de detalle de un juego dispara view_item", async ({ page }) => {
+  test("la página de detalle de un producto dispara view_item", async ({ page }) => {
     await spoofIp(page);
     const events = setupTracking(page);
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
     const evt = await waitForEvent(events, "view_item");
-    expect(evt.gameName).toBe("Catan");
-    expect(evt.gameId).toBeTruthy();
+    expect(evt.productName).toBe("Smartwatch Deportivo");
+    expect(evt.productId).toBeTruthy();
   });
 
   test("click en Compartir del detalle dispara share", async ({ page }) => {
     await spoofIp(page);
     const events = setupTracking(page);
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
     await page.getByRole("button", { name: "Compartir" }).click();
     const evt = await waitForEvent(events, "share");
-    expect(evt.gameId).toBeTruthy();
-    expect(evt.gameName).toBe("Catan");
+    expect(evt.productId).toBeTruthy();
+    expect(evt.productName).toBe("Smartwatch Deportivo");
   });
 
   test("abrir detalle desde la tarjeta dispara view_item", async ({ page }) => {
@@ -102,7 +102,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await waitForHydration(events);
     await page.locator("article").first().click();
     const evt = await waitForEvent(events, "view_item");
-    expect(evt.gameId).toBeTruthy();
+    expect(evt.productId).toBeTruthy();
   });
 
   test("quick add dispara add_to_cart", async ({ page }) => {
@@ -112,7 +112,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await waitForHydration(events);
     await clickQuickAdd(page);
     const evt = await waitForEvent(events, "add_to_cart");
-    expect(evt.gameId).toBeTruthy();
+    expect(evt.productId).toBeTruthy();
     expect(evt.source).toBe("catalog_quick_add");
   });
 
@@ -121,9 +121,9 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     const events = setupTracking(page);
     await page.goto("/");
     await waitForHydration(events);
-    await page.getByPlaceholder("Buscar juego...").fill("Catan");
+    await page.getByPlaceholder("Buscar producto...").fill("Smartwatch");
     const evt = await waitForEvent(events, "search");
-    expect(evt.searchTerm).toBe("Catan");
+    expect(evt.searchTerm).toBe("Smartwatch");
   });
 
   test("click en una categoría del hero dispara filter (ViewCategory)", async ({ page }) => {
@@ -147,7 +147,7 @@ test.describe("Marketing Core — eventos disparados por la UI", () => {
     await waitForEvent(events, "view_cart");
     await page.getByLabel(/Quitar .* del carrito/).first().click();
     const evt = await waitForEvent(events, "remove_from_cart");
-    expect(evt.gameId).toBeTruthy();
+    expect(evt.productId).toBeTruthy();
   });
 
   test("checkout por WhatsApp dispara begin_checkout, add_payment_info y whatsapp_click", async ({

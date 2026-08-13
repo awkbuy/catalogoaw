@@ -1,24 +1,24 @@
 import { test, expect, type Page } from "@playwright/test";
 import { spoofIp } from "./helpers";
 
-const SITE_URL = "https://wolfiesroom.com";
+const SITE_URL = "https://catalogo.app";
 
 async function login(page: Page): Promise<void> {
   await page.goto("/login");
-  await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+  await page.getByLabel(/Email/i).fill("admin@catalogoapp.com");
   await page.locator('input[name="password"]').fill("admin123");
   await page.getByRole("button", { name: /Iniciar sesión/i }).click();
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
 }
 
-async function createGame(page: Page, slug: string): Promise<{ id: string }> {
-  const juegos = await (await page.request.get("/api/admin/juegos")).json();
-  const categoriaId = juegos[0].categoriaId;
-  const res = await page.request.post("/api/admin/juegos", {
+async function createProduct(page: Page, slug: string): Promise<{ id: string }> {
+  const productos = await (await page.request.get("/api/admin/productos")).json();
+  const categoriaId = productos[0].categoriaId;
+  const res = await page.request.post("/api/admin/productos", {
     data: {
-      nombre: `Landing Game ${Date.now()}`,
+      nombre: `Landing Producto ${Date.now()}`,
       slug,
-      descripcion: "Juego de prueba para landings",
+      descripcion: "Producto de prueba para landings",
       categoriaId,
       disponibleVenta: true,
       precioFinalVenta: "15000",
@@ -29,8 +29,8 @@ async function createGame(page: Page, slug: string): Promise<{ id: string }> {
   return (await res.json()) as { id: string };
 }
 
-async function deleteGame(page: Page, id: string): Promise<void> {
-  await page.request.delete(`/api/admin/juegos/${id}`);
+async function deleteProduct(page: Page, id: string): Promise<void> {
+  await page.request.delete(`/api/admin/productos/${id}`);
 }
 
 interface CreateLandingOptions {
@@ -39,7 +39,7 @@ interface CreateLandingOptions {
   heroTitle?: string;
   heroDescription?: string;
   isActive?: boolean;
-  gameIds?: string[];
+  productIds?: string[];
   canonical?: string;
   seoTitle?: string;
   seoDescription?: string;
@@ -57,7 +57,7 @@ async function createLanding(
       heroTitle: opts.heroTitle || "",
       heroDescription: opts.heroDescription || "",
       bannerColor: "#31D3A9",
-      gameIds: opts.gameIds || [],
+      productIds: opts.productIds || [],
       isActive: opts.isActive ?? true,
       canonical: opts.canonical || "",
       seoTitle: opts.seoTitle || "",
@@ -82,29 +82,29 @@ test.describe("Landing pages", () => {
     await login(page);
   });
 
-  test("landing activa se renderiza pública con hero y juegos asignados", async ({
+  test("landing activa se renderiza pública con hero y productos asignados", async ({
     page,
   }) => {
     const slug = `landing-publica-${Date.now()}`;
-    const game = await createGame(page, `landing-game-${Date.now()}`);
+    const product = await createProduct(page, `landing-producto-${Date.now()}`);
     const landing = await createLanding(page, {
       slug,
       title: "Campaña de Otoño",
       heroTitle: "Ofertas de Otoño",
-      heroDescription: "Hasta 40% off en juegos de mesa",
-      gameIds: [game.id],
+      heroDescription: "Hasta 40% off en productos",
+      productIds: [product.id],
     });
     try {
       const res = await page.request.get(`/${slug}`);
       expect(res.status()).toBe(200);
       const html = await res.text();
       expect(html).toContain("Ofertas de Otoño");
-      expect(html).toContain("Hasta 40% off en juegos de mesa");
-      expect(html).toContain("Landing Game");
+      expect(html).toContain("Hasta 40% off en productos");
+      expect(html).toContain("Landing Producto");
       expect(html).toContain(`id="catalogo"`);
     } finally {
       await deleteLanding(page, landing.id);
-      await deleteGame(page, game.id);
+      await deleteProduct(page, product.id);
     }
   });
 

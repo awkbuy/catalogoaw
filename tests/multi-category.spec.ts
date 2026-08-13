@@ -3,7 +3,7 @@ import { spoofIp } from "./helpers";
 
 async function loginAdmin(page: Page) {
   await page.goto("/login");
-  await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+  await page.getByLabel(/Email/i).fill("admin@catalogoapp.com");
   await page.locator('input[name="password"]').fill("admin123");
   await page.getByRole("button", { name: /Iniciar sesión/i }).click();
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
@@ -24,19 +24,19 @@ test.describe("Multi-categoría", () => {
     await loginAdmin(page);
   });
 
-  test("un juego pertenece a varias categorías y aparece en el catálogo bajo cada una", async ({ page }) => {
+  test("un producto pertenece a varias categorías y aparece en el catálogo bajo cada una", async ({ page }) => {
     const suffix = Date.now();
     const nombre = `Test Multi Cat ${suffix}`;
     const slug = `test-multi-cat-${suffix}`;
 
-    const estrategiaId = await getCategoriaIdByName(page, "Estrategia");
-    const partyId = await getCategoriaIdByName(page, "Party");
+    const estrategiaId = await getCategoriaIdByName(page, "Tecnología");
+    const partyId = await getCategoriaIdByName(page, "Moda");
 
-    const createRes = await page.request.post("/api/admin/juegos", {
+    const createRes = await page.request.post("/api/admin/productos", {
       data: {
         nombre,
         slug,
-        descripcion: "Juego creado para testear las categorías múltiples.",
+        descripcion: "Producto creado para testear las categorías múltiples.",
         categoriaId: estrategiaId,
         categoriaIds: [estrategiaId, partyId],
         jugadoresMin: 2,
@@ -57,16 +57,16 @@ test.describe("Multi-categoría", () => {
     const created = await createRes.json();
 
     try {
-      const listRes = await page.request.get("/api/admin/juegos");
-      const juegos: {
+      const listRes = await page.request.get("/api/admin/productos");
+      const productos: {
         id: string;
         categorias?: { nombre: string }[];
       }[] = await listRes.json();
-      const juego = juegos.find((j) => j.id === created.id);
-      expect(juego).toBeTruthy();
-      const catNames = (juego?.categorias ?? []).map((c) => c.nombre);
-      expect(catNames).toContain("Estrategia");
-      expect(catNames).toContain("Party");
+      const producto = productos.find((j) => j.id === created.id);
+      expect(producto).toBeTruthy();
+      const catNames = (producto?.categorias ?? []).map((c) => c.nombre);
+      expect(catNames).toContain("Tecnología");
+      expect(catNames).toContain("Moda");
 
       await page.goto("/");
       await page.waitForSelector("#catalogo");
@@ -79,17 +79,17 @@ test.describe("Multi-categoría", () => {
 
       await page
         .locator("#catalogo")
-        .getByRole("button", { name: /Party/ })
+        .getByRole("button", { name: /Moda/ })
         .click();
       await expect(page.getByRole("heading", { name: nombre })).toBeVisible();
 
       await page
         .locator("#catalogo")
-        .getByRole("button", { name: /Estrategia/ })
+        .getByRole("button", { name: /Tecnología/ })
         .click();
       await expect(page.getByRole("heading", { name: nombre })).toBeVisible();
     } finally {
-      await page.request.delete(`/api/admin/juegos/${created.id}`);
+      await page.request.delete(`/api/admin/productos/${created.id}`);
     }
   });
 

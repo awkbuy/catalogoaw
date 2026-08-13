@@ -56,10 +56,10 @@ export function getCuotasInfo(raw: Record<string, string>): CuotasInfo {
 
 export function resolverEnvio(opts: {
   precio: number;
-  envioGratisDelJuego?: boolean;
+  envioGratisDelProducto?: boolean;
   zonas: PublicShippingZone[];
 }): EnvioResultado | null {
-  const { precio, envioGratisDelJuego, zonas } = opts;
+  const { precio, envioGratisDelProducto, zonas } = opts;
   const activas = zonas.filter((z) => z.active);
   if (activas.length === 0) return null;
 
@@ -67,7 +67,7 @@ export function resolverEnvio(opts: {
   const zonasConsultar = activas.filter((z) => z.consultar).map((z) => z.name);
   const conCosto = conTarifa.filter((z) => z.cost > 0);
 
-  if (envioGratisDelJuego) {
+  if (envioGratisDelProducto) {
     return { gratis: true, zonaGratis: conTarifa[0]?.name, zonasConsultar };
   }
 

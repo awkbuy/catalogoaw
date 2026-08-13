@@ -22,7 +22,7 @@ test.describe("05 · API — métodos, parámetros, CSRF y JSON", () => {
     // POST para rutas con POST; settings usa PUT
     const postPaths = [
       "/api/admin/categorias",
-      "/api/admin/juegos",
+      "/api/admin/productos",
       "/api/admin/cupones",
       "/api/admin/pagos",
     ];
@@ -58,9 +58,9 @@ test.describe("05 · API — métodos, parámetros, CSRF y JSON", () => {
 
   test("IDs inexistentes → 404 (métodos soportados por cada ruta)", async ({ adminApi }) => {
     const cases: [string, string][] = [
-      ["/api/admin/juegos/id-no-existe", "GET"],
-      ["/api/admin/juegos/id-no-existe", "PUT"],
-      ["/api/admin/juegos/id-no-existe", "DELETE"],
+      ["/api/admin/productos/id-no-existe", "GET"],
+      ["/api/admin/productos/id-no-existe", "PUT"],
+      ["/api/admin/productos/id-no-existe", "DELETE"],
       ["/api/admin/categorias/id-no-existe", "PUT"],
       ["/api/admin/categorias/id-no-existe", "DELETE"],
       ["/api/admin/cupones/id-no-existe", "PUT"],
@@ -125,7 +125,7 @@ test.describe("05 · API — métodos, parámetros, CSRF y JSON", () => {
     expect(body).toMatch(/"metaAccessTokenConfigured":"(true|false)"/);
     expect(body).not.toMatch(/EAA[a-zA-Z0-9]{40,}/);
 
-    const res2 = await adminApi.get("/api/admin/juegos");
+    const res2 = await adminApi.get("/api/admin/productos");
     expect(res2.status()).toBe(200);
     const body2 = await readBody(res2);
     expect(body2).not.toContain("passwordHash");

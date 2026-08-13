@@ -14,7 +14,7 @@ interface Category {
   icono: string | null;
   color: string;
   tags: string;
-  _count: { games: number };
+  _count: { products: number };
 }
 
 interface HeroCategoriesProps {
@@ -57,7 +57,7 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
       event: "ViewCategory",
       data: {
         content_category: nombre,
-        quantity: cat._count.games,
+        quantity: cat._count.products,
         source: "hero_categories",
       },
     });
@@ -97,7 +97,7 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
           {logoUrl ? (
             <Image
               src={logoUrl}
-              alt="Wolfie Room"
+              alt="Catalogo App"
               width={2252}
               height={1373}
               sizes="160px"
@@ -112,7 +112,7 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
             Explorá por categoría
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-[#6B7280]">
-              Encontrá el juego perfecto para cada ocasión
+              Encontrá el producto perfecto para cada ocasión
           </p>
         </Motion.div>
 
@@ -169,7 +169,7 @@ export default function HeroCategories({ categories, logoUrl }: HeroCategoriesPr
                     {cat.nombre}
                   </h3>
                   <p className="mt-1 text-sm text-white/80 drop-shadow">
-                    {cat._count.games} juego{cat._count.games !== 1 ? "s" : ""}
+                    {cat._count.products} producto{cat._count.products !== 1 ? "s" : ""}
                   </p>
                 </div>
 

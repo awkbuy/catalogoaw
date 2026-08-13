@@ -5,7 +5,7 @@
  *   npx tsx scripts/create-tenant.ts <slug> <nombre> <email> <password>
  *
  * Ejemplo:
- *   npx tsx scripts/create-tenant.ts wolfie-room "Wolfie Room" admin@wolfieroom.com admin123
+ *   npx tsx scripts/create-tenant.ts catalogo-app "Catalogo App" admin@catalogoapp.com admin123
  *
  * Este script:
  * 1. Crea el tenant en la DB de plataforma

@@ -20,15 +20,13 @@ import { useProgress } from "@/lib/progress-context";
 import { adminHref } from "@/lib/admin-path";
 import { useAdminPath } from "@/components/admin/AdminPathProvider";
 
-interface Juego {
+interface Producto {
   id: string;
   nombre: string;
   slug: string;
   imagen: string | null;
   estado: string;
   destacado: boolean;
-  jugadoresMin: number;
-  jugadoresMax: number;
   categoria: { nombre: string; color: string };
   categorias?: { id: string; nombre: string; color: string }[];
 }
@@ -38,11 +36,11 @@ interface Categoria {
   nombre: string;
 }
 
-export default function GamesPage() {
+export default function ProductosPage() {
   const router = useRouter();
   const adminPath = useAdminPath();
   const { start, done } = useProgress();
-  const [juegos, setJuegos] = useState<Juego[]>([]);
+  const [productos, setProductos] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [search, setSearch] = useState("");
   const [filterCategoria, setFilterCategoria] = useState("");
@@ -53,26 +51,26 @@ export default function GamesPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/admin/juegos").then((r) => r.json()),
+      fetch("/api/admin/productos").then((r) => r.json()),
       fetch("/api/admin/categorias").then((r) => r.json()),
-    ]).then(([j, c]) => {
-      setJuegos(j);
+    ]).then(([p, c]) => {
+      setProductos(p);
       setCategorias(c);
       setLoading(false);
     });
   }, []);
 
-  const filtered = juegos
-    .filter((j) => {
+  const filtered = productos
+    .filter((p) => {
       const matchSearch =
-        j.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        j.categoria.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        (j.categorias ?? []).some((c) =>
+        p.nombre.toLowerCase().includes(search.toLowerCase()) ||
+        p.categoria.nombre.toLowerCase().includes(search.toLowerCase()) ||
+        (p.categorias ?? []).some((c) =>
           c.nombre.toLowerCase().includes(search.toLowerCase())
         );
       const matchCat = filterCategoria
-        ? j.categoria.nombre === filterCategoria ||
-          (j.categorias ?? []).some((c) => c.nombre === filterCategoria)
+        ? p.categoria.nombre === filterCategoria ||
+          (p.categorias ?? []).some((c) => c.nombre === filterCategoria)
         : true;
       return matchSearch && matchCat;
     })
@@ -83,20 +81,20 @@ export default function GamesPage() {
       return 0;
     });
 
-  const categoriasAdicionales = (j: Juego) =>
-    (j.categorias ?? []).filter((c) => c.nombre !== j.categoria.nombre);
+  const categoriasAdicionales = (p: Producto) =>
+    (p.categorias ?? []).filter((c) => c.nombre !== p.categoria.nombre);
 
   const handleDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
     start();
     try {
-      const res = await fetch(`/api/admin/juegos/${deleteId}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/productos/${deleteId}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Error al eliminar");
       }
-      setJuegos((prev) => prev.filter((j) => j.id !== deleteId));
+      setProductos((prev) => prev.filter((p) => p.id !== deleteId));
       setDeleteId(null);
     } catch {
       sileo.error({ title: "Error al eliminar" });
@@ -109,13 +107,13 @@ export default function GamesPage() {
   const handleDuplicate = async (id: string) => {
     start();
     try {
-      const res = await fetch(`/api/admin/juegos/${id}/duplicate`, {
+      const res = await fetch(`/api/admin/productos/${id}/duplicate`, {
         method: "POST",
       });
       if (res.ok) {
-        const newJuego = await res.json();
-        setJuegos((prev) => [...prev, newJuego]);
-        sileo.success({ title: "Juego duplicado correctamente" });
+        const newProducto = await res.json();
+        setProductos((prev) => [...prev, newProducto]);
+        sileo.success({ title: "Producto duplicado correctamente" });
       }
     } catch {
       sileo.error({ title: "Error al duplicar" });
@@ -136,17 +134,17 @@ export default function GamesPage() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#1F2937]">Juegos</h1>
+          <h1 className="text-2xl font-bold text-[#1F2937]">Productos</h1>
           <p className="text-[#6B7280] text-sm mt-1">
-            {filtered.length} juego{filtered.length !== 1 ? "s" : ""}
+            {filtered.length} producto{filtered.length !== 1 ? "s" : ""}
           </p>
         </div>
         <Link
-          href={adminHref("/games/new", adminPath)}
+          href={adminHref("/productos/new", adminPath)}
           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#31D3A9] text-[#0B3B30] text-sm font-medium hover:bg-[#2bc49b] transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Nuevo juego
+          Nuevo producto
         </Link>
       </div>
 
@@ -158,7 +156,7 @@ export default function GamesPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar juegos..."
+              placeholder="Buscar productos..."
               className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-sm text-[#1F2937] placeholder-[#6B7280]/50 focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
             />
           </div>
@@ -205,9 +203,6 @@ export default function GamesPage() {
                   Categoría
                 </th>
                 <th className="text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
-                  Jugadores
-                </th>
-                <th className="text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
                   Estado
                 </th>
                 <th className="text-right text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
@@ -216,17 +211,17 @@ export default function GamesPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((juego) => (
+              {filtered.map((producto) => (
                 <tr
-                  key={juego.id}
+                  key={producto.id}
                   className="border-b border-[#E5E7EB]/50 hover:bg-[#FAFAFA] transition-colors"
                 >
                   <td className="px-4 py-3">
-                    {juego.imagen ? (
+                    {producto.imagen ? (
                       <div className="w-10 h-10 rounded-lg overflow-hidden bg-[#E5E7EB]">
                         <Image
-                          src={juego.imagen}
-                          alt={juego.nombre}
+                          src={producto.imagen}
+                          alt={producto.nombre}
                           width={40}
                           height={40}
                           className="w-full h-full object-cover"
@@ -240,9 +235,9 @@ export default function GamesPage() {
                   </td>
                   <td className="px-4 py-3">
                     <p className="text-sm font-medium text-[#1F2937]">
-                      {juego.nombre}
+                      {producto.nombre}
                     </p>
-                    {juego.destacado && (
+                    {producto.destacado && (
                       <span className="text-[10px] font-medium text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-md">
                         Destacado
                       </span>
@@ -255,11 +250,11 @@ export default function GamesPage() {
                       >
                         <span
                           className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: juego.categoria.color }}
+                          style={{ backgroundColor: producto.categoria.color }}
                         />
-                        {juego.categoria.nombre}
+                        {producto.categoria.nombre}
                       </span>
-                      {categoriasAdicionales(juego).map((c) => (
+                      {categoriasAdicionales(producto).map((c) => (
                         <span
                           key={c.id}
                           className="inline-flex items-center gap-1 rounded-md bg-[#F3F4F6] px-1.5 py-0.5 text-[11px] font-medium text-[#6B7280]"
@@ -273,25 +268,22 @@ export default function GamesPage() {
                       ))}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-[#6B7280]">
-                    {juego.jugadoresMin}-{juego.jugadoresMax}
-                  </td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex px-2.5 py-0.5 rounded-lg text-xs font-medium ${
-                        juego.estado === "Disponible"
+                        producto.estado === "Disponible"
                           ? "bg-[#31D3A9]/10 text-[#31D3A9]"
                           : "bg-[#FF7BAC]/10 text-[#FF7BAC]"
                       }`}
                     >
-                      {juego.estado}
+                      {producto.estado}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() =>
-                          router.push(adminHref(`/games/${juego.id}/edit`, adminPath))
+                          router.push(adminHref(`/productos/editar/${producto.id}`, adminPath))
                         }
                         className="w-8 h-8 rounded-lg hover:bg-[#E5E7EB]/50 flex items-center justify-center text-[#6B7280] hover:text-[#31D3A9] transition-colors"
                         title="Editar"
@@ -299,14 +291,14 @@ export default function GamesPage() {
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDuplicate(juego.id)}
+                        onClick={() => handleDuplicate(producto.id)}
                         className="w-8 h-8 rounded-lg hover:bg-[#E5E7EB]/50 flex items-center justify-center text-[#6B7280] hover:text-[#FF7BAC] transition-colors"
                         title="Duplicar"
                       >
                         <Copy className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => setDeleteId(juego.id)}
+                        onClick={() => setDeleteId(producto.id)}
                         className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-[#6B7280] hover:text-red-500 transition-colors"
                         title="Eliminar"
                       >
@@ -322,14 +314,14 @@ export default function GamesPage() {
 
         {/* Mobile cards */}
         <div className="md:hidden divide-y divide-[#E5E7EB]/50">
-          {filtered.map((juego) => (
-            <div key={juego.id} className="p-4">
+          {filtered.map((producto) => (
+            <div key={producto.id} className="p-4">
               <div className="flex items-start gap-3">
-                {juego.imagen && (
+                {producto.imagen && (
                   <div className="w-12 h-12 rounded-lg overflow-hidden bg-[#E5E7EB] flex-shrink-0">
                     <Image
-                      src={juego.imagen}
-                      alt={juego.nombre}
+                      src={producto.imagen}
+                      alt={producto.nombre}
                       width={48}
                       height={48}
                       className="w-full h-full object-cover"
@@ -338,28 +330,27 @@ export default function GamesPage() {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[#1F2937] truncate">
-                    {juego.nombre}
+                    {producto.nombre}
                   </p>
                   <p className="text-xs text-[#6B7280]">
-                    {juego.categoria.nombre}
-                    {categoriasAdicionales(juego).length > 0
-                      ? ` + ${categoriasAdicionales(juego)
+                    {producto.categoria.nombre}
+                    {categoriasAdicionales(producto).length > 0
+                      ? ` + ${categoriasAdicionales(producto)
                           .map((c) => c.nombre)
                           .join(", ")}`
-                      : ""}{" "}
-                    · {juego.jugadoresMin}-{juego.jugadoresMax} jugadores
+                      : ""}
                   </p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span
                       className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-medium ${
-                        juego.estado === "Disponible"
+                        producto.estado === "Disponible"
                           ? "bg-[#31D3A9]/10 text-[#31D3A9]"
                           : "bg-[#FF7BAC]/10 text-[#FF7BAC]"
                       }`}
                     >
-                      {juego.estado}
+                      {producto.estado}
                     </span>
-                    {juego.destacado && (
+                    {producto.destacado && (
                       <span className="text-[10px] font-medium text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-md">
                         Destacado
                       </span>
@@ -368,13 +359,13 @@ export default function GamesPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <button
-                            onClick={() => router.push(adminHref(`/games/${juego.id}/edit`, adminPath))}
+                            onClick={() => router.push(adminHref(`/productos/editar/${producto.id}`, adminPath))}
                     className="w-8 h-8 rounded-lg hover:bg-[#E5E7EB]/50 flex items-center justify-center text-[#6B7280]"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => setDeleteId(juego.id)}
+                    onClick={() => setDeleteId(producto.id)}
                     className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center text-[#6B7280] hover:text-red-500"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -388,7 +379,7 @@ export default function GamesPage() {
         {filtered.length === 0 && (
           <div className="py-12 text-center">
             <p className="text-[#6B7280] text-sm">
-              No se encontraron juegos
+              No se encontraron productos
             </p>
           </div>
         )}
@@ -413,7 +404,7 @@ export default function GamesPage() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-[#1F2937]">
-                  Eliminar juego
+                  Eliminar producto
                 </h3>
                 <button
                   onClick={() => setDeleteId(null)}
@@ -423,7 +414,7 @@ export default function GamesPage() {
                 </button>
               </div>
               <p className="text-sm text-[#6B7280] mb-6">
-                ¿Estás seguro de que deseas eliminar este juego? Esta acción no
+                ¿Estás seguro de que deseas eliminar este producto? Esta acción no
                 se puede deshacer.
               </p>
               <div className="flex gap-3">

@@ -4,11 +4,11 @@ import { notFound } from "next/navigation";
 import { getTenantDbOrNull } from "@/lib/tenant";
 import {
   getSeoSettings,
-  buildGameMetadata,
+  buildProductMetadata,
   productJsonLd,
   breadcrumbJsonLd,
   getSiteUrl,
-  type GameSeoSource,
+  type ProductSeoSource,
 } from "@/lib/seo";
 import { parsearHorarios } from "@/lib/horarios";
 import { parseTaxConfig } from "@/lib/tax";
@@ -20,40 +20,35 @@ import { CartProvider } from "@/lib/cart-context";
 
 export const dynamic = "force-dynamic";
 
-function toSeoSource(game: NonNullable<Awaited<ReturnType<typeof getGameBySlug>>>): GameSeoSource {
+function toSeoSource(product: NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>): ProductSeoSource {
   return {
-    nombre: game.nombre,
-    slug: game.slug,
-    descripcion: game.descripcion,
-    imagen: game.imagen,
-    categoriaNombre: game.categoria.nombre,
-    jugadoresMin: game.jugadoresMin,
-    jugadoresMax: game.jugadoresMax,
-    duracion: game.duracion,
-    edad: game.edad,
-    dificultad: game.dificultad,
-    precioFinalVenta: game.precioFinalVenta,
-    descuento: game.descuento,
-    disponibleVenta: game.disponibleVenta,
-    seoTitle: game.seoTitle,
-    seoDescription: game.seoDescription,
-    seoKeywords: game.seoKeywords,
-    canonical: game.canonical,
-    imagenAlt: game.imagenAlt,
-    descripcionAccesible: game.descripcionAccesible,
-    resumenIA: game.resumenIA,
-    gtin: game.gtin,
-    mpn: game.mpn,
-    brand: game.brand,
-    condition: game.condition,
-    updatedAt: game.updatedAt,
+    nombre: product.nombre,
+    slug: product.slug,
+    descripcion: product.descripcion,
+    imagen: product.imagen,
+    categoriaNombre: product.categoria.nombre,
+    precioFinalVenta: product.precioFinalVenta,
+    descuento: product.descuento,
+    disponibleVenta: product.disponibleVenta,
+    seoTitle: product.seoTitle,
+    seoDescription: product.seoDescription,
+    seoKeywords: product.seoKeywords,
+    canonical: product.canonical,
+    imagenAlt: product.imagenAlt,
+    descripcionAccesible: product.descripcionAccesible,
+    resumenIA: product.resumenIA,
+    gtin: product.gtin,
+    mpn: product.mpn,
+    brand: product.brand,
+    condition: product.condition,
+    updatedAt: product.updatedAt,
   };
 }
 
-const getGameBySlug = cache(async (slug: string) => {
+const getProductBySlug = cache(async (slug: string) => {
   const prisma = await getTenantDbOrNull();
   if (!prisma) return null;
-  return prisma.game.findUnique({
+  return prisma.product.findUnique({
     where: { slug },
     include: {
       categoria: { select: { nombre: true, icono: true, color: true } },
@@ -68,20 +63,20 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const game = await getGameBySlug(slug);
-  if (!game) return {};
+  const product = await getProductBySlug(slug);
+  if (!product) return {};
   const settings = await getSeoSettings();
-  return buildGameMetadata(settings, toSeoSource(game));
+  return buildProductMetadata(settings, toSeoSource(product));
 }
 
-export default async function GamePage({
+export default async function ProductPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const game = await getGameBySlug(slug);
-  if (!game) notFound();
+  const product = await getProductBySlug(slug);
+  if (!product) notFound();
 
   const prisma = await getTenantDbOrNull();
   if (!prisma) notFound();
@@ -105,7 +100,7 @@ export default async function GamePage({
   }
 
   const whatsappNumber = rawSettings.whatsapp || rawSettings.telefono || "";
-  const businessName = rawSettings.nombreNegocio || "Wolfie Room";
+  const businessName = rawSettings.nombreNegocio || "Catalogo App";
   const logoUrl = rawSettings.logoUrl || null;
   const direccion = rawSettings.direccion || "";
   const ciudad = rawSettings.ciudad || "";
@@ -130,15 +125,15 @@ export default async function GamePage({
     active: z.active,
   }));
 
-  const source = toSeoSource(game);
+  const source = toSeoSource(product);
   const siteUrl = getSiteUrl(settings);
   const breadcrumbs = [
     { name: "Inicio", url: siteUrl },
     {
-      name: game.categoria.nombre,
-      url: `${siteUrl}/?categoria=${encodeURIComponent(game.categoria.nombre)}`,
+      name: product.categoria.nombre,
+      url: `${siteUrl}/?categoria=${encodeURIComponent(product.categoria.nombre)}`,
     },
-    { name: game.nombre, url: `${siteUrl}/juegos/${game.slug}` },
+    { name: product.nombre, url: `${siteUrl}/productos/${product.slug}` },
   ];
 
   return (
@@ -147,34 +142,28 @@ export default async function GamePage({
       <JsonLd data={breadcrumbJsonLd(breadcrumbs)} />
       <CartProvider>
         <ProductDetailPage
-          game={{
-            id: game.id,
-            slug: game.slug,
-            nombre: game.nombre,
-            descripcion: game.descripcion,
+          product={{
+            id: product.id,
+            slug: product.slug,
+            nombre: product.nombre,
+            descripcion: product.descripcion,
             categoria: {
-              nombre: game.categoria.nombre,
-              icono: game.categoria.icono,
-              color: game.categoria.color,
+              nombre: product.categoria.nombre,
+              icono: product.categoria.icono,
+              color: product.categoria.color,
             },
-            categorias: game.categorias.map((c) => ({
+            categorias: product.categorias.map((c) => ({
               nombre: c.nombre,
               icono: c.icono,
               color: c.color,
             })),
-            jugadoresMin: game.jugadoresMin,
-            jugadoresMax: game.jugadoresMax,
-            duracion: game.duracion,
-            edad: game.edad,
-            dificultad: game.dificultad,
-            imagen: game.imagen,
-            integrarVideo: game.integrarVideo,
-            videoUrl: game.videoUrl,
-            precioFinalVenta: game.precioFinalVenta,
-            descuento: game.descuento,
-            envioGratis: game.envioGratis,
-            disponibleVenta: game.disponibleVenta,
-            disponibleMesa: game.disponibleMesa,
+            imagen: product.imagen,
+            integrarVideo: product.integrarVideo,
+            videoUrl: product.videoUrl,
+            precioFinalVenta: product.precioFinalVenta,
+            descuento: product.descuento,
+            envioGratis: product.envioGratis,
+            disponibleVenta: product.disponibleVenta,
           }}
           whatsappNumber={whatsappNumber}
           businessName={businessName}

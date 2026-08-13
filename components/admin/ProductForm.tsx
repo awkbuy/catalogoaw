@@ -16,18 +16,13 @@ interface Categoria {
   nombre: string;
 }
 
-interface GameData {
+interface ProductData {
   id?: string;
   nombre: string;
   slug: string;
   descripcion: string;
   categoriaId: string;
   categoriaIds?: string[];
-  jugadoresMin: string;
-  jugadoresMax: string;
-  duracion: string;
-  edad: string;
-  dificultad: string;
   precioFinalVenta: string;
   descuento: string;
   envioGratis: boolean;
@@ -38,7 +33,6 @@ interface GameData {
   destacado: boolean;
   nuevo: boolean;
   disponibleVenta: boolean;
-  disponibleMesa: boolean;
   orden: string;
   seoTitle: string;
   seoDescription: string;
@@ -61,8 +55,8 @@ interface GameData {
   marketingPriority: string;
 }
 
-interface GameFormProps {
-  initialData?: GameData;
+interface ProductFormProps {
+  initialData?: ProductData;
   categorias: Categoria[];
   mode: "create" | "edit";
 }
@@ -76,17 +70,12 @@ function slugify(text: string): string {
     .replace(/(^-|-$)+/g, "");
 }
 
-const defaultData: GameData = {
+const defaultData: ProductData = {
   nombre: "",
   slug: "",
   descripcion: "",
   categoriaId: "",
   categoriaIds: [],
-  jugadoresMin: "",
-  jugadoresMax: "",
-  duracion: "",
-  edad: "",
-  dificultad: "",
   precioFinalVenta: "",
   descuento: "",
   envioGratis: false,
@@ -97,7 +86,6 @@ const defaultData: GameData = {
   destacado: false,
   nuevo: false,
   disponibleVenta: false,
-  disponibleMesa: false,
   orden: "",
   seoTitle: "",
   seoDescription: "",
@@ -115,21 +103,21 @@ const defaultData: GameData = {
   metaProductCategory: "",
   gtin: "",
   mpn: "",
-  brand: "Wolfie Room",
+  brand: "Catalogo App",
   condition: "new",
   marketingPriority: "",
 };
 
-export default function GameForm({
+export default function ProductForm({
   initialData,
   categorias,
   mode,
-}: GameFormProps) {
+}: ProductFormProps) {
   const router = useRouter();
   const adminPath = useAdminPath();
   const { start, done } = useProgress();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState<GameData>(() =>
+  const [form, setForm] = useState<ProductData>(() =>
     initialData
       ? {
           ...initialData,
@@ -217,15 +205,13 @@ export default function GameForm({
     try {
       const url =
         mode === "create"
-          ? "/api/admin/juegos"
-          : `/api/admin/juegos/${form.id}`;
+          ? "/api/admin/productos"
+          : `/api/admin/productos/${form.id}`;
       const method = mode === "create" ? "POST" : "PUT";
 
       const payload = {
         ...form,
         categoriaIds: form.categoriaIds ?? [],
-        jugadoresMin: Number(form.jugadoresMin) || 1,
-        jugadoresMax: Number(form.jugadoresMax) || 1,
         descuento: tieneDescuento ? Number(form.descuento) || 0 : 0,
         orden: Number(form.orden) || 0,
       };
@@ -241,10 +227,10 @@ export default function GameForm({
         throw new Error(data.error || "Error al guardar");
       }
 
-      router.push(adminHref("/games", adminPath));
+      router.push(adminHref("/productos", adminPath));
       router.refresh();
     } catch (err: unknown) {
-      sileo.error({ title: err instanceof Error ? err.message : "Error al guardar el juego" });
+      sileo.error({ title: err instanceof Error ? err.message : "Error al guardar el producto" });
     } finally {
       setSaving(false);
       done();
@@ -273,7 +259,7 @@ export default function GameForm({
                   onChange={handleChange}
                   required
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="Nombre del juego"
+                  placeholder="Nombre del producto"
                 />
               </div>
 
@@ -290,7 +276,7 @@ export default function GameForm({
                     handleChange(e);
                   }}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="url-del-juego"
+                  placeholder="url-del-producto"
                 />
               </div>
 
@@ -304,7 +290,7 @@ export default function GameForm({
                   onChange={handleChange}
                   rows={4}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all resize-none"
-                  placeholder="Describe el juego..."
+                  placeholder="Describe el producto..."
                 />
               </div>
             </div>
@@ -360,78 +346,8 @@ export default function GameForm({
                   })}
                 </div>
                 <p className="mt-1.5 text-[11px] text-[#9CA3AF]">
-                  Un juego puede pertenecer a más de una categoría.
+                  Un producto puede pertenecer a más de una categoría.
                 </p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
-                    Jugadores min
-                  </label>
-                  <input
-                    type="number"
-                    name="jugadoresMin"
-                    value={form.jugadoresMin}
-                    onChange={handleChange}
-                    min={1}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
-                    Jugadores max
-                  </label>
-                  <input
-                    type="number"
-                    name="jugadoresMax"
-                    value={form.jugadoresMax}
-                    onChange={handleChange}
-                    min={1}
-                    className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
-                  Duración
-                </label>
-                <input
-                  type="text"
-                  name="duracion"
-                  value={form.duracion}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="30-60 min"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
-                  Edad
-                </label>
-                <input
-                  type="text"
-                  name="edad"
-                  value={form.edad}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="8+"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
-                  Dificultad
-                </label>
-                <select
-                  name="dificultad"
-                  value={form.dificultad}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="Fácil">Fácil</option>
-                  <option value="Media">Media</option>
-                  <option value="Difícil">Difícil</option>
-                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#1F2937] mb-1.5">
@@ -536,7 +452,7 @@ export default function GameForm({
                 className="w-4 h-4 rounded border-[#E5E7EB] text-[#31D3A9] focus:ring-[#31D3A9]/30"
               />
               <span className="text-sm text-[#1F2937]">
-                Envío gratis para este juego
+                Envío gratis para este producto
               </span>
             </label>
           </div>
@@ -546,7 +462,7 @@ export default function GameForm({
               SEO
             </h3>
             <p className="text-[11px] text-[#9CA3AF] mb-4">
-              Si dejás estos campos vacíos, se generan automáticamente a partir del juego.
+              Si dejás estos campos vacíos, se generan automáticamente a partir del producto.
             </p>
             <div className="space-y-4">
               <div>
@@ -560,7 +476,7 @@ export default function GameForm({
                   onChange={handleChange}
                   maxLength={70}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="Ej. Catan | Juego de mesa de estrategia en Mendoza"
+                  placeholder="Ej. Auriculares Bluetooth | Audio"
                 />
                 <p className="mt-1 text-[11px] text-[#9CA3AF]">
                   Recomendado: hasta 60 caracteres.
@@ -593,7 +509,7 @@ export default function GameForm({
                   value={form.seoKeywords}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="catan, juego de mesa, estrategia, Mendoza"
+                  placeholder="auriculares, audio, tecnología"
                 />
                 <p className="mt-1 text-[11px] text-[#9CA3AF]">
                   Separadas por comas.
@@ -612,8 +528,8 @@ export default function GameForm({
                   placeholder="https://marketplace-ejemplo.com/catan"
                 />
                 <p className="mt-1 text-[11px] text-[#9CA3AF]">
-                  Dejalo vacío para usar automáticamente la URL del juego
-                  (https://wolfiesroom.com/juegos/{form.slug}). Solo completalo
+                  Dejalo vacío para usar automáticamente la URL del producto
+                  (https://catalogo.app/productos/{form.slug}). Solo completalo
                   si querés apuntar a otra URL en otro dominio.
                 </p>
               </div>
@@ -628,7 +544,7 @@ export default function GameForm({
                   onChange={handleChange}
                   maxLength={125}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="Ej. Caja de Catan con sus fichas y tablero"
+                  placeholder="Ej. Caja del producto con su contenido"
                 />
               </div>
               <div>
@@ -641,7 +557,7 @@ export default function GameForm({
                   onChange={handleChange}
                   rows={2}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all resize-none"
-                  placeholder="Descripción corta y clara del juego"
+                  placeholder="Descripción corta y clara del producto"
                 />
               </div>
               <div>
@@ -654,7 +570,7 @@ export default function GameForm({
                   onChange={handleChange}
                   rows={3}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all resize-none"
-                  placeholder="Resumen breve del juego para mostrar en la página"
+                  placeholder="Resumen breve del producto para mostrar en la página"
                 />
               </div>
             </div>
@@ -665,7 +581,7 @@ export default function GameForm({
               Marketing
             </h3>
             <p className="text-[11px] text-[#9CA3AF] mb-4">
-              Controla dónde aparece este juego en Google Merchant, Meta Commerce y campañas de anuncios.
+              Controla dónde aparece este producto en Google Merchant, Meta Commerce y campañas de anuncios.
             </p>
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -683,7 +599,7 @@ export default function GameForm({
                     <input
                       type="checkbox"
                       name={opt.name}
-                      checked={form[opt.name as keyof GameData] as boolean}
+                      checked={form[opt.name as keyof ProductData] as boolean}
                       onChange={handleChange}
                       className="w-4 h-4 rounded border-[#E5E7EB] text-[#31D3A9] focus:ring-[#31D3A9]/30"
                     />
@@ -703,13 +619,13 @@ export default function GameForm({
                   onChange={handleChange}
                   list="google-product-categories"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="Ej. Toys & Games > Games > Board Games"
+                  placeholder="Ej. Electronics > Audio > Headphones"
                 />
                 <datalist id="google-product-categories">
-                  <option value="Toys & Games > Games > Board Games" />
-                  <option value="Toys & Games > Games > Card Games" />
-                  <option value="Toys & Games > Games > Family Games" />
-                  <option value="Toys & Games > Games > Puzzle Games" />
+                  <option value="Electronics > Audio > Headphones" />
+                  <option value="Apparel & Accessories > Clothing" />
+                  <option value="Home & Garden > Kitchen & Dining" />
+                  <option value="Sports & Outdoors > Sports Equipment" />
                 </datalist>
               </div>
 
@@ -724,12 +640,12 @@ export default function GameForm({
                   onChange={handleChange}
                   list="meta-product-categories"
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="Ej. Juegos de mesa"
+                  placeholder="Ej. Accesorios de audio"
                 />
                 <datalist id="meta-product-categories">
-                  <option value="Juegos de mesa" />
-                  <option value="Juegos de cartas" />
-                  <option value="Juguetes" />
+                  <option value="Electrónica" />
+                  <option value="Hogar" />
+                  <option value="Moda" />
                 </datalist>
               </div>
 
@@ -770,7 +686,7 @@ export default function GameForm({
                     value={form.brand}
                     onChange={handleChange}
                     className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                    placeholder="Wolfie Room"
+                    placeholder="Catalogo App"
                   />
                 </div>
                 <div>
@@ -924,7 +840,6 @@ export default function GameForm({
                 { name: "destacado", label: "Destacado" },
                 { name: "nuevo", label: "Nuevo" },
                 { name: "disponibleVenta", label: "Disponible en venta" },
-                { name: "disponibleMesa", label: "Disponible en mesa" },
               ].map((opt) => (
                 <label
                   key={opt.name}
@@ -933,7 +848,7 @@ export default function GameForm({
                   <input
                     type="checkbox"
                     name={opt.name}
-                    checked={form[opt.name as keyof GameData] as boolean}
+                    checked={form[opt.name as keyof ProductData] as boolean}
                     onChange={handleChange}
                     className="w-4 h-4 rounded border-[#E5E7EB] text-[#31D3A9] focus:ring-[#31D3A9]/30"
                   />

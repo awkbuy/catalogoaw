@@ -5,39 +5,39 @@ import { parsePrice, formatPrice } from "@/lib/format";
 import { useCart } from "@/lib/cart-context";
 import { trackMarketingEvent } from "@/lib/marketing";
 import { flyToCart } from "@/lib/fly-to-cart";
-import type { ProductDetailGame } from "./ProductDetailMain";
+import type { ProductDetailProduct } from "./ProductDetailMain";
 
 interface StickyPurchaseBarProps {
-  game: ProductDetailGame;
+  product: ProductDetailProduct;
   cantidad: number;
 }
 
-export default function StickyPurchaseBar({ game, cantidad }: StickyPurchaseBarProps) {
+export default function StickyPurchaseBar({ product, cantidad }: StickyPurchaseBarProps) {
   const { addItem, openCart, showCartToast } = useCart();
-  const precioNum = parsePrice(game.precioFinalVenta);
-  const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
+  const precioNum = parsePrice(product.precioFinalVenta);
+  const precioFinal = product.descuento > 0 ? precioNum * (1 - product.descuento / 100) : precioNum;
 
   const addItems = () => {
     for (let i = 0; i < cantidad; i++) {
       addItem({
-        gameId: game.id,
-        nombre: game.nombre,
-        precio: game.precioFinalVenta,
+        productId: product.id,
+        nombre: product.nombre,
+        precio: product.precioFinalVenta,
         precioNum,
-        imagen: game.imagen,
-        envioGratis: game.envioGratis,
+        imagen: product.imagen,
+        envioGratis: product.envioGratis,
       });
     }
     trackMarketingEvent({
       event: "AddToCart",
       data: {
-        content_ids: [game.id],
-        content_name: game.nombre,
-        content_category: game.categoria.nombre,
+        content_ids: [product.id],
+        content_name: product.nombre,
+        content_category: product.categoria.nombre,
         value: precioFinal,
         currency: "ARS",
         quantity: cantidad,
-        source: "game_detail_sticky",
+        source: "product_detail_sticky",
       },
     });
   };
@@ -45,7 +45,7 @@ export default function StickyPurchaseBar({ game, cantidad }: StickyPurchaseBarP
   const handleAgregar = (e: React.MouseEvent<HTMLButtonElement>) => {
     addItems();
     flyToCart({
-      image: game.imagen,
+      image: product.imagen,
       from: e.currentTarget,
       onComplete: showCartToast,
     });
@@ -54,7 +54,7 @@ export default function StickyPurchaseBar({ game, cantidad }: StickyPurchaseBarP
   const handleComprar = (e: React.MouseEvent<HTMLButtonElement>) => {
     addItems();
     flyToCart({
-      image: game.imagen,
+      image: product.imagen,
       from: e.currentTarget,
       onComplete: openCart,
     });

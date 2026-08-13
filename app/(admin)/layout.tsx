@@ -8,7 +8,7 @@ import { AdminPathProvider } from "@/components/admin/AdminPathProvider";
 export async function generateMetadata(): Promise<Metadata> {
   const prisma = await getTenantDb();
   const setting = await prisma.setting.findUnique({ where: { key: "nombreNegocio" } });
-  const nombre = setting?.value || "Wolfie Room";
+  const nombre = setting?.value || "Catalogo App";
   return {
     title: `Admin - ${nombre}`,
     robots: { index: false, follow: false },

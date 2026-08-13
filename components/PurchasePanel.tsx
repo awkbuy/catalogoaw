@@ -14,10 +14,10 @@ import PaymentMethodIcon from "@/components/PaymentMethodIcon";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
 import { calcularCuotas, resolverEnvio, type CuotasInfo, type PublicShippingZone } from "@/lib/ventas";
 import { flyToCart } from "@/lib/fly-to-cart";
-import type { ProductDetailGame } from "./ProductDetailMain";
+import type { ProductDetailProduct } from "./ProductDetailMain";
 
 interface PurchasePanelProps {
-  game: ProductDetailGame;
+  product: ProductDetailProduct;
   taxConfig: TaxConfig;
   source: string;
   businessName?: string;
@@ -30,10 +30,10 @@ interface PurchasePanelProps {
 }
 
 export default function PurchasePanel({
-  game,
+  product,
   taxConfig,
   source,
-  businessName = "Wolfie Room",
+  businessName = "Catalogo App",
   paymentMethods,
   cuotasInfo,
   envioZonas = [],
@@ -43,8 +43,8 @@ export default function PurchasePanel({
 }: PurchasePanelProps) {
   const { addItem, showCartToast } = useCart();
 
-  const precioNum = parsePrice(game.precioFinalVenta);
-  const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
+  const precioNum = parsePrice(product.precioFinalVenta);
+  const precioFinal = product.descuento > 0 ? precioNum * (1 - product.descuento / 100) : precioNum;
   const mostrarSinImpuestos =
     taxConfig.activoCalculoAutomatico &&
     taxConfig.mostrarPrecioSinImpuestos &&
@@ -55,7 +55,7 @@ export default function PurchasePanel({
   const cuotas = cuotasInfo ? calcularCuotas(precioFinal, cuotasInfo) : null;
   const envio = resolverEnvio({
     precio: precioFinal,
-    envioGratisDelJuego: game.envioGratis,
+    envioGratisDelProducto: product.envioGratis,
     zonas: envioZonas,
   });
   const hayRetiro = envioZonas.some((z) => z.active && z.cost === 0);
@@ -64,20 +64,20 @@ export default function PurchasePanel({
   const addItems = () => {
     for (let i = 0; i < cantidad; i++) {
       addItem({
-        gameId: game.id,
-        nombre: game.nombre,
-        precio: game.precioFinalVenta,
+        productId: product.id,
+        nombre: product.nombre,
+        precio: product.precioFinalVenta,
         precioNum,
-        imagen: game.imagen,
-        envioGratis: game.envioGratis,
+        imagen: product.imagen,
+        envioGratis: product.envioGratis,
       });
     }
     trackMarketingEvent({
       event: "AddToCart",
       data: {
-        content_ids: [game.id],
-        content_name: game.nombre,
-        content_category: game.categoria.nombre,
+        content_ids: [product.id],
+        content_name: product.nombre,
+        content_category: product.categoria.nombre,
         value: precioFinal,
         currency: "ARS",
         quantity: cantidad,
@@ -90,7 +90,7 @@ export default function PurchasePanel({
   const handleBuy = (e: React.MouseEvent<HTMLButtonElement>) => {
     addItems();
     flyToCart({
-      image: game.imagen,
+      image: product.imagen,
       from: e.currentTarget,
       onComplete: onBuy,
     });
@@ -99,7 +99,7 @@ export default function PurchasePanel({
   const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
     addItems();
     flyToCart({
-      image: game.imagen,
+      image: product.imagen,
       from: e.currentTarget,
       onComplete: showCartToast,
     });
@@ -112,14 +112,14 @@ export default function PurchasePanel({
       </p>
 
       <div>
-        {game.descuento > 0 ? (
+        {product.descuento > 0 ? (
           <div className="flex flex-wrap items-baseline gap-2">
             <p className="text-3xl font-bold text-red-500">
               {formatPrice(precioFinal)}
             </p>
             <span className="text-base text-[#9CA3AF] line-through">{formatPrice(precioNum)}</span>
             <span className="text-xs font-semibold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-md">
-              -{game.descuento}%
+              -{product.descuento}%
             </span>
           </div>
         ) : (

@@ -18,7 +18,7 @@ export function adminHref(path: string, prefix?: string): string {
 export const ADMIN_ROUTES = [
   "/login",
   "/dashboard",
-  "/games",
+  "/productos",
   "/categories",
   "/landings",
   "/cupones",

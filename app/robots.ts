@@ -7,7 +7,7 @@ const ADMIN_DISALLOW = [
   "/login",
   "/dashboard",
   "/api/",
-  "/games",
+  "/productos",
   "/categories",
   "/landings",
   "/cupones",

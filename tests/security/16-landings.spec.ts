@@ -24,9 +24,9 @@ async function createLanding(
 }
 
 async function getGameId(api: APIRequestContext): Promise<string> {
-  const res = await api.get("/api/admin/juegos");
-  const juegos = await res.json();
-  return juegos[0].id;
+  const res = await api.get("/api/admin/productos");
+  const productos = await res.json();
+  return productos[0].id;
 }
 
 test.describe("16 · Landings — acceso, validación de inputs y canonical", () => {
@@ -81,7 +81,7 @@ test.describe("16 · Landings — acceso, validación de inputs y canonical", ()
       // (apóstrofe → &#x27;): no rompe el <title> ni los atributos meta.
       expect(
         html
-      ).toContain("<title>&#x27;; DROP TABLE LandingPage;-- | Wolfie Room</title>");
+      ).toContain("<title>&#x27;; DROP TABLE LandingPage;-- | Catalogo App</title>");
       expect(html).toContain(
         '<meta name="description" content="&#x27;; DROP TABLE LandingPage;--"/>'
       );
@@ -91,19 +91,19 @@ test.describe("16 · Landings — acceso, validación de inputs y canonical", ()
     }
   });
 
-  test("gameIds con payload malicioso no se refleja y no rompe la página", async ({
+  test("productIds con payload malicioso no se refleja y no rompe la página", async ({
     adminApi,
     publicApi,
   }) => {
     const landing = await createLanding(adminApi, {
-      gameIds: `"><script>alert(1)</script>`,
+      productIds: `"><script>alert(1)</script>`,
     });
     try {
       const res = await publicApi.get(`/${landing.slug}`);
       expect(res.status()).toBe(200);
       const html = await res.text();
       expect(html).not.toContain("<script>alert");
-      assertNoLeak(html, "landing gameIds XSS");
+      assertNoLeak(html, "landing productIds XSS");
     } finally {
       await adminApi.delete(`/api/admin/landings/${landing.id}`);
     }
@@ -158,12 +158,12 @@ test.describe("16 · Landings — acceso, validación de inputs y canonical", ()
     }
   });
 
-  test("gameIds inválido (no-array) se normaliza a lista vacía", async ({
+  test("productIds inválido (no-array) se normaliza a lista vacía", async ({
     adminApi,
     publicApi,
   }) => {
     const landing = await createLanding(adminApi, {
-      gameIds: "not-a-json",
+      productIds: "not-a-json",
     });
     try {
       const res = await publicApi.get(`/${landing.slug}`);
@@ -173,31 +173,31 @@ test.describe("16 · Landings — acceso, validación de inputs y canonical", ()
     }
   });
 
-  test("gameIds con ids que no existen no rompe la página (no filtra)", async ({
+  test("productIds con ids que no existen no rompe la página (no filtra)", async ({
     adminApi,
     publicApi,
   }) => {
     const landing = await createLanding(adminApi, {
-      gameIds: ["id-inventado-1", "id-inventado-2"],
+      productIds: ["id-inventado-1", "id-inventado-2"],
     });
     try {
       const res = await publicApi.get(`/${landing.slug}`);
       expect(res.status()).toBe(200);
       const html = await res.text();
       expect(html).not.toContain("id-inventado-1");
-      assertNoLeak(html, "landing gameIds inexistentes");
+      assertNoLeak(html, "landing productIds inexistentes");
     } finally {
       await adminApi.delete(`/api/admin/landings/${landing.id}`);
     }
   });
 
-  test("landing con gameId real renderiza solo los juegos asignados", async ({
+  test("landing con productId real renderiza solo los productos asignados", async ({
     adminApi,
     publicApi,
   }) => {
-    const gameId = await getGameId(adminApi);
+    const productId = await getGameId(adminApi);
     const landing = await createLanding(adminApi, {
-      gameIds: [gameId],
+      productIds: [productId],
       heroTitle: "Landing Hero Real",
     });
     try {
@@ -205,7 +205,7 @@ test.describe("16 · Landings — acceso, validación de inputs y canonical", ()
       expect(res.status()).toBe(200);
       const html = await res.text();
       expect(html).toContain("Landing Hero Real");
-      assertNoLeak(html, "landing juegos reales");
+      assertNoLeak(html, "landing productos reales");
     } finally {
       await adminApi.delete(`/api/admin/landings/${landing.id}`);
     }

@@ -9,7 +9,7 @@ import { adminHref } from "@/lib/admin-path";
 import { useAdminPath } from "@/components/admin/AdminPathProvider";
 import {
   LayoutDashboard,
-  Gamepad2,
+  Package,
   FolderOpen,
   Ticket,
   Clock,
@@ -34,7 +34,7 @@ interface Settings {
 const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/marketing", label: "Marketing", icon: Megaphone },
-  { href: "/games", label: "Juegos", icon: Gamepad2 },
+  { href: "/productos", label: "Productos", icon: Package },
   { href: "/categories", label: "Categorías", icon: FolderOpen },
   { href: "/landings", label: "Landings", icon: Rocket },
   { href: "/cupones", label: "Cupones", icon: Ticket },
@@ -68,7 +68,7 @@ function SidebarContent({
         <Link href={adminHref("/dashboard", adminPath)} className="flex items-center gap-3">
           <Image
             src={settings?.logoUrl || "/images/logo.png"}
-            alt={settings?.nombre || "Wolfie Room"}
+            alt={settings?.nombre || "Catalogo App"}
             width={2252}
             height={1373}
             sizes="96px"
@@ -76,7 +76,7 @@ function SidebarContent({
           />
           {!collapsed && (
             <span className="font-bold text-[#1F2937] text-lg whitespace-nowrap">
-              {settings?.nombre || "Wolfie Room"}
+              {settings?.nombre || "Catalogo App"}
             </span>
           )}
         </Link>
@@ -191,14 +191,14 @@ export default function AdminSidebar({
         <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-[#E5E7EB] px-4 py-3 flex items-center gap-3">
           <Image
             src={settings?.logoUrl || "/images/logo.png"}
-            alt={settings?.nombre || "Wolfie Room"}
+            alt={settings?.nombre || "Catalogo App"}
             width={2252}
             height={1373}
             sizes="64px"
             className="h-8 w-auto rounded-lg"
           />
           <span className="font-bold text-[#1F2937]">
-            {settings?.nombre || "Wolfie Room"}
+            {settings?.nombre || "Catalogo App"}
           </span>
           <div className="ml-auto">
             <button

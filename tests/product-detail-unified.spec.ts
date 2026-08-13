@@ -41,7 +41,7 @@ test.describe("Diseño unificado de detalle de producto", () => {
   test("la página de detalle usa el diseño del modal y no tiene Consultar por WhatsApp", async ({
     page,
   }) => {
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     await expect(page.getByRole("button", { name: "Compartir" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Comprar" })).toBeVisible();

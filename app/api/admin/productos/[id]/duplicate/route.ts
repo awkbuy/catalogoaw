@@ -13,7 +13,7 @@ export async function POST(
 
   const { id } = await params;
 
-  const original = await prisma.game.findUnique({
+  const original = await prisma.product.findUnique({
     where: { id },
     include: { categorias: { select: { id: true } } },
   });
@@ -22,7 +22,7 @@ export async function POST(
   const { id: _, createdAt: __, updatedAt: ___, categorias, ...rest } = original;
   void _; void __; void ___;
 
-  const duplicate = await prisma.game.create({
+  const duplicate = await prisma.product.create({
     data: {
       ...rest,
       categorias: { connect: categorias.map((c) => ({ id: c.id })) },

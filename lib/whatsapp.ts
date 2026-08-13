@@ -3,17 +3,17 @@ export function buildWhatsAppUrl(telefono: string, mensaje: string): string {
 }
 
 export function getReservationMessage(nombreNegocio: string): string {
-  return `Hola. Quisiera consultar para reservar una mesa en ${nombreNegocio}.`;
+  return `Hola. Quisiera hacer una consulta sobre ${nombreNegocio}.`;
 }
 
-export function getGameMessage(nombreJuego: string): string {
-  return `Hola. Me interesa el juego ${nombreJuego}. ¿Está disponible para jugar o comprar? También quisiera consultar por una reserva.`;
+export function getProductMessage(nombreProducto: string): string {
+  return `Hola. Me interesa el producto ${nombreProducto}. ¿Está disponible para comprar?`;
 }
 
 export function buildReservationUrl(telefono: string, nombreNegocio: string): string {
   return buildWhatsAppUrl(telefono, getReservationMessage(nombreNegocio));
 }
 
-export function buildGameUrl(telefono: string, nombreJuego: string): string {
-  return buildWhatsAppUrl(telefono, getGameMessage(nombreJuego));
+export function buildProductUrl(telefono: string, nombreProducto: string): string {
+  return buildWhatsAppUrl(telefono, getProductMessage(nombreProducto));
 }

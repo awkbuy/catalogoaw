@@ -7,7 +7,7 @@ import { Motion } from "@/components/motion-wrapper";
 import { trackMarketingEvent } from "@/lib/marketing";
 
 export interface CartItem {
-  gameId: string;
+  productId: string;
   nombre: string;
   precio: string;
   precioNum: number;
@@ -28,9 +28,9 @@ export interface AppliedCoupon {
 interface CartContextType {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "cantidad" | "observacion">) => void;
-  removeItem: (gameId: string) => void;
-  updateCantidad: (gameId: string, delta: number) => void;
-  updateObservacion: (gameId: string, text: string) => void;
+  removeItem: (productId: string) => void;
+  updateCantidad: (productId: string, delta: number) => void;
+  updateObservacion: (productId: string, text: string) => void;
   clearCart: () => void;
   coupon: AppliedCoupon | null;
   applyCoupon: (coupon: AppliedCoupon) => void;
@@ -64,7 +64,7 @@ function loadPersistedCart(): { items: CartItem[]; coupon: AppliedCoupon | null 
     const items = parsed.items.filter(
       (i) =>
         i &&
-        typeof i.gameId === "string" &&
+        typeof i.productId === "string" &&
         typeof i.precioNum === "number" &&
         Number.isFinite(i.precioNum)
     );
@@ -123,23 +123,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback((item: Omit<CartItem, "cantidad" | "observacion">) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.gameId === item.gameId);
+      const existing = prev.find((i) => i.productId === item.productId);
       if (existing) {
         return prev.map((i) =>
-          i.gameId === item.gameId ? { ...i, cantidad: i.cantidad + 1 } : i
+          i.productId === item.productId ? { ...i, cantidad: i.cantidad + 1 } : i
         );
       }
       return [...prev, { ...item, cantidad: 1, observacion: "" }];
     });
   }, []);
 
-  const removeItem = useCallback((gameId: string) => {
-    const item = items.find((i) => i.gameId === gameId);
+  const removeItem = useCallback((productId: string) => {
+    const item = items.find((i) => i.productId === productId);
     if (item) {
       trackMarketingEvent({
         event: "RemoveFromCart",
         data: {
-          content_ids: [item.gameId],
+          content_ids: [item.productId],
           content_name: item.nombre,
           value: item.precioNum,
           currency: "ARS",
@@ -148,22 +148,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
         },
       });
     }
-    setItems((prev) => prev.filter((i) => i.gameId !== gameId));
+    setItems((prev) => prev.filter((i) => i.productId !== productId));
   }, [items]);
 
-  const updateCantidad = useCallback((gameId: string, delta: number) => {
+  const updateCantidad = useCallback((productId: string, delta: number) => {
     setItems((prev) =>
       prev
         .map((i) =>
-          i.gameId === gameId ? { ...i, cantidad: Math.max(1, i.cantidad + delta) } : i
+          i.productId === productId ? { ...i, cantidad: Math.max(1, i.cantidad + delta) } : i
         )
         .filter((i) => i.cantidad > 0)
     );
   }, []);
 
-  const updateObservacion = useCallback((gameId: string, text: string) => {
+  const updateObservacion = useCallback((productId: string, text: string) => {
     setItems((prev) =>
-      prev.map((i) => (i.gameId === gameId ? { ...i, observacion: text } : i))
+      prev.map((i) => (i.productId === productId ? { ...i, observacion: text } : i))
     );
   }, []);
 

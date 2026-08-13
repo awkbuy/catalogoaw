@@ -5,9 +5,9 @@ import { getSeoSettings, getSiteUrl } from "@/lib/seo";
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [settings, games, landings] = await Promise.all([
+  const [settings, products, landings] = await Promise.all([
     getSeoSettings(),
-    prisma.game.findMany({
+    prisma.product.findMany({
       where: { disponibleVenta: true, estado: "Disponible" },
       select: { slug: true, updatedAt: true },
       orderBy: { updatedAt: "desc" },
@@ -30,11 +30,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  for (const game of games) {
-    if (!game.slug) continue;
+  for (const product of products) {
+    if (!product.slug) continue;
     entries.push({
-      url: `${siteUrl}/juegos/${game.slug}`,
-      lastModified: game.updatedAt,
+      url: `${siteUrl}/productos/${product.slug}`,
+      lastModified: product.updatedAt,
       changeFrequency: "monthly",
       priority: 0.8,
     });

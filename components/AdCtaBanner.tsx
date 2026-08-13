@@ -44,7 +44,7 @@ export default function AdCtaBanner() {
         className="inline-flex items-center gap-2 text-sm font-bold text-white"
       >
         <Zap size={16} />
-        Comprá tus juegos de mesa hoy
+        Comprá tus productos hoy
         <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs">Ver catálogo</span>
       </button>
     </div>

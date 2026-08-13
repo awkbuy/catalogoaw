@@ -5,38 +5,38 @@ import {
   conditionFor,
   feedDescription,
   feedFinalPrice,
-  loadFeedGames,
+  loadFeedProducts,
 } from "@/lib/marketing/feed";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const [settings, games] = await Promise.all([
+  const [settings, products] = await Promise.all([
     getSeoSettings(),
-    loadFeedGames({ anyFeed: true }),
+    loadFeedProducts({ anyFeed: true }),
   ]);
-  const siteUrl = new URL(settings.url || "https://wolfiesroom.com").origin;
+  const siteUrl = new URL(settings.url || "https://catalogoapp.com").origin;
 
-  const payload = games.map((g) => ({
-    id: g.id,
-    nombre: g.nombre,
-    slug: g.slug,
-    descripcion: feedDescription(g),
-    url: `${siteUrl}/juegos/${g.slug}`,
-    imagen: g.imagen,
-    categoria: g.categoriaNombre,
-    precioFinalVenta: feedFinalPrice(g),
+  const payload = products.map((p) => ({
+    id: p.id,
+    nombre: p.nombre,
+    slug: p.slug,
+    descripcion: feedDescription(p),
+    url: `${siteUrl}/productos/${p.slug}`,
+    imagen: p.imagen,
+    categoria: p.categoriaNombre,
+    precioFinalVenta: feedFinalPrice(p),
     moneda: "ARS",
-    disponibilidad: availabilityFor(g.disponibleVenta),
-    condicion: conditionFor(g.condition),
-    disponibleVenta: g.disponibleVenta,
-    showInMerchant: g.showInMerchant,
-    showInMetaCommerce: g.showInMetaCommerce,
-    googleProductCategory: g.googleProductCategory,
-    metaProductCategory: g.metaProductCategory,
-    gtin: g.gtin,
-    mpn: g.mpn,
-    brand: g.brand,
+    disponibilidad: availabilityFor(p.disponibleVenta),
+    condicion: conditionFor(p.condition),
+    disponibleVenta: p.disponibleVenta,
+    showInMerchant: p.showInMerchant,
+    showInMetaCommerce: p.showInMetaCommerce,
+    googleProductCategory: p.googleProductCategory,
+    metaProductCategory: p.metaProductCategory,
+    gtin: p.gtin,
+    mpn: p.mpn,
+    brand: p.brand,
   }));
 
   return NextResponse.json(payload, {

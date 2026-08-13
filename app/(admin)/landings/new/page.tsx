@@ -3,7 +3,7 @@ import LandingForm from "@/components/admin/LandingForm";
 
 export const dynamic = "force-dynamic";
 
-interface GameOption {
+interface ProductOption {
   id: string;
   nombre: string;
   imagen: string;
@@ -11,7 +11,7 @@ interface GameOption {
 }
 
 export default async function NewLandingPage() {
-  const games = await prisma.game.findMany({
+  const products = await prisma.product.findMany({
     orderBy: { nombre: "asc" },
     select: {
       id: true,
@@ -29,7 +29,7 @@ export default async function NewLandingPage() {
           Creá una página de campaña para marketing
         </p>
       </div>
-      <LandingForm games={games as GameOption[]} mode="create" />
+      <LandingForm products={products as ProductOption[]} mode="create" />
     </div>
   );
 }

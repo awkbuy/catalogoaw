@@ -13,7 +13,7 @@ export async function getPublicBrand(): Promise<{
     prisma.setting.findUnique({ where: { key: "logoUrl" } }),
   ]);
   return {
-    nombreNegocio: nombreNegocio?.value || "Wolfie Room",
+    nombreNegocio: nombreNegocio?.value || "Catalogo App",
     logoUrl: logoUrl?.value || null,
   };
 }

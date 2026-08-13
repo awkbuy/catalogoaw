@@ -2,9 +2,9 @@ import { test, expect, type Page } from "@playwright/test";
 import { spoofIp } from "./helpers";
 
 const GAME_ID = "cmsg69pvo0007s0cl1te2fewi";
-const GAME_NAME = "Catan";
+const PRODUCT_NAME = "Smartwatch Deportivo";
 const CATEGORY_ID = "cmsg69pro0001s0clpiu8w7jf";
-const CATEGORY_NAME = "Estrategia";
+const CATEGORY_NAME = "Tecnología";
 
 async function postEvent(page: Page, body: Record<string, unknown>) {
   return page.request.post("/api/analytics/event", {
@@ -20,8 +20,8 @@ test.describe("Analytics propio (POST /api/analytics/event)", () => {
   test("evento válido responde { ok: true }", async ({ page }) => {
     const res = await postEvent(page, {
       eventType: "view_item",
-      gameId: GAME_ID,
-      gameName: GAME_NAME,
+      productId: GAME_ID,
+      productName: PRODUCT_NAME,
       categoryId: CATEGORY_ID,
       categoryName: CATEGORY_NAME,
       price: 50000,
@@ -43,8 +43,8 @@ test.describe("Analytics propio (POST /api/analytics/event)", () => {
 
   test("eventType faltante → 400", async ({ page }) => {
     const res = await postEvent(page, {
-      gameId: GAME_ID,
-      gameName: GAME_NAME,
+      productId: GAME_ID,
+      productName: PRODUCT_NAME,
     });
     expect(res.status()).toBe(400);
   });
@@ -62,8 +62,8 @@ test.describe("Analytics propio (POST /api/analytics/event)", () => {
   test("precio string se acepta y se normaliza", async ({ page }) => {
     const res = await postEvent(page, {
       eventType: "add_to_cart",
-      gameId: GAME_ID,
-      gameName: GAME_NAME,
+      productId: GAME_ID,
+      productName: PRODUCT_NAME,
       price: "45000.5",
     });
     expect(res.status()).toBe(200);
@@ -72,7 +72,7 @@ test.describe("Analytics propio (POST /api/analytics/event)", () => {
   test("search se registra con searchTerm", async ({ page }) => {
     const res = await postEvent(page, {
       eventType: "search",
-      searchTerm: "catan",
+      searchTerm: "smartwatch",
       source: "catalog",
     });
     expect(res.status()).toBe(200);

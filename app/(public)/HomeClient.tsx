@@ -14,18 +14,13 @@ import type { TaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
 import type { CuotasInfo, PublicShippingZone } from "@/lib/ventas";
 
-interface PublicGame {
+interface PublicProduct {
   id: string;
   nombre: string;
   slug: string;
   descripcion: string;
   categoria: { nombre: string; icono: string; color: string };
   categorias: { nombre: string; icono: string; color: string }[];
-  jugadoresMin: number;
-  jugadoresMax: number;
-  duracion: string;
-  edad: string;
-  dificultad: string;
   imagen: string;
   integrarVideo: boolean;
   videoUrl: string;
@@ -36,7 +31,6 @@ interface PublicGame {
   descuento: number;
   envioGratis: boolean;
   disponibleVenta: boolean;
-  disponibleMesa: boolean;
 }
 
 interface Category {
@@ -45,11 +39,11 @@ interface Category {
   icono: string | null;
   color: string;
   tags: string;
-  _count: { games: number };
+  _count: { products: number };
 }
 
 export default function HomeClient(props: {
-  games: PublicGame[];
+  products: PublicProduct[];
   categories: Category[];
   whatsappNumber: string;
   businessName: string;
@@ -70,7 +64,7 @@ export default function HomeClient(props: {
 }
 
 function HomeContent({
-  games,
+  products,
   categories,
   whatsappNumber,
   businessName,
@@ -83,7 +77,7 @@ function HomeContent({
   direccion = "",
   ciudad = "",
 }: {
-  games: PublicGame[];
+  products: PublicProduct[];
   categories: Category[];
   whatsappNumber: string;
   businessName: string;
@@ -139,7 +133,7 @@ function HomeContent({
         <main>
           <ErrorBoundary sectionName="Catalog" fallback={<div />}>
             <Catalog
-              games={games}
+              products={products}
               whatsappNumber={whatsappNumber}
               taxConfig={taxConfig}
               cuotasInfo={cuotasInfo}

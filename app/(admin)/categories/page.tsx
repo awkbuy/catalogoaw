@@ -23,7 +23,7 @@ interface Categoria {
   color: string;
   tags: string;
   orden: number;
-  _count: { games: number };
+  _count: { products: number };
 }
 
 export default function CategoriesPage() {
@@ -133,7 +133,7 @@ export default function CategoriesPage() {
         } else {
           setCategorias((prev) => [
             ...prev,
-            { ...cat, _count: { games: 0 } },
+            { ...cat, _count: { products: 0 } },
           ]);
           sileo.success({ title: "Categoría creada" });
         }
@@ -226,7 +226,7 @@ export default function CategoriesPage() {
                   Orden
                 </th>
                 <th className="text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
-                  Juegos
+                  Productos
                 </th>
                 <th className="text-right text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
                   Acciones
@@ -278,7 +278,7 @@ export default function CategoriesPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-sm text-[#6B7280]">
-                    {cat._count.games}
+                    {cat._count.products}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
@@ -323,7 +323,7 @@ export default function CategoriesPage() {
                   {cat.nombre}
                 </p>
                 <p className="text-xs text-[#6B7280]">
-                  {cat._count.games} juegos · Orden: {cat.orden}
+                  {cat._count.products} productos · Orden: {cat.orden}
                 </p>
               </div>
               <div className="flex items-center gap-1">
@@ -570,7 +570,7 @@ export default function CategoriesPage() {
                 Eliminar categoría
               </h3>
               <p className="text-sm text-[#6B7280] mb-6">
-                ¿Estás seguro? Los juegos asignados a esta categoría perderán
+                ¿Estás seguro? Los productos asignados a esta categoría perderán
                 su categorización.
               </p>
               <div className="flex gap-3">

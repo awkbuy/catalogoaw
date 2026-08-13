@@ -162,7 +162,7 @@ export default function EmailPopup({ config }: { config: PromoConfig }) {
                       onClick={close}
                       className="mt-6 w-full rounded-xl bg-[#31D3A9] px-5 py-3 text-sm font-semibold text-[#0B3B30] transition-all hover:bg-[#2bbf96] active:scale-[0.98]"
                     >
-                      Seguir viendo juegos
+                      Seguir viendo productos
                     </button>
                   </div>
                 ) : (
@@ -172,7 +172,7 @@ export default function EmailPopup({ config }: { config: PromoConfig }) {
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">
                       {config.popupText ||
-                        "Dejanos tu email y recibí novedades, ofertas y juegos nuevos antes que nadie."}
+                        "Dejanos tu email y recibí novedades, ofertas y productos nuevos antes que nadie."}
                     </p>
                     <form onSubmit={handleSubmit} className="mt-5 space-y-3" noValidate>
                       <div>

@@ -10,7 +10,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const categorias = await prisma.category.findMany({
-    include: { _count: { select: { games: true } } },
+    include: { _count: { select: { products: true } } },
     orderBy: { orden: "asc" },
   });
 

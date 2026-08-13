@@ -48,7 +48,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   test("la ficha muestra el buy box con Comprar, Agregar, condición y medios de pago", async ({
     page,
   }) => {
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     const buyBox = page.getByRole("complementary");
     await expect(buyBox.getByText(/Nuevo · Vendido por/)).toBeVisible();
@@ -58,7 +58,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   });
 
   test("Comprar agrega al carrito y abre el checkout", async ({ page }) => {
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     await page.getByRole("button", { name: "Comprar" }).click();
 
@@ -67,7 +67,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   });
 
   test("Agregar al carrito no abre el checkout y el ítem queda guardado", async ({ page }) => {
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     await page.getByRole("button", { name: /Agregar al carrito/ }).click();
 
@@ -138,7 +138,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   });
 
   test("primera compra: retiro y efectivo vienen preseleccionados", async ({ page }) => {
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     await page.getByRole("button", { name: "Comprar" }).click();
     await page.getByRole("button", { name: "Hacer pedido" }).click();
@@ -155,7 +155,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
   test("el carrito es un wizard de 3 pasos y mantiene Subtotal y el CTA fijos abajo", async ({
     page,
   }) => {
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     await page.getByRole("button", { name: "Comprar" }).click();
     await expect(page.getByRole("heading", { name: "Carrito" })).toBeVisible();
@@ -215,7 +215,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     await page.evaluate(() => window.scrollBy(0, 1200));
 
@@ -234,7 +234,7 @@ test.describe("Conversión — buy box y panel de compra (Fase 1)", () => {
 
   test("móvil: buy box arriba del pliegue y barra sticky al scrollear", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     const buyBox = page.getByRole("button", { name: "Comprar" }).first();
     await expect(buyBox).toBeInViewport();
@@ -257,7 +257,7 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
   });
 
   test("el buy box muestra cuotas y envío bajo el precio", async ({ page }) => {
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
 
     const buyBox = page.getByRole("complementary");
     await expect(buyBox.getByText(/3 cuotas de/)).toBeVisible();
@@ -281,7 +281,7 @@ test.describe("Conversión — cuotas y envío estilo ML (Fase 2)", () => {
     page,
   }) => {
     await page.goto("/login");
-    await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+    await page.getByLabel(/Email/i).fill("admin@catalogoapp.com");
     await page.locator('input[name="password"]').fill("admin123");
     await page.getByRole("button", { name: /Iniciar sesión/i }).click();
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });

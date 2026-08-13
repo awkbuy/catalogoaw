@@ -25,8 +25,8 @@ export interface MarketingTrendPoint {
 }
 
 export interface MarketingProductRow {
-  gameId: string;
-  gameName: string;
+  productId: string;
+  productName: string;
   categoryName: string | null;
   totalViews: number;
   totalCartAdds: number;
@@ -44,8 +44,8 @@ export interface MarketingCategoryRow {
 }
 
 export interface MarketingWhatsAppTopProduct {
-  gameId: string;
-  gameName: string;
+  productId: string;
+  productName: string;
   totalWhatsapp: number;
 }
 
@@ -172,8 +172,8 @@ export async function getMarketingDashboard(days: number): Promise<MarketingDash
   const dayStart = new Date(start);
   dayStart.setHours(0, 0, 0, 0);
 
-  const [gameRows, dailyRows, categoryRows, settingRows, hourlyRows] = await Promise.all([
-    prisma.game.findMany({ select: { id: true } }),
+  const [productIdRows, dailyRows, categoryRows, settingRows, hourlyRows] = await Promise.all([
+    prisma.product.findMany({ select: { id: true } }),
     prisma.dailyMetrics.findMany({ where: { date: { gte: dayStart } } }),
     prisma.categoryMetrics.findMany({ orderBy: { totalViews: "desc" }, take: 10 }),
     prisma.setting.findMany(),
@@ -188,10 +188,10 @@ export async function getMarketingDashboard(days: number): Promise<MarketingDash
     `),
   ]);
 
-  const existingGameIds = gameRows.map((g) => g.id);
+  const existingProductIds = productIdRows.map((p) => p.id);
   const liveProductMetrics = (orderBy: Prisma.ProductMetricsOrderByWithRelationInput) =>
     prisma.productMetrics.findMany({
-      where: { gameId: { in: existingGameIds } },
+      where: { productId: { in: existingProductIds } },
       orderBy,
       take: 10,
     });
@@ -373,8 +373,8 @@ export async function getMarketingDashboard(days: number): Promise<MarketingDash
     totals,
     trend,
     products: productRows.map((p) => ({
-      gameId: p.gameId,
-      gameName: p.gameName,
+      productId: p.productId,
+      productName: p.productName,
       categoryName: p.categoryName,
       totalViews: p.totalViews,
       totalCartAdds: p.totalCartAdds,
@@ -392,8 +392,8 @@ export async function getMarketingDashboard(days: number): Promise<MarketingDash
     whatsapp: {
       totalClicks: totals.whatsappClicks,
       topProducts: whatsappTop.map((p) => ({
-        gameId: p.gameId,
-        gameName: p.gameName,
+        productId: p.productId,
+        productName: p.productName,
         totalWhatsapp: p.totalWhatsapp,
       })),
       byCategory: whatsappByCategory,

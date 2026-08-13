@@ -16,65 +16,58 @@ model User {
 }
 
 model Category {
-  id        String  @id @default(cuid())
-  nombre    String  @unique
-  icono     String  @default("🎲")
-  color     String  @default("#31D3A9")
-  tags      String  @default("")
-  orden     Int     @default(0)
-  games     Game[]  @relation("GameCategories")
-  mainGames Game[]  @relation("GameMainCategory")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String    @id @default(cuid())
+  nombre       String    @unique
+  icono        String    @default("🎲")
+  color        String    @default("#31D3A9")
+  tags         String    @default("")
+  orden        Int       @default(0)
+  products     Product[] @relation("ProductCategories")
+  mainProducts Product[] @relation("ProductMainCategory")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
-model Game {
-  id                 String   @id @default(cuid())
-  nombre             String
-  slug               String   @unique
-  descripcion        String   @default("")
-  categoriaId        String
-  categoria          Category @relation("GameMainCategory", fields: [categoriaId], references: [id])
-  categorias         Category[] @relation("GameCategories")
-  jugadoresMin       Int      @default(2)
-  jugadoresMax       Int      @default(6)
-  duracion           String   @default("60 min")
-  edad               String   @default("8+")
-  dificultad         String   @default("Normal")
-  precioFinalVenta   String   @default("")
-  descuento          Int      @default(0)
-  precioReservaMesa  String   @default("")
-  envioGratis        Boolean  @default(false)
-  imagen             String   @default("")
-  integrarVideo      Boolean  @default(false)
-  videoUrl           String   @default("")
-  seoTitle           String   @default("")
-  seoDescription     String   @default("")
-  seoKeywords        String   @default("")
-  canonical          String   @default("")
-  imagenAlt          String   @default("")
-  descripcionAccesible String @default("")
-  resumenIA          String   @default("")
-  estado             String   @default("Disponible")
-  destacado          Boolean  @default(false)
-  nuevo              Boolean  @default(false)
-  disponibleVenta    Boolean  @default(false)
-  disponibleMesa     Boolean  @default(true)
-  orden              Int      @default(0)
-  showInMerchant      Boolean  @default(false)
-  showInMetaCommerce  Boolean  @default(false)
-  allowDynamicAds     Boolean  @default(false)
-  marketingFeatured   Boolean  @default(false)
-  remarketingEligible Boolean  @default(false)
-  googleProductCategory String @default("")
-  metaProductCategory    String @default("")
-  gtin                 String  @default("")
-  mpn                  String  @default("")
-  brand                String  @default("Wolfie Room")
-  condition            String  @default("new")
-  marketingPriority    Int     @default(0)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+model Product {
+  id                    String   @id @default(cuid())
+  nombre                String
+  slug                  String   @unique
+  descripcion           String   @default("")
+  categoriaId           String
+  categoria             Category @relation("ProductMainCategory", fields: [categoriaId], references: [id])
+  categorias            Category[] @relation("ProductCategories")
+  precioFinalVenta      String   @default("")
+  descuento             Int      @default(0)
+  envioGratis           Boolean  @default(false)
+  imagen                String   @default("")
+  integrarVideo         Boolean  @default(false)
+  videoUrl              String   @default("")
+  seoTitle              String   @default("")
+  seoDescription        String   @default("")
+  seoKeywords           String   @default("")
+  canonical             String   @default("")
+  imagenAlt             String   @default("")
+  descripcionAccesible  String   @default("")
+  resumenIA             String   @default("")
+  estado                String   @default("Disponible")
+  destacado             Boolean  @default(false)
+  nuevo                 Boolean  @default(false)
+  disponibleVenta       Boolean  @default(false)
+  orden                 Int      @default(0)
+  showInMerchant        Boolean  @default(false)
+  showInMetaCommerce    Boolean  @default(false)
+  allowDynamicAds       Boolean  @default(false)
+  marketingFeatured     Boolean  @default(false)
+  remarketingEligible   Boolean  @default(false)
+  googleProductCategory String  @default("")
+  metaProductCategory   String  @default("")
+  gtin                  String  @default("")
+  mpn                   String  @default("")
+  brand                 String  @default("Catalogo App")
+  condition             String  @default("new")
+  marketingPriority     Int     @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   @@index([slug])
   @@index([categoriaId])
@@ -147,8 +140,8 @@ model EmailLead {
 model AnalyticsEvent {
   id           String   @id @default(cuid())
   eventType    String
-  gameId       String?
-  gameName     String?
+  productId    String?
+  productName  String?
   categoryId   String?
   categoryName String?
   searchTerm   String?
@@ -164,7 +157,7 @@ model AnalyticsEvent {
 
   @@index([eventType])
   @@index([createdAt])
-  @@index([gameId])
+  @@index([productId])
   @@index([eventType, createdAt])
   @@index([utmSource])
   @@index([utmCampaign])
@@ -191,8 +184,8 @@ model DailyMetrics {
 
 model ProductMetrics {
   id             String    @id @default(cuid())
-  gameId         String    @unique
-  gameName       String
+  productId      String    @unique
+  productName    String
   categoryName   String?
   totalViews     Int       @default(0)
   totalCartAdds  Int       @default(0)
@@ -233,7 +226,7 @@ model LandingPage {
   seoDescription  String   @default("")
   seoKeywords     String   @default("")
   canonical       String   @default("")
-  gameIds         String   @default("[]")
+  productIds      String   @default("[]")
   isActive        Boolean  @default(true)
   sortOrder       Int      @default(0)
   createdAt       DateTime @default(now())
@@ -243,8 +236,7 @@ model LandingPage {
   @@index([isActive])
 }
 
-model GA4DailyMetrics {
-  id                 String   @id @default(cuid())
+model GA4DailyMetrics {  id                 String   @id @default(cuid())
   date               DateTime @unique
   users              Int      @default(0)
   newUsers           Int      @default(0)

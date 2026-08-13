@@ -10,8 +10,8 @@ export interface AnalyticsMetadata {
 }
 
 export interface TrackViewItemParams {
-  gameId: string;
-  gameName: string;
+  productId: string;
+  productName: string;
   categoryId?: string;
   categoryName?: string;
   price?: number;
@@ -19,8 +19,8 @@ export interface TrackViewItemParams {
 }
 
 export interface TrackAddToCartParams {
-  gameId: string;
-  gameName: string;
+  productId: string;
+  productName: string;
   categoryId?: string;
   categoryName?: string;
   price?: number;
@@ -28,8 +28,8 @@ export interface TrackAddToCartParams {
 }
 
 export interface TrackRemoveFromCartParams {
-  gameId: string;
-  gameName: string;
+  productId: string;
+  productName: string;
   price?: number;
   source?: string;
 }
@@ -42,8 +42,8 @@ export interface TrackSearchParams {
 
 export interface TrackWhatsAppParams {
   source: string;
-  gameId?: string;
-  gameName?: string;
+  productId?: string;
+  productName?: string;
   categoryId?: string;
   categoryName?: string;
 }
@@ -55,8 +55,8 @@ export interface TrackPageViewParams {
 export interface TrackBeginCheckoutParams {
   total: number;
   itemsCount: number;
-  gameId?: string;
-  gameName?: string;
+  productId?: string;
+  productName?: string;
   source?: string;
 }
 
@@ -68,14 +68,14 @@ export interface TrackViewCartParams {
 export interface TrackAddPaymentInfoParams {
   total: number;
   itemsCount: number;
-  gameId?: string;
-  gameName?: string;
+  productId?: string;
+  productName?: string;
   source?: string;
 }
 
 export interface TrackShareParams {
-  gameId?: string;
-  gameName?: string;
+  productId?: string;
+  productName?: string;
   categoryId?: string;
   categoryName?: string;
   source?: string;
@@ -87,8 +87,8 @@ export interface TrackEmailSubscribeParams {
 
 interface EventPayload {
   eventType: AnalyticsEventType;
-  gameId?: string;
-  gameName?: string;
+  productId?: string;
+  productName?: string;
   categoryId?: string;
   categoryName?: string;
   searchTerm?: string;
@@ -207,8 +207,8 @@ function send(payload: EventPayload): void {
 export function trackViewItem(params: TrackViewItemParams): void {
   send({
     eventType: "view_item",
-    gameId: params.gameId,
-    gameName: params.gameName,
+    productId: params.productId,
+    productName: params.productName,
     categoryId: params.categoryId,
     categoryName: params.categoryName,
     price: params.price,
@@ -219,8 +219,8 @@ export function trackViewItem(params: TrackViewItemParams): void {
 export function trackAddToCart(params: TrackAddToCartParams): void {
   send({
     eventType: "add_to_cart",
-    gameId: params.gameId,
-    gameName: params.gameName,
+    productId: params.productId,
+    productName: params.productName,
     categoryId: params.categoryId,
     categoryName: params.categoryName,
     price: params.price,
@@ -231,8 +231,8 @@ export function trackAddToCart(params: TrackAddToCartParams): void {
 export function trackRemoveFromCart(params: TrackRemoveFromCartParams): void {
   send({
     eventType: "remove_from_cart",
-    gameId: params.gameId,
-    gameName: params.gameName,
+    productId: params.productId,
+    productName: params.productName,
     price: params.price,
     source: params.source,
   });
@@ -261,8 +261,8 @@ export function trackFilter(params: { filterCategory: string; resultsCount?: num
 export function trackWhatsApp(params: TrackWhatsAppParams): void {
   send({
     eventType: "whatsapp_click",
-    gameId: params.gameId,
-    gameName: params.gameName,
+    productId: params.productId,
+    productName: params.productName,
     categoryId: params.categoryId,
     categoryName: params.categoryName,
     source: params.source,
@@ -279,8 +279,8 @@ export function trackPageView(params: TrackPageViewParams): void {
 export function trackBeginCheckout(params: TrackBeginCheckoutParams): void {
   send({
     eventType: "begin_checkout",
-    gameId: params.gameId,
-    gameName: params.gameName,
+    productId: params.productId,
+    productName: params.productName,
     price: params.total,
     source: params.source,
   });
@@ -296,8 +296,8 @@ export function trackViewCart(params: TrackViewCartParams): void {
 export function trackAddPaymentInfo(params: TrackAddPaymentInfoParams): void {
   send({
     eventType: "add_payment_info",
-    gameId: params.gameId,
-    gameName: params.gameName,
+    productId: params.productId,
+    productName: params.productName,
     price: params.total,
     source: params.source,
   });
@@ -306,8 +306,8 @@ export function trackAddPaymentInfo(params: TrackAddPaymentInfoParams): void {
 export function trackShare(params: TrackShareParams): void {
   send({
     eventType: "share",
-    gameId: params.gameId,
-    gameName: params.gameName,
+    productId: params.productId,
+    productName: params.productName,
     categoryId: params.categoryId,
     categoryName: params.categoryName,
     source: params.source,

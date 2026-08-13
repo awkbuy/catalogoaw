@@ -2,56 +2,41 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { getTenantDb } from "@/lib/tenant";
-import { parseJsonBody, sanitizeError, isPrismaNotFound } from "@/lib/errors";
+import { parseJsonBody, sanitizeError } from "@/lib/errors";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET() {
   const prisma = await getTenantDb();
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { id } = await params;
-  const juego = await prisma.game.findUnique({
-    where: { id },
+  const productos = await prisma.product.findMany({
     include: {
       categoria: { select: { nombre: true, color: true } },
       categorias: { select: { id: true, nombre: true, color: true } },
     },
+    orderBy: { nombre: "asc" },
   });
 
-  if (!juego) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(juego);
+  return NextResponse.json(productos);
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest) {
   const prisma = await getTenantDb();
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { id } = await params;
   const data = await parseJsonBody(req);
   if (!data) return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
 
   try {
     const categoriaIds = parseCategoriaIds(data);
-    const juego = await prisma.game.update({
-      where: { id },
+    const producto = await prisma.product.create({
       data: {
         nombre: String(data.nombre || ""),
         slug: String(data.slug || ""),
         descripcion: String(data.descripcion || ""),
         categoriaId: String(data.categoriaId || ""),
-        categorias: { set: categoriaIds.map((id) => ({ id })) },
-        jugadoresMin: Math.max(1, Number(data.jugadoresMin) || 2),
-        jugadoresMax: Math.max(1, Number(data.jugadoresMax) || 6),
-        duracion: String(data.duracion || ""),
-        edad: String(data.edad || ""),
-        dificultad: String(data.dificultad || ""),
+        categorias: { connect: categoriaIds.map((id) => ({ id })) },
         precioFinalVenta: String(data.precioFinalVenta || ""),
         descuento: Math.max(0, Number(data.descuento) || 0),
         envioGratis: data.envioGratis === true,
@@ -62,7 +47,6 @@ export async function PUT(
         destacado: data.destacado === true,
         nuevo: data.nuevo === true,
         disponibleVenta: data.disponibleVenta === true,
-        disponibleMesa: data.disponibleMesa === true,
         orden: Math.max(0, Number(data.orden) || 0),
         seoTitle: String(data.seoTitle || ""),
         seoDescription: String(data.seoDescription || ""),
@@ -80,17 +64,14 @@ export async function PUT(
         metaProductCategory: String(data.metaProductCategory || ""),
         gtin: String(data.gtin || ""),
         mpn: String(data.mpn || ""),
-        brand: String(data.brand || "Wolfie Room"),
+        brand: String(data.brand || "Catalogo App"),
         condition: String(data.condition || "new"),
         marketingPriority: Math.max(0, Number(data.marketingPriority) || 0),
       },
     });
     revalidatePath("/");
-    return NextResponse.json(juego);
+    return NextResponse.json(producto);
   } catch (error) {
-    if (isPrismaNotFound(error)) {
-      return NextResponse.json({ error: "El registro no fue encontrado" }, { status: 404 });
-    }
     return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
   }
 }
@@ -105,26 +86,4 @@ function parseCategoriaIds(data: Record<string, unknown>): string[] {
   if (primary) all.add(primary);
   for (const id of ids) all.add(id);
   return [...all];
-}
-
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const prisma = await getTenantDb();
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { id } = await params;
-
-  try {
-    await prisma.game.delete({ where: { id } });
-    revalidatePath("/");
-    return NextResponse.json({ ok: true });
-  } catch (error) {
-    if (isPrismaNotFound(error)) {
-      return NextResponse.json({ error: "El registro no fue encontrado" }, { status: 404 });
-    }
-    return NextResponse.json({ error: sanitizeError(error) }, { status: 500 });
-  }
 }

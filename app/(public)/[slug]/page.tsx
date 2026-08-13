@@ -12,10 +12,10 @@ import { parsearHorarios } from "@/lib/horarios";
 import { parseTaxConfig } from "@/lib/tax";
 import type { PublicPaymentMethod } from "@/lib/payment-methods";
 import { getCuotasInfo, type PublicShippingZone } from "@/lib/ventas";
-import { parseGameIds } from "@/lib/landings";
+import { parseProductIds } from "@/lib/landings";
 import JsonLd from "@/components/JsonLd";
 import LandingPage from "@/components/LandingPage/LandingPage";
-import type { PublicGame } from "@/components/Catalog/Catalog";
+import type { PublicProduct } from "@/components/Catalog/Catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -49,12 +49,12 @@ export default async function LandingPageRoute({
   const prisma = await getTenantDbOrNull();
   if (!prisma) notFound();
 
-  const gameIds = parseGameIds(landing.gameIds);
+  const productIds = parseProductIds(landing.productIds);
 
-  const [games, settings, paymentMethods, settingsRows, shippingZones] = await Promise.all([
-    gameIds.length > 0
-      ? prisma.game.findMany({
-          where: { id: { in: gameIds } },
+  const [products, settings, paymentMethods, settingsRows, shippingZones] = await Promise.all([
+    productIds.length > 0
+      ? prisma.product.findMany({
+          where: { id: { in: productIds } },
           include: {
             categoria: { select: { nombre: true, icono: true, color: true } },
             categorias: { select: { nombre: true, icono: true, color: true } },
@@ -79,7 +79,7 @@ export default async function LandingPageRoute({
   }
 
   const whatsappNumber = rawSettings.whatsapp || rawSettings.telefono || "";
-  const businessName = rawSettings.nombreNegocio || "Wolfie Room";
+  const businessName = rawSettings.nombreNegocio || "Catalogo App";
   const logoUrl = rawSettings.logoUrl || null;
   const direccion = rawSettings.direccion || "";
   const ciudad = rawSettings.ciudad || "";
@@ -104,37 +104,31 @@ export default async function LandingPageRoute({
     promocional: pm.promocional,
   }));
 
-  const publicGames: PublicGame[] = games.map((g) => ({
-    id: g.id,
-    nombre: g.nombre,
-    slug: g.slug,
-    descripcion: g.descripcion,
+  const publicProducts: PublicProduct[] = products.map((p) => ({
+    id: p.id,
+    nombre: p.nombre,
+    slug: p.slug,
+    descripcion: p.descripcion,
     categoria: {
-      nombre: g.categoria.nombre,
-      icono: g.categoria.icono,
-      color: g.categoria.color,
+      nombre: p.categoria.nombre,
+      icono: p.categoria.icono,
+      color: p.categoria.color,
     },
-    categorias: g.categorias.map((c) => ({
+    categorias: p.categorias.map((c) => ({
       nombre: c.nombre,
       icono: c.icono,
       color: c.color,
     })),
-    jugadoresMin: g.jugadoresMin,
-    jugadoresMax: g.jugadoresMax,
-    duracion: g.duracion,
-    edad: g.edad,
-    dificultad: g.dificultad,
-    imagen: g.imagen,
-    integrarVideo: g.integrarVideo,
-    videoUrl: g.videoUrl,
-    estado: g.estado,
-    destacado: g.destacado,
-    nuevo: g.nuevo,
-    precioFinalVenta: g.precioFinalVenta,
-    descuento: g.descuento,
-    envioGratis: g.envioGratis,
-    disponibleVenta: g.disponibleVenta,
-    disponibleMesa: g.disponibleMesa,
+    imagen: p.imagen,
+    integrarVideo: p.integrarVideo,
+    videoUrl: p.videoUrl,
+    estado: p.estado,
+    destacado: p.destacado,
+    nuevo: p.nuevo,
+    precioFinalVenta: p.precioFinalVenta,
+    descuento: p.descuento,
+    envioGratis: p.envioGratis,
+    disponibleVenta: p.disponibleVenta,
   }));
 
   const siteUrl = getSiteUrl(settings);
@@ -147,7 +141,7 @@ export default async function LandingPageRoute({
     <>
       <JsonLd data={breadcrumbJsonLd(breadcrumbs)} />
       <LandingPage
-        games={publicGames}
+        products={publicProducts}
         slug={landing.slug}
         title={landing.title}
         description={landing.description}

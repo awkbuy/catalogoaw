@@ -3,7 +3,7 @@ import { ADMIN_PATH } from "./fixtures";
 
 test.describe("19 · Admin oculto — ruta secreta y no-indexación", () => {
   test("login y rutas del panel sin prefijo → 404 (desaparecen de la URL pública)", async ({ publicApi }) => {
-    for (const path of ["/login", "/dashboard", "/games", "/settings", "/marketing"]) {
+    for (const path of ["/login", "/dashboard", "/productos", "/settings", "/marketing"]) {
       const res = await publicApi.get(path);
       expect(res.status(), `${path} sin prefijo`).toBe(404);
     }
@@ -15,7 +15,7 @@ test.describe("19 · Admin oculto — ruta secreta y no-indexación", () => {
       timeout: 10_000,
     });
     const html = await page.content();
-    expect(html).not.toContain("Total Juegos");
+    expect(html).not.toContain("Total Productos");
   });
 
   test("login del prefijo responde 200 con X-Robots-Tag noindex y meta noindex", async ({ publicApi }) => {
@@ -25,7 +25,7 @@ test.describe("19 · Admin oculto — ruta secreta y no-indexación", () => {
     expect(tag).toContain("noindex");
     const html = await res.text();
     expect(html).toContain("noindex");
-    expect(html).not.toContain(`<title>Wolfie Room</title>`);
+    expect(html).not.toContain(`<title>Catalogo App</title>`);
   });
 
   test("la página pública NO lleva X-Robots-Tag noindex", async ({ publicApi }) => {

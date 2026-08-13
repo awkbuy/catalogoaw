@@ -9,7 +9,7 @@ export const FEED_CONDITIONS: readonly FeedCondition[] = [
   "used",
 ];
 
-export interface FeedGame {
+export interface FeedProduct {
   id: string;
   nombre: string;
   slug: string;
@@ -52,16 +52,16 @@ export function stripHtml(value: string): string {
     .trim();
 }
 
-export function feedDescription(game: FeedGame): string {
-  const source = (game.seoDescription || game.descripcion || "").trim();
+export function feedDescription(product: FeedProduct): string {
+  const source = (product.seoDescription || product.descripcion || "").trim();
   const clean = stripHtml(source);
   return clean.length > 1000 ? `${clean.slice(0, 997)}...` : clean;
 }
 
-export function feedFinalPrice(game: FeedGame): number {
-  const base = parsePrice(game.precioFinalVenta);
+export function feedFinalPrice(product: FeedProduct): number {
+  const base = parsePrice(product.precioFinalVenta);
   if (base <= 0) return 0;
-  const discount = Math.max(0, Math.min(100, game.descuento || 0));
+  const discount = Math.max(0, Math.min(100, product.descuento || 0));
   if (discount <= 0) return Math.round(base * 100) / 100;
   return Math.round(base * (1 - discount / 100) * 100) / 100;
 }

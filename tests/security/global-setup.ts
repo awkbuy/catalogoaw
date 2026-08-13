@@ -29,7 +29,7 @@ export default async function globalSetup() {
   });
 
   await page.goto(`${BASE_URL}/${ADMIN_PATH}/login`);
-  await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+  await page.getByLabel(/Email/i).fill("admin@catalogoapp.com");
   await page.locator('input[name="password"]').fill(ADMIN_PASSWORD);
   await page.getByRole("button", { name: /Iniciar sesión/i }).click();
   await page.waitForURL(/\/dashboard/, { timeout: 20_000 });

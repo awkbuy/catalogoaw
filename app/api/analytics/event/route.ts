@@ -73,8 +73,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Evento no válido" }, { status: 400 });
   }
 
-  const gameId = sanitizeString(body.gameId);
-  const gameName = sanitizeString(body.gameName);
+  const productId = sanitizeString(body.productId);
+  const productName = sanitizeString(body.productName);
   const categoryId = sanitizeString(body.categoryId);
   const categoryName = sanitizeString(body.categoryName);
   const searchTerm = sanitizeString(body.searchTerm, 100);
@@ -154,8 +154,8 @@ export async function POST(req: NextRequest) {
   await prisma.analyticsEvent.create({
     data: {
       eventType,
-      gameId,
-      gameName,
+      productId,
+      productName,
       categoryId,
       categoryName,
       searchTerm,
@@ -170,8 +170,8 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  if (gameId && gameName) {
-    const productPatch: Record<string, unknown> = { gameName };
+  if (productId && productName) {
+    const productPatch: Record<string, unknown> = { productName };
     if (categoryName) productPatch.categoryName = categoryName;
     if (eventType === "view_item") {
       productPatch.totalViews = { increment: 1 };
@@ -181,17 +181,17 @@ export async function POST(req: NextRequest) {
     if (eventType === "whatsapp_click") productPatch.totalWhatsapp = { increment: 1 };
     if (eventType === "begin_checkout") productPatch.totalCheckouts = { increment: 1 };
 
-    const existingProduct = await prisma.productMetrics.findUnique({ where: { gameId } });
+    const existingProduct = await prisma.productMetrics.findUnique({ where: { productId } });
     if (existingProduct) {
       await prisma.productMetrics.update({
-        where: { gameId },
+        where: { productId },
         data: { ...productPatch, updatedAt: new Date() },
       });
     } else {
       await prisma.productMetrics.create({
         data: {
-          gameId,
-          gameName,
+          productId,
+          productName,
           categoryName,
           totalViews: eventType === "view_item" ? 1 : 0,
           totalCartAdds: eventType === "add_to_cart" ? 1 : 0,

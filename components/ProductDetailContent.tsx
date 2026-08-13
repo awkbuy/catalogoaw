@@ -11,10 +11,10 @@ import {
 } from "@/lib/tax";
 import { calcularCuotas, resolverEnvio, type CuotasInfo, type PublicShippingZone } from "@/lib/ventas";
 
-export type { ProductDetailGame } from "./ProductDetailMain";
+export type { ProductDetailProduct } from "./ProductDetailMain";
 
 interface ProductDetailContentProps {
-  game: import("./ProductDetailMain").ProductDetailGame;
+  product: import("./ProductDetailMain").ProductDetailProduct;
   taxConfig: TaxConfig;
   source: string;
   cantidad: number;
@@ -25,17 +25,17 @@ interface ProductDetailContentProps {
 }
 
 export default function ProductDetailContent({
-  game,
+  product,
   taxConfig,
   source,
   cantidad,
   onCantidadChange,
   cuotasInfo,
   envioZonas,
-  businessName = "Wolfie Room",
+  businessName = "Catalogo App",
 }: ProductDetailContentProps) {
-  const precioNum = parsePrice(game.precioFinalVenta);
-  const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
+  const precioNum = parsePrice(product.precioFinalVenta);
+  const precioFinal = product.descuento > 0 ? precioNum * (1 - product.descuento / 100) : precioNum;
   const mostrarSinImpuestos =
     taxConfig.activoCalculoAutomatico &&
     taxConfig.mostrarPrecioSinImpuestos &&
@@ -46,25 +46,25 @@ export default function ProductDetailContent({
   const cuotas = cuotasInfo ? calcularCuotas(precioFinal, cuotasInfo) : null;
   const envio = resolverEnvio({
     precio: precioFinal,
-    envioGratisDelJuego: game.envioGratis,
+    envioGratisDelProducto: product.envioGratis,
     zonas: envioZonas,
   });
   const hayRetiro = envioZonas.some((z) => z.active && z.cost === 0);
 
   return (
     <div>
-      <ProductDetailMain game={game} source={source}>
-        {game.disponibleVenta && game.precioFinalVenta && (
+      <ProductDetailMain product={product} source={source}>
+        {product.disponibleVenta && product.precioFinalVenta && (
           <div className="space-y-4">
             <div>
-              {game.descuento > 0 ? (
+              {product.descuento > 0 ? (
                 <div className="flex flex-wrap items-baseline gap-2">
                   <p className="text-2xl font-bold text-red-500">
                     {formatPrice(precioFinal)}
                   </p>
                   <span className="text-base text-[#9CA3AF] line-through">{formatPrice(precioNum)}</span>
                   <span className="text-xs font-semibold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-md">
-                    -{game.descuento}%
+                    -{product.descuento}%
                   </span>
                 </div>
               ) : (

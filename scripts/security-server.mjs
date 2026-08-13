@@ -37,7 +37,7 @@ await rm(dbFile, { force: true });
 console.log("[security-server] migrate deploy");
 run("npx", ["prisma", "migrate", "deploy"]);
 
-console.log("[security-server] seed (admin@wolfieroom.com)");
+console.log("[security-server] seed (admin@catalogoapp.com)");
 run("npx", ["prisma", "db", "seed"]);
 
 console.log("[security-server] build (producción)");

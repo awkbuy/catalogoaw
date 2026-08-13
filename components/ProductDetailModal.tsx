@@ -9,13 +9,13 @@ import { useCart } from "@/lib/cart-context";
 import { trackMarketingEvent } from "@/lib/marketing";
 import { parsePrice } from "@/lib/format";
 import type { TaxConfig } from "@/lib/tax";
-import ProductDetailContent, { type ProductDetailGame } from "@/components/ProductDetailContent";
+import ProductDetailContent, { type ProductDetailProduct } from "@/components/ProductDetailContent";
 import ShareButton from "@/components/ShareButton";
 import { flyToCart } from "@/lib/fly-to-cart";
 import type { CuotasInfo, PublicShippingZone } from "@/lib/ventas";
 
 interface ProductDetailModalProps {
-  game: ProductDetailGame | null;
+  product: ProductDetailProduct | null;
   open: boolean;
   onClose: () => void;
   taxConfig: TaxConfig;
@@ -24,35 +24,35 @@ interface ProductDetailModalProps {
   businessName?: string;
 }
 
-export default function ProductDetailModal({ game, open, onClose, taxConfig, cuotasInfo, envioZonas, businessName }: ProductDetailModalProps) {
+export default function ProductDetailModal({ product, open, onClose, taxConfig, cuotasInfo, envioZonas, businessName }: ProductDetailModalProps) {
   const { isLite } = useAdaptive();
   const { addItem, showCartToast, openCart } = useCart();
   const [cantidad, setCantidad] = useState(1);
 
-  if (!game) return null;
+  if (!product) return null;
 
-  const comprable = game.disponibleVenta && !!game.precioFinalVenta;
+  const comprable = product.disponibleVenta && !!product.precioFinalVenta;
 
   const addToCart = (e: React.MouseEvent<HTMLButtonElement>, abrirCarrito: boolean) => {
-    if (!game) return;
-    const precioNum = parsePrice(game.precioFinalVenta);
-    const precioFinal = game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
+    if (!product) return;
+    const precioNum = parsePrice(product.precioFinalVenta);
+    const precioFinal = product.descuento > 0 ? precioNum * (1 - product.descuento / 100) : precioNum;
     for (let i = 0; i < cantidad; i++) {
       addItem({
-        gameId: game.id,
-        nombre: game.nombre,
-        precio: game.precioFinalVenta,
+        productId: product.id,
+        nombre: product.nombre,
+        precio: product.precioFinalVenta,
         precioNum,
-        imagen: game.imagen,
-        envioGratis: game.envioGratis,
+        imagen: product.imagen,
+        envioGratis: product.envioGratis,
       });
     }
     trackMarketingEvent({
       event: "AddToCart",
       data: {
-        content_ids: [game.id],
-        content_name: game.nombre,
-        content_category: game.categoria.nombre,
+        content_ids: [product.id],
+        content_name: product.nombre,
+        content_category: product.categoria.nombre,
         value: precioFinal,
         currency: "ARS",
         quantity: cantidad,
@@ -61,7 +61,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig, cuo
     });
     setCantidad(1);
     flyToCart({
-      image: game.imagen,
+      image: product.imagen,
       from: e.currentTarget,
       onComplete: () => {
         onClose();
@@ -106,7 +106,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig, cuo
 
             <div className="flex-1 overflow-y-auto">
               <ProductDetailContent
-                game={game}
+                product={product}
                 taxConfig={taxConfig}
                 source="product_modal"
                 cantidad={cantidad}
@@ -128,7 +128,7 @@ export default function ProductDetailModal({ game, open, onClose, taxConfig, cuo
                 </button>
                 <div className="grid grid-cols-2 gap-3">
                   <ShareButton
-                    game={game}
+                    product={product}
                     source="product_modal"
                     className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#1F2937] shadow-sm transition-all hover:border-[#31D3A9]/30 hover:shadow-md"
                   />

@@ -25,7 +25,7 @@ interface Landing {
   description: string;
   heroTitle: string;
   bannerColor: string;
-  gameIds: string;
+  productIds: string;
   isActive: boolean;
   sortOrder: number;
   createdAt: string;
@@ -58,9 +58,9 @@ export default function LandingsPage() {
       l.slug.toLowerCase().includes(search.toLowerCase())
   );
 
-  const gameCount = (l: Landing) => {
+  const productCount = (l: Landing) => {
     try {
-      const ids = JSON.parse(l.gameIds);
+      const ids = JSON.parse(l.productIds);
       return Array.isArray(ids) ? ids.length : 0;
     } catch {
       return 0;
@@ -171,7 +171,7 @@ export default function LandingsPage() {
                   Slug
                 </th>
                 <th className="text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
-                  Juegos
+                  Productos
                 </th>
                 <th className="text-left text-xs font-medium text-[#6B7280] uppercase tracking-wider px-4 py-3">
                   Estado
@@ -214,8 +214,8 @@ export default function LandingsPage() {
                     </a>
                   </td>
                   <td className="px-4 py-3 text-sm text-[#6B7280]">
-                    {gameCount(landing)} juego
-                    {gameCount(landing) !== 1 ? "s" : ""}
+                    {productCount(landing)} producto
+                    {productCount(landing) !== 1 ? "s" : ""}
                   </td>
                   <td className="px-4 py-3">
                     <button
@@ -279,8 +279,8 @@ export default function LandingsPage() {
                     {landing.title}
                   </p>
                   <p className="text-xs text-[#6B7280] truncate">
-                    /{landing.slug} · {gameCount(landing)} juego
-                    {gameCount(landing) !== 1 ? "s" : ""}
+                    /{landing.slug} · {productCount(landing)} producto
+                    {productCount(landing) !== 1 ? "s" : ""}
                   </p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <button

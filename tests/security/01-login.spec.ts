@@ -60,7 +60,7 @@ test.describe("01 · Login — comportamiento de ataque", () => {
       "' OR 1=1 --",
       "' UNION SELECT * FROM User --",
       "admin'--",
-      "admin@wolfieroom.com' OR '1'='1",
+      "admin@catalogoapp.com' OR '1'='1",
     ]) {
       await submitLogin(page, payload, "x");
       await expect(page.getByText(/Credenciales inválidas/i)).toBeVisible({ timeout: 10_000 });
@@ -117,7 +117,7 @@ test.describe("01 · Login — comportamiento de ataque", () => {
   test("caracteres Unicode → error genérico, sin crash", async ({ page }) => {
     await spoofIp(page, randomIp());
     await goToLogin(page);
-    await submitLogin(page, `admin@wolfieroom.com`, `🙈🙉🙊😈👾日本語`);
+    await submitLogin(page, `admin@catalogoapp.com`, `🙈🙉🙊😈👾日本語`);
     await expect(page.getByText(/Credenciales inválidas/i)).toBeVisible({ timeout: 10_000 });
     const cookies = await page.context().cookies();
     expect(cookies.some((c) => c.name === "session_token")).toBe(false);

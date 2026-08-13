@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [state, formAction, pending] = useActionState(loginAction, null);
   const [brand, setBrand] = useState<{ nombreNegocio: string; logoUrl: string | null }>({
-    nombreNegocio: "Wolfie Room",
+    nombreNegocio: "Catalogo App",
     logoUrl: null,
   });
 
@@ -78,7 +78,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] placeholder-[#6B7280]/50 focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all text-sm"
-                placeholder="admin@wolfieroom.com"
+                placeholder="admin@catalogoapp.com"
               />
             </div>
 

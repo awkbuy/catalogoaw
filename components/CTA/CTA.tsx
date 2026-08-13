@@ -8,7 +8,7 @@ interface CTAProps {
 }
 
 export default function CTA({ whatsappNumber }: CTAProps) {
-  const WHATSAPP_RESERVA = `https://wa.me/${whatsappNumber}?text=Hola.%20Quisiera%20consultar%20para%20reservar%20una%20mesa%20en%20Wolfie%20Room.`;
+  const WHATSAPP_RESERVA = `https://wa.me/${whatsappNumber}?text=Hola.%20Quisiera%20hacer%20una%20consulta.`;
 
   return (
     <section className="relative py-20 sm:py-28">
@@ -26,10 +26,10 @@ export default function CTA({ whatsappNumber }: CTAProps) {
           <div className="absolute right-12 bottom-4 h-4 w-4 rounded-full bg-white/10" />
 
           <h2 className="mb-4 text-2xl font-bold text-white sm:text-3xl">
-            ¿Nos vemos en la próxima partida?
+            ¿Te ayudamos a encontrar lo que buscás?
           </h2>
           <p className="mx-auto mb-8 max-w-md text-base text-white/80 sm:text-lg">
-            Reservá tu mesa o consultanos por cualquiera de nuestros juegos.
+            Consultanos por cualquiera de nuestros productos y te asesoramos.
           </p>
           <a
             href={WHATSAPP_RESERVA}
@@ -38,7 +38,7 @@ export default function CTA({ whatsappNumber }: CTAProps) {
             className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-base font-semibold text-primary shadow-xl transition-all hover:bg-white/90 hover:scale-105 active:scale-95"
           >
             <WhatsAppIcon size={18} />
-            Reservar por WhatsApp
+            Consultar por WhatsApp
           </a>
         </motion.div>
       </div>

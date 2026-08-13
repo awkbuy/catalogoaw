@@ -27,11 +27,11 @@ export default function LandingHero({
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
-  const heroTitle = title || fallbackTitle || "Wolfie Room";
+  const heroTitle = title || fallbackTitle || "Catálogo";
   const heroDescription =
     description ||
     fallbackDescription ||
-    "Descubrí nuestras mejores ofertas en juegos de mesa.";
+    "Descubrí nuestras mejores ofertas en productos.";
 
   const scrollToGrid = () => {
     const grid = document.getElementById("catalogo");
@@ -84,7 +84,7 @@ export default function LandingHero({
             onClick={scrollToGrid}
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-[#0B3B30] shadow-lg transition-transform hover:scale-[1.03] active:scale-[0.98]"
           >
-            Ver juegos
+            Ver productos
             <ArrowDown className="w-4 h-4" />
           </button>
         </Motion.div>

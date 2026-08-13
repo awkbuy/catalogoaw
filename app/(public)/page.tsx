@@ -25,8 +25,8 @@ export default async function Home() {
     );
   }
 
-  const [games, categories, paymentMethods, settings, shippingZones] = await Promise.all([
-    prisma.game.findMany({
+  const [products, categories, paymentMethods, settings, shippingZones] = await Promise.all([
+    prisma.product.findMany({
       include: {
         categoria: { select: { nombre: true, icono: true, color: true } },
         categorias: { select: { nombre: true, icono: true, color: true } },
@@ -34,7 +34,7 @@ export default async function Home() {
       orderBy: { orden: "asc" },
     }),
     prisma.category.findMany({
-      include: { _count: { select: { games: true } } },
+      include: { _count: { select: { products: true } } },
       orderBy: { orden: "asc" },
     }),
     prisma.paymentMethod.findMany({
@@ -55,7 +55,7 @@ export default async function Home() {
   }
 
   const whatsappNumber = rawSettings.whatsapp || rawSettings.telefono || "";
-  const businessName = rawSettings.nombreNegocio || "Wolfie Room";
+  const businessName = rawSettings.nombreNegocio || "Catalogo App";
   const logoUrl = rawSettings.logoUrl || null;
   const direccion = rawSettings.direccion || "";
   const ciudad = rawSettings.ciudad || "";
@@ -86,12 +86,12 @@ export default async function Home() {
       <JsonLd
         data={collectionPageJsonLd(
           settings,
-          games.map((g) => ({ nombre: g.nombre, slug: g.slug }))
+          products.map((p) => ({ nombre: p.nombre, slug: p.slug }))
         )}
       />
       {faq ? <JsonLd data={faq} /> : null}
       <HomeClient
-        games={games}
+        products={products}
         categories={categories}
         whatsappNumber={whatsappNumber}
         businessName={businessName}

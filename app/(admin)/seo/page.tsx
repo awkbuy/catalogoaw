@@ -251,7 +251,7 @@ export default function SeoPage() {
                 label="Nombre del sitio"
                 value={settings.seoNombreSitio || ""}
                 onChange={(v) => handleChange("seoNombreSitio", v)}
-                placeholder="Wolfie Room"
+                placeholder="Catalogo App"
               />
               <TextField
                 label="URL del sitio"
@@ -302,7 +302,7 @@ export default function SeoPage() {
               label="Título por defecto"
               value={settings.seoTitulo || ""}
               onChange={(v) => handleChange("seoTitulo", v)}
-              placeholder="Wolfie Room - Juegos de mesa en Mendoza"
+              placeholder="Nombre de tu tienda - productos destacados"
               hint="Recomendado: hasta 60 caracteres."
             />
             <TextArea
@@ -317,7 +317,7 @@ export default function SeoPage() {
               label="Palabras clave"
               value={settings.seoKeywords || ""}
               onChange={(v) => handleChange("seoKeywords", v)}
-              placeholder="juegos de mesa, Mendoza, ludoteca"
+              placeholder="productos, novedades, ofertas"
               hint="Separadas por comas."
             />
           </Section>
@@ -462,7 +462,7 @@ export default function SeoPage() {
               label="Nombre"
               value={settings.orgNombre || ""}
               onChange={(v) => handleChange("orgNombre", v)}
-              placeholder="Wolfie Room"
+              placeholder="Catalogo App"
             />
             <TextField
               label="Logo (URL)"

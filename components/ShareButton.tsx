@@ -5,20 +5,20 @@ import { trackMarketingEvent } from "@/lib/marketing";
 import { sileo } from "sileo";
 
 interface ShareButtonProps {
-  game: { id: string; slug: string; nombre: string; categoria: { nombre: string } };
+  product: { id: string; slug: string; nombre: string; categoria: { nombre: string } };
   source: string;
   label?: string;
   className?: string;
 }
 
-export default function ShareButton({ game, source, label = "Compartir", className }: ShareButtonProps) {
+export default function ShareButton({ product, source, label = "Compartir", className }: ShareButtonProps) {
   const trackShare = () => {
     trackMarketingEvent({
       event: "Share",
       data: {
-        content_ids: [game.id],
-        content_name: game.nombre,
-        content_category: game.categoria.nombre,
+        content_ids: [product.id],
+        content_name: product.nombre,
+        content_category: product.categoria.nombre,
         source,
       },
     });
@@ -50,10 +50,10 @@ export default function ShareButton({ game, source, label = "Compartir", classNa
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/juegos/${game.slug}`;
+    const url = `${window.location.origin}/productos/${product.slug}`;
     if (typeof navigator.share === "function") {
       try {
-        await navigator.share({ title: game.nombre, url });
+        await navigator.share({ title: product.nombre, url });
         trackShare();
         return;
       } catch (err) {

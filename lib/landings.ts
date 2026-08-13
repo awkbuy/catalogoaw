@@ -10,7 +10,7 @@ const RESERVED_SLUGS = new Set([
   "settings",
   "account",
   "landings",
-  "juegos",
+  "productos",
   "api",
 ]);
 
@@ -27,7 +27,7 @@ export function isReservedSlug(slug: string): boolean {
   return RESERVED_SLUGS.has(slug.toLowerCase().trim());
 }
 
-export function parseGameIds(raw: unknown): string[] {
+export function parseProductIds(raw: unknown): string[] {
   if (typeof raw === "string") {
     try {
       const parsed = JSON.parse(raw);

@@ -42,13 +42,13 @@ test.describe("07 · SQL Injection — payloads tratados como datos literales", 
     created.push(cat.id);
   });
 
-  test("admin: crear juego con SQLi en nombre y descripción → se almacena literal", async ({ adminApi }) => {
+  test("admin: crear producto con SQLi en nombre y descripción → se almacena literal", async ({ adminApi }) => {
     const cats = await (await adminApi.get("/api/admin/categorias")).json();
     expect(cats.length).toBeGreaterThan(0);
 
-    const nombre = `Juego${Date.now()}'; DROP TABLE Game; --`;
+    const nombre = `Producto${Date.now()}'; DROP TABLE Product; --`;
     const descripcion = `' UNION SELECT passwordHash FROM User --`;
-    const res = await adminApi.post("/api/admin/juegos", {
+    const res = await adminApi.post("/api/admin/productos", {
       data: {
         nombre,
         descripcion,
@@ -66,13 +66,13 @@ test.describe("07 · SQL Injection — payloads tratados como datos literales", 
     const body = await readBody(res);
     expect(body).toContain(nombre);
     expect(body).toContain(descripcion);
-    assertNoLeak(body, "juego SQLi");
+    assertNoLeak(body, "producto SQLi");
     created.push(JSON.parse(body).id);
   });
 
   test("admin: SQLi en el segmento de ruta (id) → 404, no SQL error", async ({ adminApi }) => {
     const cases: [string, string][] = [
-      [`/api/admin/juegos/${encodeURIComponent("' OR 1=1--")}`, "GET"],
+      [`/api/admin/productos/${encodeURIComponent("' OR 1=1--")}`, "GET"],
       [`/api/admin/categorias/${encodeURIComponent("'; DROP TABLE Category;--")}`, "PUT"],
       [`/api/admin/cupones/${encodeURIComponent("' UNION SELECT * FROM User--")}`, "PUT"],
       [`/api/admin/pagos/${encodeURIComponent("1; SELECT * FROM User--")}`, "PUT"],
@@ -94,7 +94,7 @@ test.describe("07 · SQL Injection — payloads tratados como datos literales", 
     const { ADMIN_STATE, BASE_URL } = await import("./fixtures");
     const ctx = await pwRequest.newContext({ baseURL: BASE_URL, storageState: ADMIN_STATE });
     for (const id of created) {
-      await ctx.delete(`/api/admin/juegos/${id}`).catch(() => {});
+      await ctx.delete(`/api/admin/productos/${id}`).catch(() => {});
       await ctx.delete(`/api/admin/categorias/${id}`).catch(() => {});
     }
     await ctx.dispose();

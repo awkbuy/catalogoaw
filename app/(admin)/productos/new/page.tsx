@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import GameForm from "@/components/admin/GameForm";
+import ProductForm from "@/components/admin/ProductForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewGamePage() {
+export default async function NewProductPage() {
   const categorias = await prisma.category.findMany({
     orderBy: { orden: "asc" },
     select: { id: true, nombre: true },
@@ -12,12 +12,12 @@ export default async function NewGamePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1F2937]">Nuevo juego</h1>
+        <h1 className="text-2xl font-bold text-[#1F2937]">Nuevo producto</h1>
         <p className="text-[#6B7280] text-sm mt-1">
-          Agrega un nuevo juego al catálogo
+          Agrega un nuevo producto al catálogo
         </p>
       </div>
-      <GameForm categorias={categorias} mode="create" />
+      <ProductForm categorias={categorias} mode="create" />
     </div>
   );
 }

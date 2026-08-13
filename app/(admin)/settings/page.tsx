@@ -427,7 +427,7 @@ export default function SettingsPage() {
                   value={settings.popupTitle || ""}
                   onChange={(e) => handleChange("popupTitle", e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] text-[#1F2937] text-sm focus:outline-none focus:ring-2 focus:ring-[#31D3A9]/30 focus:border-[#31D3A9] transition-all"
-                  placeholder="Ej. ¡Novedades en Wolfie Room!"
+                  placeholder="Ej. ¡Novedades en Catalogo App!"
                 />
               </div>
               <div>

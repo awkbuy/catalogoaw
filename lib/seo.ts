@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { getTenantDb } from "@/lib/tenant";
 import { parsePrice } from "@/lib/format";
 
-export const DEFAULT_SITE_URL = "https://wolfiesroom.com";
-export const DEFAULT_SITE_NAME = "Wolfie Room";
+export const DEFAULT_SITE_URL = "https://catalogo.app";
+export const DEFAULT_SITE_NAME = "Catalogo App";
 
 export interface SeoFaqItem {
   pregunta: string;
@@ -75,14 +75,13 @@ export const getSeoSettings = cache(async (): Promise<SeoSettings> => {
   return {
     nombreSitio: s.seoNombreSitio || s.nombreNegocio || DEFAULT_SITE_NAME,
     tituloDefault:
-      s.seoTitulo ||
-      `${s.nombreNegocio || DEFAULT_SITE_NAME} - Juegos de mesa en Mendoza`,
+      s.seoTitulo || `${s.nombreNegocio || DEFAULT_SITE_NAME} - Catálogo de productos`,
     descripcion:
       s.seoDescripcion ||
       s.descripcion ||
-      `Jugá, descubrí y llevate tu próximo juego favorito en ${
+      `Descubrí el catálogo de ${
         s.nombreNegocio || DEFAULT_SITE_NAME
-      }, tu ludoteca en Mendoza.`,
+      } y encontrá lo que buscás para llevártelo a casa.`,
     keywords: s.seoKeywords || "",
     url: s.seoUrl || process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
     canonical: s.seoCanonical || "",
@@ -179,7 +178,7 @@ export function buildSiteMetadata(settings: SeoSettings): Metadata {
     authors: [{ name: siteName }],
     creator: siteName,
     publisher: siteName,
-    category: "board game store",
+    category: "catalog",
     alternates: { canonical: canonicalUrl },
     openGraph: {
       type: "website",
@@ -223,17 +222,12 @@ export function buildSiteMetadata(settings: SeoSettings): Metadata {
   };
 }
 
-export interface GameSeoSource {
+export interface ProductSeoSource {
   nombre: string;
   slug: string;
   descripcion: string;
   imagen: string;
   categoriaNombre: string;
-  jugadoresMin: number;
-  jugadoresMax: number;
-  duracion: string;
-  edad: string;
-  dificultad: string;
   precioFinalVenta: string;
   descuento: number;
   disponibleVenta: boolean;
@@ -259,74 +253,56 @@ function truncate(text: string, max = 158): string {
   return `${cut.slice(0, lastSpace > 0 ? lastSpace : max).trimEnd()}...`;
 }
 
-export function autoSeoTitle(game: GameSeoSource): string {
-  if (game.seoTitle.trim()) return game.seoTitle.trim();
-  return `${game.nombre} | Juego de mesa ${game.categoriaNombre.toLowerCase()}`;
+export function autoSeoTitle(product: ProductSeoSource): string {
+  if (product.seoTitle.trim()) return product.seoTitle.trim();
+  return `${product.nombre} | ${product.categoriaNombre}`;
 }
 
-export function autoSeoDescription(game: GameSeoSource): string {
-  if (game.seoDescription.trim()) return game.seoDescription.trim();
-  if (game.descripcion.trim()) return truncate(game.descripcion);
-  return truncate(
-    `Descubrí ${game.nombre}, un juego de mesa ${
-      game.categoriaNombre
-    } para ${game.jugadoresMin}-${game.jugadoresMax} jugadores, con una duración de ${
-      game.duracion
-    } y recomendado a partir de ${game.edad} años.`
-  );
+export function autoSeoDescription(product: ProductSeoSource): string {
+  if (product.seoDescription.trim()) return product.seoDescription.trim();
+  if (product.descripcion.trim()) return truncate(product.descripcion);
+  return truncate(`Descubrí ${product.nombre} en ${product.categoriaNombre}.`);
 }
 
-export function autoSeoKeywords(game: GameSeoSource): string[] {
-  if (game.seoKeywords.trim()) {
-    return game.seoKeywords
+export function autoSeoKeywords(product: ProductSeoSource): string[] {
+  if (product.seoKeywords.trim()) {
+    return product.seoKeywords
       .split(",")
       .map((k) => k.trim())
       .filter(Boolean);
   }
   return [
-    game.nombre,
-    `juego de mesa ${game.categoriaNombre.toLowerCase()}`,
-    game.categoriaNombre,
-    "juegos de mesa",
+    product.nombre,
+    product.categoriaNombre,
     DEFAULT_SITE_NAME,
-    "Mendoza",
-    `${game.jugadoresMin} a ${game.jugadoresMax} jugadores`,
-    game.edad,
+    "catálogo de productos",
   ].filter(Boolean);
 }
 
-export function autoImagenAlt(game: GameSeoSource): string {
-  if (game.imagenAlt.trim()) return game.imagenAlt.trim();
-  if (game.descripcionAccesible.trim()) return game.descripcionAccesible.trim();
-  return `Juego de mesa ${game.nombre} - ${game.categoriaNombre}`;
+export function autoImagenAlt(product: ProductSeoSource): string {
+  if (product.imagenAlt.trim()) return product.imagenAlt.trim();
+  if (product.descripcionAccesible.trim()) return product.descripcionAccesible.trim();
+  return `${product.nombre} - ${product.categoriaNombre}`;
 }
 
-export function autoResumenIA(game: GameSeoSource): string {
-  if (game.resumenIA.trim()) return game.resumenIA.trim();
-  const base = game.descripcion.trim()
-    ? ` ${truncate(game.descripcion, 220)}`
+export function autoResumenIA(product: ProductSeoSource): string {
+  if (product.resumenIA.trim()) return product.resumenIA.trim();
+  const base = product.descripcion.trim()
+    ? ` ${truncate(product.descripcion, 220)}`
     : "";
-  return truncate(
-    `${game.nombre} es un juego de mesa de la categoría ${
-      game.categoriaNombre
-    } para ${game.jugadoresMin}-${game.jugadoresMax} jugadores, con una duración de ${
-      game.duracion
-    }, recomendado a partir de ${game.edad} años y de dificultad ${
-      game.dificultad
-    }.${base}`
-  );
+  return truncate(`${product.nombre} es un producto de la categoría ${product.categoriaNombre}.${base}`);
 }
 
-export function gameUrl(settings: SeoSettings, game: GameSeoSource): string {
-  return `${getSiteUrl(settings)}/juegos/${game.slug}`;
+export function productUrl(settings: SeoSettings, product: ProductSeoSource): string {
+  return `${getSiteUrl(settings)}/productos/${product.slug}`;
 }
 
-export function gameCanonicalUrl(
+export function productCanonicalUrl(
   settings: SeoSettings,
-  game: GameSeoSource
+  product: ProductSeoSource
 ): string {
-  const ownUrl = gameUrl(settings, game);
-  const manual = (game.canonical || "").trim();
+  const ownUrl = productUrl(settings, product);
+  const manual = (product.canonical || "").trim();
   if (!manual) return ownUrl;
   let parsed: URL;
   try {
@@ -342,27 +318,27 @@ export function gameCanonicalUrl(
   return manual;
 }
 
-export function gameImageUrl(
+export function productImageUrl(
   settings: SeoSettings,
-  game: GameSeoSource
+  product: ProductSeoSource
 ): string {
-  return resolveImage(settings, game.imagen || settings.ogImage);
+  return resolveImage(settings, product.imagen || settings.ogImage);
 }
 
-export function buildGameMetadata(
+export function buildProductMetadata(
   settings: SeoSettings,
-  game: GameSeoSource
+  product: ProductSeoSource
 ): Metadata {
-  const title = autoSeoTitle(game);
-  const description = autoSeoDescription(game);
-  const canonical = gameCanonicalUrl(settings, game);
-  const image = gameImageUrl(settings, game);
+  const title = autoSeoTitle(product);
+  const description = autoSeoDescription(product);
+  const canonical = productCanonicalUrl(settings, product);
+  const image = productImageUrl(settings, product);
   const indexable = settings.index && settings.follow;
 
   return {
     title,
     description,
-    keywords: autoSeoKeywords(game),
+    keywords: autoSeoKeywords(product),
     alternates: { canonical },
     openGraph: {
       type: "website",
@@ -371,7 +347,7 @@ export function buildGameMetadata(
       title,
       description,
       siteName: settings.nombreSitio,
-      images: [{ url: image, width: 800, height: 800, alt: autoImagenAlt(game) }],
+      images: [{ url: image, width: 800, height: 800, alt: autoImagenAlt(product) }],
     },
     twitter: {
       card: settings.twitterCard as "summary" | "summary_large_image" | "app" | "player",
@@ -589,46 +565,42 @@ const CONDITION_MAP: Record<string, string> = {
 
 export function productJsonLd(
   settings: SeoSettings,
-  game: GameSeoSource
+  product: ProductSeoSource
 ): object {
-  const condition = CONDITION_MAP[game.condition] || "NewCondition";
-  const product: Record<string, unknown> = {
+  const condition = CONDITION_MAP[product.condition] || "NewCondition";
+  const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: game.nombre,
-    url: gameUrl(settings, game),
-    description: autoSeoDescription(game),
-    image: [gameImageUrl(settings, game)],
+    name: product.nombre,
+    url: productUrl(settings, product),
+    description: autoSeoDescription(product),
+    image: [productImageUrl(settings, product)],
     brand: {
       "@type": "Brand",
-      name: game.brand || settings.orgNombre,
+      name: product.brand || settings.orgNombre,
     },
-    category: game.categoriaNombre,
-    sku: game.slug,
-    mpn: game.mpn || game.slug,
-    gtin13: game.gtin || undefined,
+    category: product.categoriaNombre,
+    sku: product.slug,
+    mpn: product.mpn || product.slug,
+    gtin13: product.gtin || undefined,
     condition,
     additionalProperty: [
-      { "@type": "PropertyValue", name: "Jugadores", value: `${game.jugadoresMin}-${game.jugadoresMax}` },
-      { "@type": "PropertyValue", name: "Duración", value: game.duracion },
-      { "@type": "PropertyValue", name: "Edad recomendada", value: game.edad },
-      { "@type": "PropertyValue", name: "Dificultad", value: game.dificultad },
-      { "@type": "PropertyValue", name: "Categoría", value: game.categoriaNombre },
+      { "@type": "PropertyValue", name: "Categoría", value: product.categoriaNombre },
     ],
   };
-  const precio = parsePrice(game.precioFinalVenta);
+  const precio = parsePrice(product.precioFinalVenta);
   if (precio > 0) {
     const precioFinal =
-      game.descuento > 0 ? precio * (1 - game.descuento / 100) : precio;
-    product.offers = {
+      product.descuento > 0 ? precio * (1 - product.descuento / 100) : precio;
+    jsonLd.offers = {
       "@type": "Offer",
-      url: gameUrl(settings, game),
+      url: productUrl(settings, product),
       price: precioFinal.toFixed(2),
       priceCurrency: "ARS",
       priceValidUntil: new Date(
         Date.now() + 1000 * 60 * 60 * 24 * 30
       ).toISOString().slice(0, 10),
-      availability: game.disponibleVenta
+      availability: product.disponibleVenta
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
       itemCondition: `https://schema.org/${condition}`,
@@ -638,29 +610,29 @@ export function productJsonLd(
       },
     };
   }
-  return product;
+  return jsonLd;
 }
 
 export function collectionPageJsonLd(
   settings: SeoSettings,
-  games: { nombre: string; slug: string }[]
+  products: { nombre: string; slug: string }[]
 ): object {
   const siteUrl = getSiteUrl(settings);
   return {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: `${settings.nombreSitio} - Catálogo de juegos de mesa`,
+    name: `${settings.nombreSitio} - Catálogo de productos`,
     url: siteUrl,
     description: settings.descripcion,
     isPartOf: { "@id": `${siteUrl}/#website` },
     mainEntity: {
       "@type": "ItemList",
-      numberOfItems: games.length,
-      itemListElement: games.map((game, index) => ({
+      numberOfItems: products.length,
+      itemListElement: products.map((product, index) => ({
         "@type": "ListItem",
         position: index + 1,
-        name: game.nombre,
-        url: `${siteUrl}/juegos/${game.slug}`,
+        name: product.nombre,
+        url: `${siteUrl}/productos/${product.slug}`,
       })),
     },
   };

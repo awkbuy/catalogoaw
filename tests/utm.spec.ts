@@ -35,15 +35,15 @@ test.describe("UTM tracking", () => {
     const marker = `utm-test-${Date.now()}`;
     const res = await postEvent(page, {
       eventType: "view_item",
-      gameId: GAME_ID,
-      gameName: "Catan",
+      productId: GAME_ID,
+      productName: "Smartwatch Deportivo",
       source: marker,
       utm: {
         source: "facebook",
         medium: "cpc",
         campaign: "lanzamiento",
         content: "banner-a",
-        term: "catan",
+        term: "smartwatch",
       },
     });
     expect(res.status()).toBe(200);
@@ -59,7 +59,7 @@ test.describe("UTM tracking", () => {
     expect(row.utmMedium).toBe("cpc");
     expect(row.utmCampaign).toBe("lanzamiento");
     expect(row.utmContent).toBe("banner-a");
-    expect(row.utmTerm).toBe("catan");
+    expect(row.utmTerm).toBe("smartwatch");
   });
 
   test("evento sin UTM persiste con campos null", async ({ page }) => {
@@ -82,8 +82,8 @@ test.describe("UTM tracking", () => {
     const marker = `utm-bad-${Date.now()}`;
     const res = await postEvent(page, {
       eventType: "add_to_cart",
-      gameId: GAME_ID,
-      gameName: "Catan",
+      productId: GAME_ID,
+      productName: "Smartwatch Deportivo",
       source: marker,
       utm: {
         source: 123,
@@ -116,7 +116,7 @@ test.describe("UTM tracking", () => {
     })) as { utmCampaign: string | null };
     expect(pageView.utmCampaign).toBe("launch");
 
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
     await page.waitForTimeout(1500);
 
     const viewItem = await waitForEvent({

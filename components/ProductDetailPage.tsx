@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import ProductDetailMain, { type ProductDetailGame } from "@/components/ProductDetailMain";
+import ProductDetailMain, { type ProductDetailProduct } from "@/components/ProductDetailMain";
 import PurchasePanel from "@/components/PurchasePanel";
 import StickyPurchaseBar from "@/components/StickyPurchaseBar";
 import { trackMarketingEvent } from "@/lib/marketing";
@@ -16,7 +16,7 @@ import CartDrawer from "@/components/CartDrawer";
 import { useCart } from "@/lib/cart-context";
 
 interface ProductDetailPageProps {
-  game: ProductDetailGame;
+  product: ProductDetailProduct;
   whatsappNumber: string;
   businessName: string;
   logoUrl: string | null;
@@ -30,7 +30,7 @@ interface ProductDetailPageProps {
 }
 
 export default function ProductDetailPage({
-  game,
+  product,
   whatsappNumber,
   businessName,
   logoUrl,
@@ -47,9 +47,9 @@ export default function ProductDetailPage({
   const [showSticky, setShowSticky] = useState(false);
   const inlineBoxRef = useRef<HTMLDivElement | null>(null);
 
-  const precioNum = parsePrice(game.precioFinalVenta);
+  const precioNum = parsePrice(product.precioFinalVenta);
   const precioFinal =
-    game.descuento > 0 ? precioNum * (1 - game.descuento / 100) : precioNum;
+    product.descuento > 0 ? precioNum * (1 - product.descuento / 100) : precioNum;
 
   const viewSentRef = useRef(false);
   useEffect(() => {
@@ -58,15 +58,15 @@ export default function ProductDetailPage({
     trackMarketingEvent({
       event: "ViewContent",
       data: {
-        content_ids: [game.id],
-        content_name: game.nombre,
-        content_category: game.categoria.nombre,
+        content_ids: [product.id],
+        content_name: product.nombre,
+        content_category: product.categoria.nombre,
         value: precioFinal,
         currency: "ARS",
-        source: "game_detail",
+        source: "product_detail",
       },
     });
-  }, [game, precioFinal]);
+  }, [product, precioFinal]);
 
   useEffect(() => {
     const el = inlineBoxRef.current;
@@ -79,7 +79,7 @@ export default function ProductDetailPage({
     return () => observer.disconnect();
   }, []);
 
-  const esComprable = game.disponibleVenta && !!game.precioFinalVenta;
+  const esComprable = product.disponibleVenta && !!product.precioFinalVenta;
 
   return (
     <div className="bg-white min-h-screen">
@@ -106,15 +106,15 @@ export default function ProductDetailPage({
             <li aria-hidden="true">/</li>
             <li>
               <Link
-                href={`/?categoria=${encodeURIComponent(game.categoria.nombre)}`}
+                href={`/?categoria=${encodeURIComponent(product.categoria.nombre)}`}
                 className="hover:text-primary transition-colors"
               >
-                {game.categoria.nombre}
+                {product.categoria.nombre}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
             <li aria-current="page" className="text-text font-medium">
-              {game.nombre}
+              {product.nombre}
             </li>
           </ol>
         </nav>
@@ -129,13 +129,13 @@ export default function ProductDetailPage({
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(320px,400px)] lg:gap-8">
           <div className="min-w-0">
             <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
-              <ProductDetailMain game={game} source="game_detail" showShareButton>
+              <ProductDetailMain product={product} source="product_detail" showShareButton>
                 {esComprable && (
                   <div className="lg:hidden" ref={inlineBoxRef}>
                     <PurchasePanel
-                      game={game}
+                      product={product}
                       taxConfig={taxConfig}
-                      source="game_detail"
+                      source="product_detail"
                       businessName={businessName}
                       paymentMethods={paymentMethods}
                       cuotasInfo={cuotasInfo}
@@ -154,9 +154,9 @@ export default function ProductDetailPage({
             <aside className="hidden lg:block">
               <div className="lg:sticky lg:top-24">
                 <PurchasePanel
-                  game={game}
+                  product={product}
                   taxConfig={taxConfig}
-                  source="game_detail"
+                  source="product_detail"
                   businessName={businessName}
                   paymentMethods={paymentMethods}
                   cuotasInfo={cuotasInfo}
@@ -172,7 +172,7 @@ export default function ProductDetailPage({
       </main>
 
       {esComprable && showSticky && (
-        <StickyPurchaseBar game={game} cantidad={cantidad} />
+        <StickyPurchaseBar product={product} cantidad={cantidad} />
       )}
 
       <CartDrawer

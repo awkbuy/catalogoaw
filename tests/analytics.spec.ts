@@ -31,7 +31,7 @@ function trackGoogleRequests(page: Page) {
 
 async function loginAdmin(page: Page) {
   await page.goto("/login");
-  await page.getByLabel(/Email/i).fill("admin@wolfieroom.com");
+  await page.getByLabel(/Email/i).fill("admin@catalogoapp.com");
   await page.locator('input[name="password"]').fill("admin123");
   await page.getByRole("button", { name: /Iniciar sesión/i }).click();
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
@@ -93,7 +93,7 @@ test.describe.serial("Google Analytics (GA4)", () => {
     const violations = collectCspViolations(page);
     const { beacons } = trackGoogleRequests(page);
 
-    await page.goto("/juegos/catan");
+    await page.goto("/productos/smartwatch-deportivo");
     await expect
       .poll(() => beacons.length, { timeout: BEACON_TIMEOUT })
       .toBeGreaterThan(0);

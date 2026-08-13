@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getTenantDb } from "@/lib/tenant";
 import { parseJsonBody, sanitizeError, isPrismaNotFound } from "@/lib/errors";
-import { isReservedSlug, parseGameIds } from "@/lib/landings";
+import { isReservedSlug, parseProductIds } from "@/lib/landings";
 
 export async function GET(
   req: NextRequest,
@@ -57,7 +57,7 @@ export async function PUT(
         seoDescription: String(data.seoDescription || ""),
         seoKeywords: String(data.seoKeywords || ""),
         canonical: String(data.canonical || ""),
-        gameIds: JSON.stringify(parseGameIds(data.gameIds)),
+        productIds: JSON.stringify(parseProductIds(data.productIds)),
         isActive: data.isActive !== false,
         sortOrder: Math.max(0, Number(data.sortOrder) || 0),
       },

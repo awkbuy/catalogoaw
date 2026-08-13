@@ -12,10 +12,10 @@ import type { PublicPaymentMethod } from "@/lib/payment-methods";
 import type { CuotasInfo, PublicShippingZone } from "@/lib/ventas";
 import LandingHero from "./LandingHero";
 import LandingGrid from "./LandingGrid";
-import type { PublicGame } from "@/components/Catalog/Catalog";
+import type { PublicProduct } from "@/components/Catalog/Catalog";
 
 interface LandingPageProps {
-  games: PublicGame[];
+  products: PublicProduct[];
   slug: string;
   title: string;
   description: string;
@@ -36,7 +36,7 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({
-  games,
+  products,
   slug,
   title,
   description,
@@ -58,7 +58,7 @@ export default function LandingPage({
   return (
     <CartProvider>
       <LandingContent
-        games={games}
+        products={products}
         slug={slug}
         title={title}
         description={description}
@@ -82,7 +82,7 @@ export default function LandingPage({
 }
 
 function LandingContent({
-  games,
+  products,
   slug,
   title,
   description,
@@ -142,7 +142,7 @@ function LandingContent({
         <main>
           <ErrorBoundary sectionName="LandingGrid" fallback={<div />}>
             <LandingGrid
-              games={games}
+              products={products}
               whatsappNumber={whatsappNumber}
               taxConfig={taxConfig}
               cuotasInfo={cuotasInfo}

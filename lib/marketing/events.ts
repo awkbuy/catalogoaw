@@ -232,8 +232,8 @@ function dispatchToOwnAnalytics(event: MarketingEvent): void {
     case "ViewContent":
       if (id) {
         trackViewItem({
-          gameId: id,
-          gameName: data.content_name || id,
+          productId: id,
+          productName: data.content_name || id,
           categoryName: data.content_category,
           price: data.value,
           source: data.source,
@@ -256,8 +256,8 @@ function dispatchToOwnAnalytics(event: MarketingEvent): void {
     case "AddToCart":
       if (id) {
         trackAddToCart({
-          gameId: id,
-          gameName: data.content_name || id,
+          productId: id,
+          productName: data.content_name || id,
           categoryName: data.content_category,
           price: data.value,
           source: data.source,
@@ -267,8 +267,8 @@ function dispatchToOwnAnalytics(event: MarketingEvent): void {
     case "RemoveFromCart":
       if (id) {
         trackRemoveFromCart({
-          gameId: id,
-          gameName: data.content_name || id,
+          productId: id,
+          productName: data.content_name || id,
           price: data.value,
           source: data.source,
         });
@@ -284,8 +284,8 @@ function dispatchToOwnAnalytics(event: MarketingEvent): void {
       trackBeginCheckout({
         total: data.value ?? 0,
         itemsCount: data.quantity ?? 0,
-        gameId: id,
-        gameName: data.content_name,
+        productId: id,
+        productName: data.content_name,
         source: data.source,
       });
       break;
@@ -293,23 +293,23 @@ function dispatchToOwnAnalytics(event: MarketingEvent): void {
       trackAddPaymentInfo({
         total: data.value ?? 0,
         itemsCount: data.quantity ?? 0,
-        gameId: id,
-        gameName: data.content_name,
+        productId: id,
+        productName: data.content_name,
         source: data.source,
       });
       break;
     case "ClickWhatsApp":
       trackWhatsApp({
         source: data.source || "",
-        gameId: id,
-        gameName: data.content_name,
+        productId: id,
+        productName: data.content_name,
         categoryName: data.content_category,
       });
       break;
     case "Share":
       trackShare({
-        gameId: id,
-        gameName: data.content_name,
+        productId: id,
+        productName: data.content_name,
         categoryName: data.content_category,
         source: data.source,
       });
