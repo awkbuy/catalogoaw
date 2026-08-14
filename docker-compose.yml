@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: catalogoaw-app
+    restart: unless-stopped
+    # Puerto interno: 3000 (Next.js standalone escucha en 127.0.0.1:3000)
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      # Base de datos SQLite - persiste en volumen ./data
+      DATABASE_URL: "file:./data/dev.db"
+      # Secret de sesión - definir en .env.host o overrides
+      SESSION_SECRET: "${SESSION_SECRET}"
+      # Otras vars útiles
+      NODE_ENV: "production"
+      # URL del sitio - ajustar según dominio
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+    # Volúmenes para persistencia de datos
+    volumes:
+      - ./data:/app/data      # Base de datos SQLite persistente
+      - ./uploads:/app/uploads # Uploads estáticos (si los hay)
+      - ./.env.production:/app/.env.production:ro  # Variables de producción (solo lectura)
+    # Opcional: limits de memoria para producción
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M
+
+  # Opcional: Nginx inverso que correría en el host VPS
+  # (se recomienda correr Nginx fuera del container, en el VPS,
+  #  para manejar TLS y el dominio appcatalogo.awtechnology.dev)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: catalogoaw-nginx
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./deploy/nginx-catalogoaw.conf:/etc/nginx/conf.d/default.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro  # Certificados SSL si los hay
+  #   depends_on:
+  #     - app
