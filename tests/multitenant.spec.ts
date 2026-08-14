@@ -14,8 +14,12 @@ test.describe("Multi-tenant isolation", () => {
       maxRedirects: 0,
     });
     // Should redirect to login or return 401/403
+    // Next.js redirect() uses 307 (temporary) / 303 (action) / 308 (permanent)
     expect(
       response.status() === 302 ||
+        response.status() === 303 ||
+        response.status() === 307 ||
+        response.status() === 308 ||
         response.status() === 401 ||
         response.status() === 403 ||
         response.url().includes("login")
