@@ -106,6 +106,17 @@ async function resolveTenantFromHost(
   return null;
 }
 
+/**
+ * Rutas públicas que comparten segmento inicial con rutas admin:
+ * /productos/[slug] es la página pública de detalle, mientras que
+ * /productos/new y /productos/editar/* son subpaths exclusivos del panel.
+ */
+function isPublicDetailPath(pathname: string): boolean {
+  if (!/^\/productos\/[^/]+$/.test(pathname)) return false;
+  const rest = pathname.slice("/productos/".length);
+  return rest !== "new" && !rest.startsWith("editar");
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const adminPath = getAdminPath();
@@ -153,7 +164,7 @@ export async function proxy(request: NextRequest) {
       return response;
     }
 
-    if (isAdminPath(pathname)) {
+    if (isAdminPath(pathname) && !isPublicDetailPath(pathname)) {
       return new NextResponse(null, { status: 404 });
     }
   } else if (isAdminPath(pathname)) {

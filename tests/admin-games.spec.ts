@@ -20,7 +20,7 @@ test.describe("Admin - Gestión de productos", () => {
 
   test("lista de productos carga correctamente", async ({ page }) => {
     await page.goto("/productos");
-    await expect(page.getByText(/Productos/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Productos/i })).toBeVisible();
     await page.waitForSelector("table, .divide-y", { timeout: 10000 });
   });
 
