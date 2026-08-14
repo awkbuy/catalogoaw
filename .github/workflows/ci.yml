@@ -53,6 +53,7 @@ jobs:
           set -euo pipefail
           export DATABASE_URL="file:/tmp/ci-smoke.db"
           export SESSION_SECRET="ci-smoke-secret"
+          export ALLOW_SINGLE_TENANT="true"
           npx prisma migrate deploy
           cd dist/app
           nohup env PORT=3199 HOSTNAME=127.0.0.1 node server.js >/tmp/smoke.log 2>&1 &
