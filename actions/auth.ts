@@ -35,8 +35,12 @@ export async function loginAction(
   // Resolver tenant actual desde los headers
   const tenantCtx = await getTenantFromHeaders();
 
-  // ── Dev fallback: sin tenant, usar User table directa ──
-  if (!tenantCtx && process.env.NODE_ENV !== "production") {
+  // ── Dev/standalone fallback: sin tenant, usar User table directa ──
+  if (
+    !tenantCtx &&
+    (process.env.NODE_ENV !== "production" ||
+      process.env.ALLOW_SINGLE_TENANT === "true")
+  ) {
     const { prisma: defaultPrisma } = await import("@/lib/prisma");
     const user = await defaultPrisma.user.findUnique({ where: { email } });
     if (!user) return { error: "Credenciales inválidas" };

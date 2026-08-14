@@ -23,6 +23,7 @@ const env = {
   NEXT_PUBLIC_ADMIN_PATH: process.env.SECURITY_ADMIN_PATH || "panel-test",
   NODE_ENV: "production",
   PORT: port,
+  ALLOW_SINGLE_TENANT: "true",
   NEXT_PUBLIC_SITE_URL: `http://localhost:${port}`,
 };
 
@@ -43,5 +44,8 @@ run("npx", ["prisma", "db", "seed"]);
 console.log("[security-server] build (producción)");
 run("npm", ["run", "build"]);
 
-console.log(`[security-server] next start en :${port}`);
-run("npm", ["run", "start", "--", "-p", port]);
+console.log(`[security-server] standalone server en :${port}`);
+// Con output:"standalone", `next start` NO funciona. Hay que correr el server
+// standalone (mismo modo que el deploy real en el VPS / PM2).
+// El server.js standalone escucha en HOSTNAME (por defecto 0.0.0.0) y PORT.
+run("node", [".next/standalone/server.js"]);

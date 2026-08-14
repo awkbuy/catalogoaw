@@ -22,27 +22,37 @@ export async function getTenantFromHeaders(): Promise<{
 
 /**
  * Retorna el tenantId actual desde los headers.
- * Lanza error si no hay tenant resuelto (para uso en server actions/admin).
+ * En dev/standalone sin tenant, retorna un id por defecto (para la DB local).
+ * Lanza error solo si es un deploy multi-tenant estricto sin tenant resuelto.
  */
 export async function requireTenantId(): Promise<string> {
   const ctx = await getTenantFromHeaders();
-  if (!ctx) {
-    throw new Error(
-      "No se resolvió el tenant. Asegurate de acceder desde un subdominio de tenant."
-    );
+  if (ctx) return ctx.tenantId;
+  if (
+    process.env.NODE_ENV !== "production" ||
+    process.env.ALLOW_SINGLE_TENANT === "true"
+  ) {
+    return "standalone";
   }
-  return ctx.tenantId;
+  throw new Error(
+    "No se resolvió el tenant. Asegurate de acceder desde un subdominio de tenant."
+  );
 }
 
 /**
  * Retorna el tenantSlug actual desde los headers.
+ * En dev/standalone sin tenant, retorna "local".
  */
 export async function requireTenantSlug(): Promise<string> {
   const ctx = await getTenantFromHeaders();
-  if (!ctx) {
-    throw new Error("No se resolvió el tenant.");
+  if (ctx) return ctx.tenantSlug;
+  if (
+    process.env.NODE_ENV !== "production" ||
+    process.env.ALLOW_SINGLE_TENANT === "true"
+  ) {
+    return "local";
   }
-  return ctx.tenantSlug;
+  throw new Error("No se resolvió el tenant.");
 }
 
 /**
@@ -54,8 +64,14 @@ export async function getTenantDb(): Promise<PrismaClient> {
   if (ctx) {
     return getTenantPrisma(ctx.tenantId);
   }
-  // Fallback en dev: usar la DB por defecto (dev.db)
-  if (process.env.NODE_ENV !== "production") {
+  // Fallback: usar la DB por defecto (dev.db / standalone).
+  // En modo standalone (una instancia de catálogo sin subdominio de tenant)
+  // la app usa su propia base; solo se exige subdominio si el deploy
+  // es explícitamente multi-tenant (env ALLOW_SINGLE_TENANT != "true").
+  if (
+    process.env.NODE_ENV !== "production" ||
+    process.env.ALLOW_SINGLE_TENANT === "true"
+  ) {
     return prisma;
   }
   throw new Error(
@@ -70,8 +86,11 @@ export async function getTenantDb(): Promise<PrismaClient> {
 export async function getTenantDbOrNull(): Promise<PrismaClient | null> {
   const ctx = await getTenantFromHeaders();
   if (!ctx) {
-    // En dev, retornar el prisma por defecto
-    if (process.env.NODE_ENV !== "production") {
+    // En dev o standalone, retornar el prisma por defecto
+    if (
+      process.env.NODE_ENV !== "production" ||
+      process.env.ALLOW_SINGLE_TENANT === "true"
+    ) {
       return prisma;
     }
     return null;
